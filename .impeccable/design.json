@@ -38,11 +38,6 @@
         "name": "container-elevation",
         "value": "0 12px 32px rgba(41, 40, 35, 0.08)",
         "purpose": "Primary calculator and funnel containers."
-      },
-      {
-        "name": "sticky-voice-bar",
-        "value": "0 -6px 20px rgba(41, 40, 35, 0.20)",
-        "purpose": "Permanent bottom WhatsApp voice-note bar."
       }
     ],
     "motion": [

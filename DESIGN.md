@@ -95,7 +95,7 @@ Every interactive surface rejects emoji clutter, generic neon greens, and eyebro
 
 ### Neutral & Accents
 - **Surface White** (`#FFFFFF`) & **Light Input Fill** (`#F7F7F7`): Elevated containers, header bar, and dropdown/tel inputs.
-- **Pure Black** (`#000000`) & **Warm Charcoal** (`#292823`): Headlines, high-contrast labels, and the sticky bottom WhatsApp escape bar.
+- **Pure Black** (`#000000`) & **Warm Charcoal** (`#292823`): Headlines and high-contrast labels.
 - **Terracotta Accent** (`#BA5B3E`): Negative fee/tax deduction rows and inline validation alerts.
 - **Warm Buttercream** (`#FFF7D4`): Calculator pre-fill confirmation banner and control badges.
 

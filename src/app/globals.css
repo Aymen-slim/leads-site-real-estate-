@@ -100,13 +100,6 @@ body {
   font-size: var(--text-body-size);
   font-weight: 400;
   line-height: var(--text-body-line-height);
-  padding-bottom: calc(8.5rem + env(safe-area-inset-bottom));
-}
-
-@media (min-width: 640px) {
-  body {
-    padding-bottom: calc(7rem + env(safe-area-inset-bottom));
-  }
 }
 
 .kr-container {

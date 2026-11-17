@@ -22,12 +22,6 @@ export const TRANSLATIONS = {
       variantB: "Variant B",
       conversions: "Konverteringer",
     },
-    whatsappBar: {
-      text: "Liker du ikke skjemaer? Trykk her for å sende oss en talemelding på WhatsApp",
-      button: "Send talemelding",
-      prefillDefault:
-        "Hei, jeg vurderer å selge eiendommen min i Norge og ønsker et uforpliktende tilbud.",
-    },
     landing: {
       variantA: {
         title: "Få den beste prisen for boligen din",
@@ -211,12 +205,6 @@ export const TRANSLATIONS = {
       variantA: "Variant A",
       variantB: "Variant B",
       conversions: "Conversions",
-    },
-    whatsappBar: {
-      text: "Don't like forms? Tap here to send us a voice message on WhatsApp",
-      button: "Send Voice Note",
-      prefillDefault:
-        "Hello, I am considering selling my property in Norway and would like a valuation.",
     },
     landing: {
       variantA: {

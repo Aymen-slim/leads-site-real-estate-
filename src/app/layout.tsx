@@ -4,7 +4,6 @@ import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { ABControlBar } from "@/components/ABControlBar";
 import { Navbar } from "@/components/Navbar";
-import { WhatsAppStickyBar } from "@/components/WhatsAppStickyBar";
 
 const albertSans = Albert_Sans({
   subsets: ["latin"],
@@ -36,7 +35,6 @@ export default function RootLayout({
           <ABControlBar />
           <Navbar />
           <div className="flex-1">{children}</div>
-          <WhatsAppStickyBar />
         </AppProvider>
       </body>
     </html>
