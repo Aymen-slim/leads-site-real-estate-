@@ -1,0 +1,23 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# Next.js build output
+/.next/
+/out/
+next-env.d.ts
+
+# Local env files
+.env*.local
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+
+# Impeccable local/runtime files (keep config.json, surfaces/, design.json)
+.impeccable/config.local.json
+.impeccable/questions/
+.impeccable/mocks/
+.impeccable/review/
+.impeccable/build/

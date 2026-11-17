@@ -1,0 +1,715 @@
+"use client";
+
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { useApp } from "@/context/AppContext";
+import { NORWAY_CITIES, formatNok } from "@/data/norwayData";
+import {
+  HouseIcon,
+  LandPlotIcon,
+  ApartmentIcon,
+  LocationCrosshairIcon,
+  CheckMarkIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  PhoneKeypadIcon,
+  ShieldCheckIcon,
+} from "@/components/Icons";
+
+function SellerFunnelInner() {
+  const searchParams = useSearchParams();
+  const { lang, funnelVariant, recordConversion, t } = useApp();
+
+  const [step, setStep] = useState<number>(1);
+  const [propertyType, setPropertyType] = useState<string>("");
+  const [surfaceArea, setSurfaceArea] = useState<string>("");
+  const [cityId, setCityId] = useState<string>(NORWAY_CITIES[0].id);
+  const [areaId, setAreaId] = useState<string>(NORWAY_CITIES[0].neighborhoods[0].id);
+  const [gpsStatus, setGpsStatus] = useState<string>("");
+  const [timeline, setTimeline] = useState<string>("");
+
+  const [fullName, setFullName] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [phoneTouched, setPhoneTouched] = useState<boolean>(false);
+  const [phoneError, setPhoneError] = useState<string>("");
+  const [submitted, setSubmitted] = useState<boolean>(false);
+
+  const [prefillBanner, setPrefillBanner] = useState<string>("");
+
+  useEffect(() => {
+    const src = searchParams.get("source");
+    const paramType = searchParams.get("type");
+    const paramSize = searchParams.get("size");
+    const paramCity = searchParams.get("city");
+    const paramArea = searchParams.get("area");
+    const paramPrice = searchParams.get("price");
+    const paramNet = searchParams.get("net");
+    const paramHeirs = searchParams.get("heirs");
+    const paramRepairs = searchParams.get("repairs");
+    const paramZone = searchParams.get("zone");
+
+    if (paramCity) {
+      const foundCity = NORWAY_CITIES.find((c) => c.id === paramCity);
+      if (foundCity) {
+        setCityId(foundCity.id);
+        if (paramArea) {
+          const foundArea = foundCity.neighborhoods.find((n) => n.id === paramArea);
+          if (foundArea) {
+            setAreaId(foundArea.id);
+          } else {
+            setAreaId(foundCity.neighborhoods[0].id);
+          }
+        } else {
+          setAreaId(foundCity.neighborhoods[0].id);
+        }
+      }
+    }
+
+    if (paramType === "house" || paramType === "land" || paramType === "apartment") {
+      setPropertyType(paramType);
+    }
+
+    if (paramSize) {
+      setSurfaceArea(paramSize);
+    }
+
+    const summaryParts: string[] = [];
+    if (src === "price-m2" && paramCity) {
+      summaryParts.push(
+        lang === "no"
+          ? `Nabolag valgt: ${paramCity.toUpperCase()}`
+          : `Neighborhood pre-filled: ${paramCity.toUpperCase()}`
+      );
+    }
+    if (paramPrice && paramNet) {
+      summaryParts.push(
+        lang === "no"
+          ? `Forventet pris: ${formatNok(Number(paramPrice))} (Netto: ${formatNok(
+              Number(paramNet)
+            )})`
+          : `Expected price: ${formatNok(Number(paramPrice))} (Net: ${formatNok(
+              Number(paramNet)
+            )})`
+      );
+    }
+    if (paramZone) {
+      summaryParts.push(
+        lang === "no"
+          ? `Reguleringssone: ${paramZone.toUpperCase()}`
+          : `Zone: ${paramZone.toUpperCase()}`
+      );
+    }
+    if (paramHeirs) {
+      summaryParts.push(
+        lang === "no"
+          ? `Familieoppgjør (${paramHeirs} arvinger)`
+          : `Family Estate (${paramHeirs} heirs)`
+      );
+    }
+    if (paramRepairs) {
+      summaryParts.push(
+        lang === "no"
+          ? `Selges som den er (${paramRepairs})`
+          : `Sell As-Is (${paramRepairs})`
+      );
+    }
+
+    if (summaryParts.length > 0) {
+      setPrefillBanner(summaryParts.join(" · "));
+    }
+
+    if (paramType && paramSize) {
+      setStep(3);
+    } else if (paramType) {
+      setStep(2);
+    }
+  }, [searchParams, lang]);
+
+  const currentCity =
+    NORWAY_CITIES.find((c) => c.id === cityId) || NORWAY_CITIES[0];
+  const currentArea =
+    currentCity.neighborhoods.find((n) => n.id === areaId) ||
+    currentCity.neighborhoods[0];
+
+  const selectAndAdvance = (nextStep: number, callback: () => void) => {
+    callback();
+    window.setTimeout(() => {
+      setStep(nextStep);
+    }, 160);
+  };
+
+  const handleDetectGps = () => {
+    setGpsStatus(t.funnel.gpsDetecting);
+    if (typeof navigator !== "undefined" && "geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          let bestCity = NORWAY_CITIES[0];
+          let bestArea = NORWAY_CITIES[0].neighborhoods[0];
+          let minDist = Infinity;
+
+          for (const c of NORWAY_CITIES) {
+            for (const n of c.neighborhoods) {
+              const d =
+                Math.pow(latitude - n.lat, 2) + Math.pow(longitude - n.lng, 2);
+              if (d < minDist) {
+                minDist = d;
+                bestCity = c;
+                bestArea = n;
+              }
+            }
+          }
+
+          setCityId(bestCity.id);
+          setAreaId(bestArea.id);
+          setGpsStatus(`${t.funnel.gpsDetected} ${bestCity.name} — ${bestArea.name}`);
+          window.setTimeout(() => {
+            setStep(4);
+          }, 350);
+        },
+        () => {
+          setGpsStatus(
+            `${t.funnel.gpsDetected} ${currentCity.name} — ${currentArea.name}`
+          );
+          window.setTimeout(() => {
+            setStep(4);
+          }, 350);
+        },
+        { timeout: 4000 }
+      );
+    } else {
+      setGpsStatus(
+        `${t.funnel.gpsDetected} ${currentCity.name} — ${currentArea.name}`
+      );
+      window.setTimeout(() => {
+        setStep(4);
+      }, 350);
+    }
+  };
+
+  const validatePhone = (val: string): boolean => {
+    const digits = val.replace(/\D/g, "");
+    return digits.length >= 8;
+  };
+
+  const handlePhoneBlur = () => {
+    setPhoneTouched(true);
+    if (phone && !validatePhone(phone)) {
+      setPhoneError(t.funnel.phoneError);
+    } else {
+      setPhoneError("");
+    }
+  };
+
+  const handlePhoneInput = (val: string) => {
+    setPhone(val);
+    if (phoneError && validatePhone(val)) {
+      setPhoneError("");
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validatePhone(phone)) {
+      setPhoneError(t.funnel.phoneError);
+      return;
+    }
+    recordConversion(`funnel-${funnelVariant.toLowerCase()}-submit`);
+    setSubmitted(true);
+  };
+
+  return (
+    <main className="bg-[#EDF0E7] min-h-[calc(100vh-140px)] py-6 px-3 sm:py-10 sm:px-6">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="kr-h1">
+            {lang === "no"
+              ? "Koble deg til lokal megler for å få den beste prisen"
+              : "Connect with a local agency to get the best price"}
+          </h1>
+          <p className="kr-body-lg mt-2 max-w-2xl">
+            {lang === "no"
+              ? "Svar på fire raske valg nedenfor, så matcher vi deg med den beste lokale megleren og kjøperne i ditt område."
+              : "Tap through four quick steps below to match with top local Norwegian agencies and ready buyers in your neighborhood."}
+          </p>
+        </div>
+
+        {prefillBanner && (
+          <div
+            role="status"
+            className="mb-5 sm:mb-6 bg-[#FFF7D4] border border-[#5D726A] rounded-[2px] p-4 flex items-center justify-between gap-3 sm:gap-4"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="w-8 h-8 rounded-full bg-[#B8C49E] text-[#000000] flex items-center justify-center shrink-0">
+                <CheckMarkIcon className="w-5 h-5" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-base font-medium text-[#000000]">
+                  {t.funnel.prefillNotice}
+                </p>
+                <p className="text-base font-normal text-[#292823] break-words">{prefillBanner}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {funnelVariant === "B" && !submitted && (
+          <div className="mb-5 sm:mb-6 bg-[#DCE2CF] text-[#000000] rounded-[2px] p-4 sm:p-5 border border-[#5D726A] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <ShieldCheckIcon className="w-7 h-7 text-[#5D726A] shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[17px] sm:text-lg font-medium text-[#000000]">
+                  {t.funnel.variantBBanner}
+                </p>
+                <p className="text-sm font-normal text-[#292823]">
+                  {currentCity.name} ({currentArea.name}) ·{" "}
+                  {formatNok(
+                    propertyType === "land"
+                      ? currentArea.landPriceM2
+                      : currentArea.housePriceM2
+                  )}{" "}
+                  / m²
+                </p>
+              </div>
+            </div>
+            <div className="bg-[#FFFFFF] px-4 py-2 rounded-[2px] border border-[#5D726A] text-left sm:text-right shrink-0">
+              <span className="block text-xs font-medium text-[#292823]">
+                {lang === "no" ? "Kjøperinteresse i sonen" : "Zone Buyer Demand"}
+              </span>
+              <span className="text-xl font-semibold text-[#000000] tabular-nums whitespace-nowrap">
+                {currentArea.buyerDemandScore} / 100
+              </span>
+            </div>
+          </div>
+        )}
+
+        <div className="bg-[#FFFFFF] border border-[#5D726A] rounded-[2px] p-4 sm:p-10 shadow-[0_2px_10px_rgba(41,40,35,0.06)]">
+          {submitted ? (
+            <div role="status" aria-live="polite" className="py-8 text-center space-y-6">
+              <div className="w-16 h-16 rounded-full bg-[#B8C49E] text-[#000000] border border-[#5D726A] flex items-center justify-center mx-auto">
+                <CheckMarkIcon className="w-9 h-9" />
+              </div>
+              <h2 className="kr-h2-serif">
+                {t.funnel.successTitle}
+              </h2>
+              <p className="kr-body-lg max-w-xl mx-auto">
+                {t.funnel.successSub}
+              </p>
+
+              <div className="max-w-lg mx-auto bg-[#EDF0E7] border border-[#5D726A] rounded-[2px] p-5 text-left space-y-2 text-lg">
+                <div className="flex justify-between">
+                  <span className="font-normal text-[#292823]">
+                    {lang === "no" ? "Navn:" : "Name:"}
+                  </span>
+                  <span className="font-medium text-[#000000]">{fullName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-normal text-[#292823]">
+                    {lang === "no" ? "Telefon:" : "Phone:"}
+                  </span>
+                  <span className="font-medium text-[#000000] tabular-nums">
+                    {phone}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-normal text-[#292823]">
+                    {lang === "no" ? "Område:" : "Location:"}
+                  </span>
+                  <span className="font-medium text-[#000000]">
+                    {currentCity.name} — {currentArea.name}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSubmitted(false);
+                  setStep(1);
+                }}
+                className="inline-flex items-center gap-2 px-6 py-4 rounded-[2px] bg-[#B8C49E] hover:bg-[#C5D0AF] border border-[#5D726A] text-[#000000] text-lg font-medium cursor-pointer"
+              >
+                {t.funnel.resetBtn}
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between gap-2 pb-5 mb-6 border-b border-[#DFDFDF]">
+                {step > 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => setStep((s) => Math.max(1, s - 1))}
+                    className="min-h-[44px] inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-[2px] bg-[#EDF0E7] hover:bg-[#DCE2CF] active:scale-[0.985] border border-[#5D726A] text-[#000000] text-[15px] sm:text-lg font-medium cursor-pointer shrink-0"
+                  >
+                    <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span>{t.funnel.backBtn}</span>
+                  </button>
+                ) : (
+                  <span className="text-[15px] sm:text-lg font-medium text-[#5D726A] shrink-0">
+                    {lang === "no" ? "Koble til megler" : "Agency Match"}
+                  </span>
+                )}
+
+                <nav aria-label="Funnel progress">
+                  <ol className="flex items-center gap-1.5 sm:gap-2">
+                    {[1, 2, 3, 4, 5].map((idx) => (
+                      <li
+                        key={idx}
+                        aria-current={step === idx ? "step" : undefined}
+                        className={`h-2.5 sm:h-3 rounded-[2px] transition-all ${
+                          step === idx
+                            ? "w-7 sm:w-10 bg-[#5D726A]"
+                            : step > idx
+                            ? "w-4 sm:w-6 bg-[#B8C49E]"
+                            : "w-4 sm:w-6 bg-[#EDF0E7] border border-[#BFBFBD]"
+                        }`}
+                      >
+                        <span className="sr-only">
+                          {t.funnel.stepCounter} {idx}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
+
+                <span className="text-[15px] sm:text-lg font-medium text-[#000000] tabular-nums whitespace-nowrap shrink-0">
+                  {t.funnel.stepCounter} {step} {t.funnel.of} 5
+                </span>
+              </div>
+
+              {step === 1 && (
+                <section aria-labelledby="step1-heading" className="space-y-5 sm:space-y-6">
+                  <div>
+                    <h2 id="step1-heading" className="kr-h2-serif">
+                      {t.funnel.step1Title}
+                    </h2>
+                    <p className="kr-body-lg mt-2">{t.funnel.step1Sub}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3.5 sm:gap-4">
+                    {[
+                      {
+                        id: "house",
+                        label: t.funnel.typeHouse,
+                        icon: <HouseIcon className="w-7 h-7 sm:w-8 sm:h-8" />,
+                      },
+                      {
+                        id: "land",
+                        label: t.funnel.typeLand,
+                        icon: <LandPlotIcon className="w-7 h-7 sm:w-8 sm:h-8" />,
+                      },
+                      {
+                        id: "apartment",
+                        label: t.funnel.typeApt,
+                        icon: <ApartmentIcon className="w-7 h-7 sm:w-8 sm:h-8" />,
+                      },
+                    ].map((item) => {
+                      const selected = propertyType === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() =>
+                            selectAndAdvance(2, () => setPropertyType(item.id))
+                          }
+                          className={`kr-tap-card w-full min-h-[78px] sm:min-h-[84px] px-4 sm:px-6 py-4 sm:py-5 border-2 text-left flex items-center justify-between gap-3 sm:gap-4 ${
+                            selected
+                              ? "bg-[#DCE2CF] border-[#5D726A]"
+                              : "bg-[#EDF0E7] hover:bg-[#DCE2CF] border-[#BFBFBD]"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+                            <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-[2px] bg-[#B8C49E] text-[#000000] flex items-center justify-center shrink-0">
+                              {item.icon}
+                            </span>
+                            <span className="text-[19px] sm:text-2xl font-medium text-[#000000]">
+                              {item.label}
+                            </span>
+                          </div>
+                          <ArrowRightIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#5D726A] shrink-0" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+
+              {step === 2 && (
+                <section aria-labelledby="step2-heading" className="space-y-5 sm:space-y-6">
+                  <div>
+                    <h2 id="step2-heading" className="kr-h2-serif">
+                      {t.funnel.step2Title}
+                    </h2>
+                    <p className="kr-body-lg mt-2">{t.funnel.step2Sub}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+                    {[
+                      { id: "under-150", label: t.funnel.size1 },
+                      { id: "150-300", label: t.funnel.size2 },
+                      { id: "300-500", label: t.funnel.size3 },
+                      { id: "over-500", label: t.funnel.size4 },
+                    ].map((preset) => {
+                      const selected = surfaceArea === preset.id;
+                      return (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          onClick={() =>
+                            selectAndAdvance(3, () => setSurfaceArea(preset.id))
+                          }
+                          className={`kr-tap-card min-h-[78px] sm:min-h-[88px] px-5 sm:px-6 py-5 sm:py-6 border-2 text-left flex items-center justify-between gap-4 ${
+                            selected
+                              ? "bg-[#DCE2CF] border-[#5D726A]"
+                              : "bg-[#EDF0E7] hover:bg-[#DCE2CF] border-[#BFBFBD]"
+                          }`}
+                        >
+                          <span className="text-[20px] sm:text-2xl font-medium text-[#000000] tabular-nums">
+                            {preset.label}
+                          </span>
+                          <ArrowRightIcon className="w-6 h-6 text-[#5D726A] shrink-0" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+
+              {step === 3 && (
+                <section aria-labelledby="step3-heading" className="space-y-5 sm:space-y-6">
+                  <div>
+                    <h2 id="step3-heading" className="kr-h2-serif">
+                      {t.funnel.step3Title}
+                    </h2>
+                    <p className="kr-body-lg mt-2">{t.funnel.step3Sub}</p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleDetectGps}
+                    className="kr-tap-card w-full min-h-[68px] sm:min-h-[76px] px-4 sm:px-6 py-4 bg-[#EDF0E7] hover:bg-[#DCE2CF] border-2 border-[#5D726A] text-[#000000] flex items-center justify-center gap-3 text-[18px] sm:text-xl font-medium"
+                  >
+                    <LocationCrosshairIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#5D726A] shrink-0" />
+                    <span>{t.funnel.gpsBtn}</span>
+                  </button>
+
+                  {gpsStatus && (
+                    <p
+                      role="status"
+                      className="text-base sm:text-lg font-medium text-[#000000] bg-[#FFF7D4] px-4 py-3 rounded-[2px] border border-[#5D726A]"
+                    >
+                      {gpsStatus}
+                    </p>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-2">
+                    <div>
+                      <label
+                        htmlFor="funnel-city"
+                        className="block text-[17px] sm:text-lg font-medium text-[#000000] mb-2"
+                      >
+                        {t.landing.variantA.cityLabel}
+                      </label>
+                      <select
+                        id="funnel-city"
+                        value={cityId}
+                        onChange={(e) => {
+                          const nextCity = e.target.value;
+                          setCityId(nextCity);
+                          const found = NORWAY_CITIES.find((c) => c.id === nextCity);
+                          if (found && found.neighborhoods.length > 0) {
+                            setAreaId(found.neighborhoods[0].id);
+                          }
+                        }}
+                        className="w-full min-h-[60px] sm:min-h-[68px] px-4 py-3 text-[19px] sm:text-xl font-medium bg-[#F7F7F7] border-2 border-[#5D726A] rounded-[2px] text-[#000000] cursor-pointer"
+                      >
+                        {NORWAY_CITIES.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="funnel-area"
+                        className="block text-[17px] sm:text-lg font-medium text-[#000000] mb-2"
+                      >
+                        {t.landing.variantA.areaLabel}
+                      </label>
+                      <select
+                        id="funnel-area"
+                        value={areaId}
+                        onChange={(e) => {
+                          setAreaId(e.target.value);
+                          window.setTimeout(() => {
+                            setStep(4);
+                          }, 180);
+                        }}
+                        className="w-full min-h-[60px] sm:min-h-[68px] px-4 py-3 text-[19px] sm:text-xl font-medium bg-[#F7F7F7] border-2 border-[#5D726A] rounded-[2px] text-[#000000] cursor-pointer"
+                      >
+                        {currentCity.neighborhoods.map((n) => (
+                          <option key={n.id} value={n.id}>
+                            {n.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setStep(4)}
+                    className="kr-btn-primary w-full min-h-[66px] sm:min-h-[72px] px-6 py-4 border border-[#5D726A] text-[19px] sm:text-xl flex items-center justify-center gap-3"
+                  >
+                    <span>{t.funnel.continueLocationBtn}</span>
+                    <ArrowRightIcon className="w-6 h-6" />
+                  </button>
+                </section>
+              )}
+
+              {step === 4 && (
+                <section aria-labelledby="step4-heading" className="space-y-5 sm:space-y-6">
+                  <div>
+                    <h2 id="step4-heading" className="kr-h2-serif">
+                      {t.funnel.step4Title}
+                    </h2>
+                    <p className="kr-body-lg mt-2">{t.funnel.step4Sub}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3.5 sm:gap-4">
+                    {[
+                      { id: "now", label: t.funnel.situationNow },
+                      { id: "1-3-months", label: t.funnel.situationSoon },
+                      { id: "family-valuation", label: t.funnel.situationFamily },
+                    ].map((item) => {
+                      const selected = timeline === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() =>
+                            selectAndAdvance(5, () => setTimeline(item.id))
+                          }
+                          className={`kr-tap-card w-full min-h-[78px] sm:min-h-[84px] px-4 sm:px-6 py-4 sm:py-5 border-2 text-left flex items-center justify-between gap-4 ${
+                            selected
+                              ? "bg-[#DCE2CF] border-[#5D726A]"
+                              : "bg-[#EDF0E7] hover:bg-[#DCE2CF] border-[#BFBFBD]"
+                          }`}
+                        >
+                          <span className="text-[19px] sm:text-2xl font-medium text-[#000000]">
+                            {item.label}
+                          </span>
+                          <ArrowRightIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#5D726A] shrink-0" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+
+              {step === 5 && (
+                <section aria-labelledby="step5-heading" className="space-y-5 sm:space-y-6">
+                  <div>
+                    <h2 id="step5-heading" className="kr-h2-serif">
+                      {t.funnel.step5Title}
+                    </h2>
+                    <p className="kr-body-lg mt-2">{t.funnel.step5Sub}</p>
+                  </div>
+
+                  <form
+                    onSubmit={handleSubmit}
+                    noValidate
+                    aria-labelledby="step5-heading"
+                    className="space-y-5 sm:space-y-6 pt-2"
+                  >
+                    <div>
+                      <label
+                        htmlFor="seller-full-name"
+                        className="block text-[18px] sm:text-xl font-medium text-[#000000] mb-2"
+                      >
+                        {t.funnel.nameLabel} <span aria-hidden="true">*</span>
+                      </label>
+                      <input
+                        id="seller-full-name"
+                        name="fullName"
+                        type="text"
+                        required
+                        autoComplete="name"
+                        enterKeyHint="next"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder={t.funnel.namePlaceholder}
+                        className="w-full min-h-[62px] sm:min-h-[68px] px-4 sm:px-5 py-3.5 sm:py-4 text-[20px] sm:text-2xl font-medium bg-[#F7F7F7] border-2 border-[#5D726A] rounded-[2px] text-[#000000]"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="seller-phone-tel"
+                        className="flex items-center gap-2 text-[18px] sm:text-xl font-medium text-[#000000] mb-2"
+                      >
+                        <PhoneKeypadIcon className="w-6 h-6 text-[#5D726A] shrink-0" />
+                        <span>
+                          {t.funnel.phoneLabel} <span aria-hidden="true">*</span>
+                        </span>
+                      </label>
+                      <input
+                        id="seller-phone-tel"
+                        name="phone"
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel"
+                        enterKeyHint="done"
+                        required
+                        aria-invalid={phoneError ? "true" : "false"}
+                        aria-describedby={phoneError ? "phone-error-msg" : undefined}
+                        value={phone}
+                        onBlur={handlePhoneBlur}
+                        onChange={(e) => handlePhoneInput(e.target.value)}
+                        placeholder={t.funnel.phonePlaceholder}
+                        className="w-full min-h-[66px] sm:min-h-[72px] px-4 sm:px-5 py-3.5 sm:py-4 text-[24px] sm:text-3xl font-medium tabular-nums bg-[#F7F7F7] border-2 border-[#5D726A] rounded-[2px] text-[#000000] tracking-wide"
+                      />
+                      {phoneTouched && phoneError && (
+                        <p
+                          id="phone-error-msg"
+                          role="alert"
+                          className="mt-2 text-base sm:text-lg font-medium text-[#BA5B3E]"
+                        >
+                          {phoneError}
+                        </p>
+                      )}
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="kr-btn-primary w-full min-h-[72px] sm:min-h-[78px] px-6 sm:px-8 py-4 sm:py-5 border-2 border-[#5D726A] text-[20px] sm:text-2xl flex items-center justify-center gap-3"
+                    >
+                      <span>{t.funnel.submitBtn}</span>
+                      <ArrowRightIcon className="w-6 h-6 sm:w-7 sm:h-7 shrink-0" />
+                    </button>
+                  </form>
+                </section>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+export function SellerFunnel() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-5xl mx-auto px-4 py-12 text-xl font-medium text-[#5D726A]">
+          Loading...
+        </div>
+      }
+    >
+      <SellerFunnelInner />
+    </Suspense>
+  );
+}
