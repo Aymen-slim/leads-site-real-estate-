@@ -4,6 +4,8 @@ import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { ABControlBar } from "@/components/ABControlBar";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 const albertSans = Albert_Sans({
   subsets: ["latin"],
@@ -30,11 +32,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${albertSans.variable} ${sourceSerif.variable}`}>
-      <body className="min-h-screen flex flex-col bg-[#FFFFFF] text-[#292823] antialiased font-normal">
+      <body className="min-h-screen flex flex-col bg-[#FFFFFF] text-[#292823] antialiased font-normal pb-[84px] md:pb-0">
         <AppProvider>
           <ABControlBar />
           <Navbar />
           <div className="flex-1">{children}</div>
+          <Footer />
+          <MobileBottomNav />
         </AppProvider>
       </body>
     </html>

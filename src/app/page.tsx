@@ -11,10 +11,8 @@ import {
   LandPlotIcon,
   ApartmentIcon,
   ArrowRightIcon,
-  ScaleMeasureIcon,
-  UsersFamilyIcon,
-  PaintRollerIcon,
 } from "@/components/Icons";
+import { HousePriceGrowthCalculator } from "@/components/HousePriceGrowthCalculator";
 
 export default function HomePage() {
   const router = useRouter();
@@ -62,11 +60,11 @@ export default function HomePage() {
           ? "Ca. 210 m² · Oppgradert fasade · +15–25 % høyere m²-pris"
           : "Approx. 210 m² · Strong frontage · +15–25% m² premium",
       metricValue: "108 200 kr / m²",
-      href: "/tools/price-per-m2",
+      href: "/connect-agency?source=ad-villa&type=house",
       cta:
         lang === "no"
-          ? "Sjekk m²-pris i ditt nabolag"
-          : "Check your neighborhood m² price",
+          ? "Få lokal verdivurdering for din bolig"
+          : "Get a valuation for your home",
     },
     {
       id: "ad-land",
@@ -85,11 +83,11 @@ export default function HomePage() {
           ? "1 450 m² · Plass til 2–3 enheter · Aktiv utbyggerinteresse"
           : "1,450 m² · Room for 2–3 units · Active builder demand",
       metricValue: "+38% tomteverdi",
-      href: "/tools/land-buildability",
+      href: "/connect-agency?source=ad-land&type=land",
       cta:
         lang === "no"
-          ? "Beregn tomtedeling og R+2 / R+3"
-          : "Estimate land division & zoning",
+          ? "Få tilbud på tomt og utbygging"
+          : "Request land & builder offers",
     },
     {
       id: "ad-family",
@@ -108,49 +106,11 @@ export default function HomePage() {
           ? "Slipp 400 000+ kr i håndverkere · Raskt oppgjør for arvinger"
           : "Skip 400,000+ kr contractor work · Clean payout for heirs",
       metricValue: "390 000 – 830 000 kr",
-      href: "/tools/sell-as-is",
+      href: "/connect-agency?source=ad-family&type=house",
       cta:
         lang === "no"
-          ? "Sammenlign «som den er» vs. oppussing"
-          : "Compare sell as-is vs. fix it up",
-    },
-  ];
-
-  const calculatorsLedger = [
-    {
-      href: "/tools/price-per-m2",
-      title: t.tools.tool1.title,
-      desc: t.tools.tool1.subtitle,
-      liveMetricValue: "108 200 kr / m²",
-      icon: <ScaleMeasureIcon className="w-6 h-6" />,
-    },
-    {
-      href: "/tools/net-cash",
-      title: t.tools.tool2.title,
-      desc: t.tools.tool2.subtitle,
-      liveMetricValue: "6 367 250 kr",
-      icon: <HouseIcon className="w-6 h-6" />,
-    },
-    {
-      href: "/tools/land-buildability",
-      title: t.tools.tool3.title,
-      desc: t.tools.tool3.subtitle,
-      liveMetricValue: "+38% – +75%",
-      icon: <LandPlotIcon className="w-6 h-6" />,
-    },
-    {
-      href: "/tools/inherited-property",
-      title: t.tools.tool4.title,
-      desc: t.tools.tool4.subtitle,
-      liveMetricValue: "2 451 000 kr / heir",
-      icon: <UsersFamilyIcon className="w-6 h-6" />,
-    },
-    {
-      href: "/tools/sell-as-is",
-      title: t.tools.tool5.title,
-      desc: t.tools.tool5.subtitle,
-      liveMetricValue: "0 kr outlay",
-      icon: <PaintRollerIcon className="w-6 h-6" />,
+          ? "Selg slik boligen står — få tilbud"
+          : "Sell as-is — request local offers",
     },
   ];
 
@@ -192,10 +152,14 @@ export default function HomePage() {
                       <span>{t.landing.variantA.primaryCta}</span>
                     </Link>
                     <Link
-                      href="/tools"
+                      href="#neighborhood-lookup"
                       className="min-h-[54px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[2px] bg-[#FFFFFF] hover:bg-[#EDF0E7] active:scale-[0.985] text-[#000000] text-[18px] font-medium transition-all"
                     >
-                      <span>{t.landing.variantA.secondaryCta}</span>
+                      <span>
+                        {lang === "no"
+                          ? "Sjekk m²-pris i nabolaget"
+                          : "Check Local m² Prices"}
+                      </span>
                     </Link>
                   </div>
                 </div>
@@ -321,6 +285,9 @@ export default function HomePage() {
         </section>
       )}
 
+      {/* HOUSE PRICE GROWTH CALCULATOR (HOME PAGE A) */}
+      {landingVariant === "A" && <HousePriceGrowthCalculator />}
+
       {/* 2. EDITORIAL 2-COLUMN SPLIT INTRO (Matches Krogsveen "Oppskriften på et godt boligsalg") */}
       <section className="py-12 lg:py-16 bg-[#FFFFFF]">
         <div className="kr-container">
@@ -352,13 +319,13 @@ export default function HomePage() {
               </p>
               <div className="pt-2">
                 <Link
-                  href="/tools/land-buildability"
+                  href="/connect-agency?source=land-value&type=land"
                   className="inline-flex items-center gap-2 text-[18px] font-medium text-[#000000] underline decoration-[#5D726A] underline-offset-4 hover:text-[#5D726A]"
                 >
                   <span>
                     {lang === "no"
-                      ? "Sjekk tomtepotensial og deling"
-                      : "Estimate land buildability & division"}
+                      ? "Få verdivurdering av bolig eller tomt"
+                      : "Request house or land valuation"}
                   </span>
                   <ArrowRightIcon className="w-5 h-5" />
                 </Link>
@@ -383,7 +350,7 @@ export default function HomePage() {
       </section>
 
       {/* 4. CENTERED SAGE #DCE2CF VALUE CHECK BAND (Matches Krogsveen "Sjekk din boligverdi!") */}
-      <section className="py-10 lg:py-14 bg-[#FFFFFF]">
+      <section id="neighborhood-lookup" className="py-10 lg:py-14 bg-[#FFFFFF]">
         <div className="kr-container">
           <div className="bg-[#DCE2CF] rounded-[2px] p-5 sm:p-12 lg:p-14">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -494,13 +461,13 @@ export default function HomePage() {
                 </p>
                 <div className="pt-2">
                   <Link
-                    href="/tools/sell-as-is"
+                    href="/connect-agency?source=sell-as-is&type=house"
                     className="inline-flex items-center gap-2 text-[18px] font-medium text-[#000000] underline decoration-[#292823] underline-offset-4 hover:text-[#5D726A]"
                   >
                     <span>
                       {lang === "no"
-                        ? "Prøv kalkulator for salg «som den er»"
-                        : "Open Sell As-Is vs. Fix It Up tool"}
+                        ? "Få tilbud på salg «som den er»"
+                        : "Get as-is valuation & local offers"}
                     </span>
                     <ArrowRightIcon className="w-5 h-5" />
                   </Link>
@@ -525,9 +492,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. LIGHT SAGE #EDF0E7 LOWER BAND: SAMPLE AD CARDS + ALL 5 FREE TOOLS (Matches lower Krogsveen section) */}
+      {/* 6. LIGHT SAGE #EDF0E7 LOWER BAND: SAMPLE PROPERTY AD CARDS */}
       <section
-        id="calculators-directory"
+        id="sample-ads"
         className="bg-[#EDF0E7] border-t border-[#DCE2CF] py-14 lg:py-20"
       >
         <div className="kr-container space-y-16">
@@ -592,50 +559,6 @@ export default function HomePage() {
                     </Link>
                   </div>
                 </article>
-              ))}
-            </div>
-          </div>
-
-          {/* All 5 Free Tools Directory */}
-          <div>
-            <div className="max-w-3xl mb-8">
-              <h2 className="kr-h2-serif">{t.landing.toolsSectionTitle}</h2>
-              <p className="kr-body-lg mt-3">{t.landing.toolsSectionDesc}</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {calculatorsLedger.map((item) => (
-                <div
-                  key={item.href}
-                  className="bg-[#FFFFFF] border border-[#DFDFDF] rounded-[2px] p-6 sm:p-8 flex flex-col justify-between gap-6"
-                >
-                  <div className="flex items-start gap-4">
-                    <span className="w-12 h-12 rounded-[2px] bg-[#DCE2CF] text-[#000000] flex items-center justify-center shrink-0">
-                      {item.icon}
-                    </span>
-                    <div>
-                      <h3 className="text-[22px] font-medium text-[#000000] leading-snug">
-                        {item.title}
-                      </h3>
-                      <p className="text-[16px] text-[#292823] mt-2 leading-relaxed">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-[#EDF0E7] flex flex-wrap items-center justify-between gap-4">
-                    <span className="text-[18px] font-medium text-[#5D726A] tabular-nums">
-                      {item.liveMetricValue}
-                    </span>
-                    <Link
-                      href={item.href}
-                      className="kr-btn-primary border border-[#5D726A] py-2.5 px-5 text-[16px]"
-                    >
-                      <span>{t.landing.openToolBtn}</span>
-                      <ArrowRightIcon className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </div>
               ))}
             </div>
           </div>

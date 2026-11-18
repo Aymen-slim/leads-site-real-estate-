@@ -17,7 +17,7 @@ export function Navbar() {
   return (
     <header className="bg-[#EDF0E7] text-[#292823] border-b border-[#DCE2CF] sm:sticky sm:top-0 z-40">
       <div className="kr-container">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 sm:py-4 gap-3 min-h-[76px]">
+        <div className="flex flex-row items-center justify-between py-3 sm:py-4 gap-3 min-h-[68px] md:min-h-[76px]">
           <Link
             href="/"
             className="inline-flex items-center gap-3 text-[#000000] group min-h-[44px] w-fit focus-visible:outline-2 focus-visible:outline-[#5D726A]"
@@ -30,10 +30,10 @@ export function Navbar() {
             </span>
           </Link>
 
-          {/* Clean 3-Page Site Navigation: 2-column grid + full-width CTA on mobile, inline flex on sm+ */}
+          {/* Clean 3-Page Site Navigation on tablet/desktop; phone uses MobileBottomNav */}
           <nav
             aria-label="Primary Navigation"
-            className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto"
+            className="hidden md:flex md:flex-wrap items-center gap-3 w-auto"
           >
             <Link
               href="/"
