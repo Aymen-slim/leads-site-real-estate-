@@ -12,7 +12,7 @@ import {
 import { LandPlotIcon, ArrowRightIcon, CheckMarkIcon } from "@/components/Icons";
 
 export default function LandBuildabilityCalculatorPage() {
-  const { lang, recordConversion, t } = useApp();
+  const { lang, trackClick, t } = useApp();
 
   const [sizeId, setSizeId] = useState<string>(LAND_SIZE_OPTIONS[1].id);
   const [zoneId, setZoneId] = useState<string>(LAND_ZONE_OPTIONS[1].id);
@@ -34,10 +34,10 @@ export default function LandBuildabilityCalculatorPage() {
   );
 
   return (
-    <main className="bg-[#EDF0E7] min-h-[calc(100vh-140px)] py-6 px-3 sm:py-10 sm:px-6">
-      <div className="max-w-5xl mx-auto bg-[#FFFFFF] border-2 border-[#5D726A] rounded-[2px] p-4 sm:p-10 shadow-[0_2px_10px_rgba(41,40,35,0.08)]">
+    <main className="bg-[#FFFFFF] min-h-[calc(100vh-140px)] py-10 px-4 sm:py-14 sm:px-6 lg:py-16">
+      <div className="max-w-5xl mx-auto bg-[#FFFFFF] border border-[#DCE2CF] rounded-none p-6 sm:p-10 lg:p-12">
         <div className="flex items-start gap-3 sm:gap-4 mb-6">
-          <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-[2px] bg-[#DCE2CF] border border-[#5D726A] text-[#000000] flex items-center justify-center shrink-0">
+          <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-none bg-[#DCE2CF] border border-[#5D726A] text-[#000000] flex items-center justify-center shrink-0">
             <LandPlotIcon className="w-6 h-6 sm:w-7 sm:h-7" />
           </span>
           <div className="min-w-0">
@@ -95,7 +95,7 @@ export default function LandBuildabilityCalculatorPage() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="px-2.5 py-0.5 rounded-[2px] bg-[#292823] text-[#FFFFFF] text-sm font-medium">
+                    <span className="px-2.5 py-0.5 rounded-none bg-[#292823] text-[#FFFFFF] text-sm font-medium">
                       {zone.code}
                     </span>
                     {active && (
@@ -116,7 +116,7 @@ export default function LandBuildabilityCalculatorPage() {
           </div>
         </div>
 
-        <div className="mb-6 sm:mb-8 bg-[#EDF0E7] border border-[#BFBFBD] rounded-[2px] p-4 sm:p-5">
+        <div className="mb-6 sm:mb-8 bg-[#EDF0E7] border border-[#BFBFBD] rounded-none p-4 sm:p-5">
           <label
             htmlFor="land-city-select"
             className="block text-[18px] sm:text-xl font-medium text-[#000000] mb-2"
@@ -127,7 +127,7 @@ export default function LandBuildabilityCalculatorPage() {
             id="land-city-select"
             value={cityId}
             onChange={(e) => setCityId(e.target.value)}
-            className="w-full min-h-[60px] sm:min-h-[64px] px-4 py-3 text-[19px] sm:text-xl font-medium bg-[#FFFFFF] border-2 border-[#5D726A] rounded-[2px] text-[#000000] cursor-pointer"
+            className="w-full min-h-[60px] sm:min-h-[64px] px-4 py-3 text-[19px] sm:text-xl font-medium bg-[#FFFFFF] border-2 border-[#5D726A] rounded-none text-[#000000] cursor-pointer"
           >
             {NORWAY_CITIES.map((c) => (
               <option key={c.id} value={c.id}>
@@ -137,9 +137,9 @@ export default function LandBuildabilityCalculatorPage() {
           </select>
         </div>
 
-        <div className="bg-[#DCE2CF] border-2 border-[#5D726A] rounded-[2px] p-4 sm:p-8 mb-6 sm:mb-8 space-y-5 sm:space-y-6">
+        <div className="bg-[#DCE2CF] border-2 border-[#5D726A] rounded-none p-4 sm:p-8 mb-6 sm:mb-8 space-y-5 sm:space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            <div className="bg-[#FFFFFF] rounded-[2px] p-4 sm:p-5 border border-[#BFBFBD]">
+            <div className="bg-[#FFFFFF] rounded-none p-4 sm:p-5 border border-[#BFBFBD]">
               <span className="block text-base font-medium text-[#292823]">
                 {t.tools.tool3.plotsResultLabel}
               </span>
@@ -152,7 +152,7 @@ export default function LandBuildabilityCalculatorPage() {
               </span>
             </div>
 
-            <div className="bg-[#FFFFFF] rounded-[2px] p-4 sm:p-5 border border-[#BFBFBD]">
+            <div className="bg-[#FFFFFF] rounded-none p-4 sm:p-5 border border-[#BFBFBD]">
               <span className="block text-base font-medium text-[#292823]">
                 {t.tools.tool3.braResultLabel}
               </span>
@@ -161,7 +161,7 @@ export default function LandBuildabilityCalculatorPage() {
               </span>
             </div>
 
-            <div className="bg-[#FFFFFF] rounded-[2px] p-4 sm:p-5 border border-[#BFBFBD]">
+            <div className="bg-[#FFFFFF] rounded-none p-4 sm:p-5 border border-[#BFBFBD]">
               <span className="block text-base font-medium text-[#292823]">
                 {t.tools.tool3.estimatedValueLabel}
               </span>
@@ -187,7 +187,7 @@ export default function LandBuildabilityCalculatorPage() {
           href={`/connect-agency?source=land&type=land&size=${
             selectedSize.avgSqm > 500 ? "over-500" : "300-500"
           }&zone=${selectedZone.code}&city=${selectedCity.id}`}
-          onClick={() => recordConversion("tool3-land-buildability")}
+          onClick={() => trackClick("land")}
           className="kr-btn-primary w-full min-h-[72px] sm:min-h-[84px] px-5 sm:px-7 py-4 sm:py-5 border-2 border-[#5D726A] text-[18px] sm:text-2xl justify-between text-left"
         >
           <span>{t.tools.tool3.ctaButton}</span>

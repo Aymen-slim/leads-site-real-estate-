@@ -1,9 +1,19 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useApp } from "@/context/AppContext";
+import { ABVariant } from "@/data/translations";
 import { NORWAY_CITIES, formatNok } from "@/data/norwayData";
+import { getConsent } from "@/lib/consent";
+import { sendGaEvent } from "@/lib/ga";
+import {
+  captureAttribution,
+  getOrCreateSessionId,
+  getOrCreateVisitorId,
+  isTrackingDisabled,
+  sendTrackEvent,
+} from "@/lib/trackerClient";
 import {
   HouseIcon,
   LandPlotIcon,
@@ -16,9 +26,24 @@ import {
   ShieldCheckIcon,
 } from "@/components/Icons";
 
-function SellerFunnelInner() {
+export interface SellerFunnelProps {
+  initialFormVariant?: ABVariant;
+  initialRouted?: boolean;
+  initialSource?: string;
+}
+
+function SellerFunnelInner({
+  initialFormVariant,
+  initialRouted = false,
+  initialSource = "nav",
+}: SellerFunnelProps) {
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { lang, funnelVariant, recordConversion, t } = useApp();
+  const { lang, landingVariant, funnelVariant, isPreview, t } = useApp();
+
+  const activeFormVariant: ABVariant = initialFormVariant ?? funnelVariant;
+  const activeSource = searchParams.get("source") || initialSource || "nav";
+  const isRouted = initialRouted;
 
   const [step, setStep] = useState<number>(1);
   const [propertyType, setPropertyType] = useState<string>("");
@@ -32,7 +57,27 @@ function SellerFunnelInner() {
   const [phone, setPhone] = useState<string>("");
   const [phoneTouched, setPhoneTouched] = useState<boolean>(false);
   const [phoneError, setPhoneError] = useState<string>("");
+  const [nameError, setNameError] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);
+
+  const sentStepsRef = useRef<Set<string>>(new Set());
+  const funnelViewKeyRef = useRef<string>("");
+
+  // Funnel B (single-page typed 4-question form)
+  const [typedProperty, setTypedProperty] = useState<string>("");
+  const [typedLocation, setTypedLocation] = useState<string>("");
+  const [bErrors, setBErrors] = useState<{
+    property?: string;
+    location?: string;
+    name?: string;
+    phone?: string;
+  }>({});
+  const bPropRef = useRef<HTMLInputElement>(null);
+  const bLocRef = useRef<HTMLInputElement>(null);
+  const bNameRef = useRef<HTMLInputElement>(null);
+  const bPhoneRef = useRef<HTMLInputElement>(null);
 
   const [prefillBanner, setPrefillBanner] = useState<string>("");
 
@@ -52,21 +97,32 @@ function SellerFunnelInner() {
       const foundCity = NORWAY_CITIES.find((c) => c.id === paramCity);
       if (foundCity) {
         setCityId(foundCity.id);
-        if (paramArea) {
-          const foundArea = foundCity.neighborhoods.find((n) => n.id === paramArea);
-          if (foundArea) {
-            setAreaId(foundArea.id);
-          } else {
-            setAreaId(foundCity.neighborhoods[0].id);
-          }
-        } else {
-          setAreaId(foundCity.neighborhoods[0].id);
-        }
+        const matchedArea = paramArea
+          ? foundCity.neighborhoods.find((n) => n.id === paramArea)
+          : undefined;
+        const resolvedArea = matchedArea || foundCity.neighborhoods[0];
+        setAreaId(resolvedArea.id);
+        setTypedLocation(`${foundCity.name}, ${resolvedArea.name}`);
       }
     }
 
     if (paramType === "house" || paramType === "land" || paramType === "apartment") {
       setPropertyType(paramType);
+      const typeLabel =
+        paramType === "house"
+          ? lang === "no"
+            ? "Enebolig / Villa"
+            : "House / Villa"
+          : paramType === "land"
+          ? lang === "no"
+            ? "Byggetomt"
+            : "Plot of Land"
+          : lang === "no"
+          ? "Leilighet"
+          : "Apartment";
+      setTypedProperty(paramSize ? `${typeLabel}, ${paramSize} m²` : typeLabel);
+    } else if (paramSize) {
+      setTypedProperty(`${paramSize} m²`);
     }
 
     if (paramSize) {
@@ -208,36 +264,249 @@ function SellerFunnelInner() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const emitFunnelStep = useCallback(
+    (stepKey: string) => {
+      if (isPreview || isTrackingDisabled()) return;
+      const cacheKey = `${activeFormVariant}:${stepKey}`;
+      if (sentStepsRef.current.has(cacheKey)) return;
+      sentStepsRef.current.add(cacheKey);
+
+      sendTrackEvent({
+        type: "funnel_step",
+        path: pathname,
+        landing_variant: landingVariant,
+        funnel_variant: activeFormVariant,
+        routed: isRouted,
+        source: activeSource,
+        step: stepKey,
+      });
+
+      if (getConsent().analytics) {
+        sendGaEvent("funnel_step", {
+          step: stepKey,
+          form_variant: activeFormVariant,
+          source: activeSource,
+          routed: isRouted,
+        });
+      }
+    },
+    [activeFormVariant, activeSource, isPreview, isRouted, landingVariant, pathname]
+  );
+
+  // Track funnel_view once per form entry / variant+source change
+  useEffect(() => {
+    if (isPreview || isTrackingDisabled()) return;
+    const viewKey = `${pathname}|${activeFormVariant}|${activeSource}|${isRouted}`;
+    if (funnelViewKeyRef.current === viewKey) return;
+    funnelViewKeyRef.current = viewKey;
+    sentStepsRef.current.clear();
+
+    sendTrackEvent({
+      type: "funnel_view",
+      path: pathname,
+      landing_variant: landingVariant,
+      funnel_variant: activeFormVariant,
+      routed: isRouted,
+      source: activeSource,
+    });
+  }, [activeFormVariant, activeSource, isPreview, isRouted, landingVariant, pathname]);
+
+  // Track Funnel A step progression
+  useEffect(() => {
+    if (activeFormVariant !== "A" || submitted) return;
+    emitFunnelStep(`step_${step}`);
+  }, [activeFormVariant, emitFunnelStep, step, submitted]);
+
+  const submitLead = async (payload: {
+    propertyType?: string;
+    size?: string;
+    city?: string;
+    area?: string;
+    timeline?: string;
+    propertyText?: string;
+    locationText?: string;
+  }) => {
+    setIsSubmitting(true);
+    setSubmitError("");
+
+    const { sessionId, isNew } = getOrCreateSessionId();
+    const attr = captureAttribution(pathname, isNew);
+    const visitorId = getOrCreateVisitorId();
+
+    const details: Record<string, string> = {};
+    for (const key of ["price", "net", "heirs", "repairs", "zone", "years", "value"]) {
+      const val = searchParams.get(key);
+      if (val) details[key] = val;
+    }
+
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: fullName.trim(),
+          phone: phone.trim(),
+          propertyType: payload.propertyType || null,
+          size: payload.size || null,
+          city: payload.city || null,
+          area: payload.area || null,
+          timeline: payload.timeline || null,
+          propertyText: payload.propertyText || null,
+          locationText: payload.locationText || null,
+          source: activeSource,
+          landingPage: attr.landingPage,
+          landingVariant,
+          formVariant: activeFormVariant,
+          routed: isRouted,
+          sessionId,
+          visitorId,
+          referrer: attr.referrer,
+          utmSource: attr.utmSource,
+          utmMedium: attr.utmMedium,
+          utmCampaign: attr.utmCampaign,
+          lang,
+          details,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = (await res.json().catch(() => ({}))) as { error?: string };
+        setSubmitError(
+          errData.error ||
+            (lang === "no"
+              ? "Kunne ikke sende inn skjemaet. Vennligst prøv igjen."
+              : "Could not submit your request. Please try again.")
+        );
+        return;
+      }
+
+      emitFunnelStep("submit");
+      if (getConsent().analytics && !isPreview) {
+        sendGaEvent("generate_lead", {
+          source: activeSource,
+          landing_page: attr.landingPage,
+          landing_variant: landingVariant,
+          form_variant: activeFormVariant,
+          routed: isRouted,
+          property_type: payload.propertyType || "typed",
+          city: payload.city || payload.locationText || "",
+        });
+      }
+      setSubmitted(true);
+    } catch {
+      setSubmitError(
+        lang === "no"
+          ? "Nettverksfeil. Sjekk tilkoblingen og prøv igjen."
+          : "Network error. Please check your connection and try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    let hasError = false;
+    if (!fullName.trim()) {
+      setNameError(
+        lang === "no"
+          ? "Vennligst skriv inn ditt fulle navn."
+          : "Please enter your full name."
+      );
+      hasError = true;
+    } else {
+      setNameError("");
+    }
     if (!validatePhone(phone)) {
+      setPhoneTouched(true);
       setPhoneError(t.funnel.phoneError);
+      hasError = true;
+    }
+    if (hasError) return;
+
+    await submitLead({
+      propertyType: propertyType || searchParams.get("type") || undefined,
+      size: surfaceArea || searchParams.get("size") || undefined,
+      city: currentCity.name,
+      area: currentArea.name,
+      timeline: timeline || undefined,
+    });
+  };
+
+  const handleFunnelBSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    const nextErrors: {
+      property?: string;
+      location?: string;
+      name?: string;
+      phone?: string;
+    } = {};
+
+    if (!typedProperty.trim()) {
+      nextErrors.property =
+        lang === "no"
+          ? "Vennligst skriv inn eiendomstype og størrelse."
+          : "Please type your property type and approximate size.";
+    }
+    if (!typedLocation.trim()) {
+      nextErrors.location =
+        lang === "no"
+          ? "Vennligst skriv inn adresse, bydel eller kommune."
+          : "Please type your property address or area.";
+    }
+    if (!fullName.trim()) {
+      nextErrors.name =
+        lang === "no"
+          ? "Vennligst skriv inn ditt fulle navn."
+          : "Please enter your full name.";
+    }
+    if (!validatePhone(phone)) {
+      nextErrors.phone = t.funnel.phoneError;
+    }
+
+    setBErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      if (nextErrors.property) bPropRef.current?.focus();
+      else if (nextErrors.location) bLocRef.current?.focus();
+      else if (nextErrors.name) bNameRef.current?.focus();
+      else if (nextErrors.phone) bPhoneRef.current?.focus();
       return;
     }
-    recordConversion(`funnel-${funnelVariant.toLowerCase()}-submit`);
-    setSubmitted(true);
+
+    await submitLead({
+      propertyType: searchParams.get("type") || undefined,
+      size: searchParams.get("size") || undefined,
+      propertyText: typedProperty.trim(),
+      locationText: typedLocation.trim(),
+    });
   };
 
   return (
-    <main className="bg-[#EDF0E7] min-h-[calc(100vh-140px)] py-6 px-3 sm:py-10 sm:px-6">
+    <main className="bg-[#FFFFFF] min-h-[calc(100vh-140px)] py-10 px-4 sm:py-14 sm:px-6 lg:py-16">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-8 sm:mb-10">
           <h1 className="kr-h1">
             {lang === "no"
               ? "Koble deg til lokal megler for å få den beste prisen"
               : "Connect with a local agency to get the best price"}
           </h1>
           <p className="kr-body-lg mt-2 max-w-2xl">
-            {lang === "no"
-              ? "Svar på fire raske valg nedenfor, så matcher vi deg med den beste lokale megleren og kjøperne i ditt område."
-              : "Tap through four quick steps below to match with top local Norwegian agencies and ready buyers in your neighborhood."}
+            {activeFormVariant === "B"
+              ? lang === "no"
+                ? "Svar på de fire raske spørsmålene nedenfor på én side, så matcher vi deg med den beste lokale megleren."
+                : "Fill out the four quick questions below on one page to match with top local Norwegian agencies."
+              : lang === "no"
+                ? "Svar på fire raske valg nedenfor, så matcher vi deg med den beste lokale megleren og kjøperne i ditt område."
+                : "Tap through four quick steps below to match with top local Norwegian agencies and ready buyers in your neighborhood."}
           </p>
         </div>
 
         {prefillBanner && (
           <div
             role="status"
-            className="mb-5 sm:mb-6 bg-[#FFF7D4] border border-[#5D726A] rounded-[2px] p-4 flex items-center justify-between gap-3 sm:gap-4"
+            className="mb-5 sm:mb-6 bg-[#EDF0E7] border border-[#5D726A] rounded-none p-4 flex items-center justify-between gap-3 sm:gap-4"
           >
             <div className="flex items-center gap-3 min-w-0">
               <span className="w-8 h-8 rounded-full bg-[#B8C49E] text-[#000000] flex items-center justify-center shrink-0">
@@ -253,8 +522,8 @@ function SellerFunnelInner() {
           </div>
         )}
 
-        {funnelVariant === "B" && !submitted && (
-          <div className="mb-5 sm:mb-6 bg-[#DCE2CF] text-[#000000] rounded-[2px] p-4 sm:p-5 border border-[#5D726A] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+        {activeFormVariant === "B" && !submitted && (
+          <div className="mb-5 sm:mb-6 bg-[#DCE2CF] text-[#000000] rounded-none p-4 sm:p-5 border border-[#5D726A] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <ShieldCheckIcon className="w-7 h-7 text-[#5D726A] shrink-0" />
               <div className="min-w-0">
@@ -272,7 +541,7 @@ function SellerFunnelInner() {
                 </p>
               </div>
             </div>
-            <div className="bg-[#FFFFFF] px-4 py-2 rounded-[2px] border border-[#5D726A] text-left sm:text-right shrink-0">
+            <div className="bg-[#FFFFFF] px-4 py-2 rounded-none border border-[#5D726A] text-left sm:text-right shrink-0">
               <span className="block text-xs font-medium text-[#292823]">
                 {lang === "no" ? "Kjøperinteresse i sonen" : "Zone Buyer Demand"}
               </span>
@@ -283,7 +552,7 @@ function SellerFunnelInner() {
           </div>
         )}
 
-        <div className="bg-[#FFFFFF] border border-[#5D726A] rounded-[2px] p-4 sm:p-10 shadow-[0_2px_10px_rgba(41,40,35,0.06)]">
+        <div className="bg-[#FFFFFF] border border-[#DCE2CF] rounded-none p-6 sm:p-10 lg:p-12">
           {submitted ? (
             <div role="status" aria-live="polite" className="py-8 text-center space-y-6">
               <div className="w-16 h-16 rounded-full bg-[#B8C49E] text-[#000000] border border-[#5D726A] flex items-center justify-center mx-auto">
@@ -296,7 +565,7 @@ function SellerFunnelInner() {
                 {t.funnel.successSub}
               </p>
 
-              <div className="max-w-lg mx-auto bg-[#EDF0E7] border border-[#5D726A] rounded-[2px] p-5 text-left space-y-2 text-lg">
+              <div className="max-w-lg mx-auto bg-[#EDF0E7] border border-[#5D726A] rounded-none p-5 text-left space-y-2 text-lg">
                 <div className="flex justify-between">
                   <span className="font-normal text-[#292823]">
                     {lang === "no" ? "Navn:" : "Name:"}
@@ -311,14 +580,26 @@ function SellerFunnelInner() {
                     {phone}
                   </span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-4">
                   <span className="font-normal text-[#292823]">
                     {lang === "no" ? "Område:" : "Location:"}
                   </span>
-                  <span className="font-medium text-[#000000]">
-                    {currentCity.name} — {currentArea.name}
+                  <span className="font-medium text-[#000000] text-right">
+                    {activeFormVariant === "B" && typedLocation
+                      ? typedLocation
+                      : `${currentCity.name} — ${currentArea.name}`}
                   </span>
                 </div>
+                {activeFormVariant === "B" && typedProperty && (
+                  <div className="flex justify-between gap-4">
+                    <span className="font-normal text-[#292823]">
+                      {lang === "no" ? "Eiendom:" : "Property:"}
+                    </span>
+                    <span className="font-medium text-[#000000] text-right">
+                      {typedProperty}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <button
@@ -327,11 +608,234 @@ function SellerFunnelInner() {
                   setSubmitted(false);
                   setStep(1);
                 }}
-                className="inline-flex items-center gap-2 px-6 py-4 rounded-[2px] bg-[#B8C49E] hover:bg-[#C5D0AF] border border-[#5D726A] text-[#000000] text-lg font-medium cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-4 rounded-none bg-[#B8C49E] hover:bg-[#C5D0AF] border border-[#5D726A] text-[#000000] text-lg font-medium cursor-pointer"
               >
                 {t.funnel.resetBtn}
               </button>
             </div>
+          ) : activeFormVariant === "B" ? (
+            <section aria-labelledby="funnel-b-heading" className="space-y-6">
+              <div>
+                <h2 id="funnel-b-heading" className="kr-h2-serif">
+                  {lang === "no"
+                    ? "4 raske spørsmål om eiendommen din"
+                    : "4 quick questions about your property"}
+                </h2>
+                <p className="kr-body-lg mt-2">
+                  {lang === "no"
+                    ? "Fyll ut feltene nedenfor — alt på én side."
+                    : "Type your answers below — everything on one page."}
+                </p>
+              </div>
+
+              <form
+                onSubmit={handleFunnelBSubmit}
+                onFocusCapture={() => emitFunnelStep("started")}
+                noValidate
+                aria-labelledby="funnel-b-heading"
+                className="space-y-6 pt-2"
+              >
+                <div>
+                  <label
+                    htmlFor="funnel-b-property"
+                    className="block text-[18px] sm:text-xl font-medium text-[#000000] mb-2"
+                  >
+                    {lang === "no"
+                      ? "1. Hva slags eiendom og størrelse ønsker du å selge?"
+                      : "1. What type of property and size are you selling?"}{" "}
+                    <span aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    ref={bPropRef}
+                    id="funnel-b-property"
+                    name="propertyDetails"
+                    type="text"
+                    required
+                    enterKeyHint="next"
+                    aria-invalid={bErrors.property ? "true" : "false"}
+                    aria-describedby={bErrors.property ? "b-prop-error" : undefined}
+                    value={typedProperty}
+                    onChange={(e) => {
+                      setTypedProperty(e.target.value);
+                      if (bErrors.property && e.target.value.trim()) {
+                        setBErrors((prev) => ({ ...prev, property: undefined }));
+                      }
+                    }}
+                    placeholder={
+                      lang === "no"
+                        ? "F.eks. Enebolig, ca. 180 m²"
+                        : "e.g. Detached house, approx. 180 m²"
+                    }
+                    className="w-full min-h-[60px] sm:min-h-[64px] px-4 sm:px-5 py-3.5 text-[19px] sm:text-xl font-medium bg-[#F7F7F7] border border-[#5D726A] rounded-none text-[#000000]"
+                  />
+                  {bErrors.property && (
+                    <p
+                      id="b-prop-error"
+                      role="alert"
+                      className="mt-2 text-base font-medium text-[#BA5B3E]"
+                    >
+                      {bErrors.property}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="funnel-b-location"
+                    className="block text-[18px] sm:text-xl font-medium text-[#000000] mb-2"
+                  >
+                    {lang === "no"
+                      ? "2. Adresse, bydel eller kommune"
+                      : "2. Property address or city & neighborhood"}{" "}
+                    <span aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    ref={bLocRef}
+                    id="funnel-b-location"
+                    name="propertyAddress"
+                    type="text"
+                    required
+                    autoComplete="street-address"
+                    enterKeyHint="next"
+                    aria-invalid={bErrors.location ? "true" : "false"}
+                    aria-describedby={bErrors.location ? "b-loc-error" : undefined}
+                    value={typedLocation}
+                    onChange={(e) => {
+                      setTypedLocation(e.target.value);
+                      if (bErrors.location && e.target.value.trim()) {
+                        setBErrors((prev) => ({ ...prev, location: undefined }));
+                      }
+                    }}
+                    placeholder={
+                      lang === "no"
+                        ? "F.eks. Frognerveien 12, Oslo"
+                        : "e.g. Frognerveien 12, Oslo"
+                    }
+                    className="w-full min-h-[60px] sm:min-h-[64px] px-4 sm:px-5 py-3.5 text-[19px] sm:text-xl font-medium bg-[#F7F7F7] border border-[#5D726A] rounded-none text-[#000000]"
+                  />
+                  {bErrors.location && (
+                    <p
+                      id="b-loc-error"
+                      role="alert"
+                      className="mt-2 text-base font-medium text-[#BA5B3E]"
+                    >
+                      {bErrors.location}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="funnel-b-name"
+                    className="block text-[18px] sm:text-xl font-medium text-[#000000] mb-2"
+                  >
+                    {lang === "no" ? "3. Ditt fulle navn" : "3. Your full name"}{" "}
+                    <span aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    ref={bNameRef}
+                    id="funnel-b-name"
+                    name="fullName"
+                    type="text"
+                    required
+                    autoComplete="name"
+                    enterKeyHint="next"
+                    aria-invalid={bErrors.name ? "true" : "false"}
+                    aria-describedby={bErrors.name ? "b-name-error" : undefined}
+                    value={fullName}
+                    onChange={(e) => {
+                      setFullName(e.target.value);
+                      if (bErrors.name && e.target.value.trim()) {
+                        setBErrors((prev) => ({ ...prev, name: undefined }));
+                      }
+                    }}
+                    placeholder={t.funnel.namePlaceholder}
+                    className="w-full min-h-[60px] sm:min-h-[64px] px-4 sm:px-5 py-3.5 text-[19px] sm:text-xl font-medium bg-[#F7F7F7] border border-[#5D726A] rounded-none text-[#000000]"
+                  />
+                  {bErrors.name && (
+                    <p
+                      id="b-name-error"
+                      role="alert"
+                      className="mt-2 text-base font-medium text-[#BA5B3E]"
+                    >
+                      {bErrors.name}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="funnel-b-phone"
+                    className="flex items-center gap-2 text-[18px] sm:text-xl font-medium text-[#000000] mb-2"
+                  >
+                    <PhoneKeypadIcon className="w-5 h-5 text-[#5D726A] shrink-0" />
+                    <span>
+                      {lang === "no" ? "4. Telefonnummer" : "4. Your phone number"}{" "}
+                      <span aria-hidden="true">*</span>
+                    </span>
+                  </label>
+                  <input
+                    ref={bPhoneRef}
+                    id="funnel-b-phone"
+                    name="phone"
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    enterKeyHint="done"
+                    required
+                    aria-invalid={bErrors.phone ? "true" : "false"}
+                    aria-describedby={bErrors.phone ? "b-phone-error" : undefined}
+                    value={phone}
+                    onBlur={() => {
+                      if (phone && !validatePhone(phone)) {
+                        setBErrors((prev) => ({ ...prev, phone: t.funnel.phoneError }));
+                      }
+                    }}
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      if (bErrors.phone && validatePhone(e.target.value)) {
+                        setBErrors((prev) => ({ ...prev, phone: undefined }));
+                      }
+                    }}
+                    placeholder={t.funnel.phonePlaceholder}
+                    className="w-full min-h-[64px] sm:min-h-[68px] px-4 sm:px-5 py-3.5 text-[22px] sm:text-2xl font-medium tabular-nums bg-[#F7F7F7] border border-[#5D726A] rounded-none text-[#000000] tracking-wide"
+                  />
+                  {bErrors.phone && (
+                    <p
+                      id="b-phone-error"
+                      role="alert"
+                      className="mt-2 text-base font-medium text-[#BA5B3E]"
+                    >
+                      {bErrors.phone}
+                    </p>
+                  )}
+                </div>
+
+                {submitError && (
+                  <p
+                    role="alert"
+                    className="p-4 bg-[hsl(6deg_100%_97%)] border-2 border-[#BA5B3E] text-[#BA5B3E] text-base font-medium"
+                  >
+                    {submitError}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="kr-btn-primary w-full min-h-[68px] sm:min-h-[74px] px-6 sm:px-8 py-4 border border-[#5D726A] text-[19px] sm:text-2xl flex items-center justify-center gap-3 disabled:opacity-60"
+                >
+                  <span>
+                    {isSubmitting
+                      ? lang === "no"
+                        ? "Sender inn..."
+                        : "Submitting..."
+                      : t.funnel.submitBtn}
+                  </span>
+                  <ArrowRightIcon className="w-6 h-6 shrink-0" />
+                </button>
+              </form>
+            </section>
           ) : (
             <>
               <div className="flex items-center justify-between gap-2 pb-5 mb-6 border-b border-[#DFDFDF]">
@@ -339,7 +843,7 @@ function SellerFunnelInner() {
                   <button
                     type="button"
                     onClick={() => setStep((s) => Math.max(1, s - 1))}
-                    className="min-h-[44px] inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-[2px] bg-[#EDF0E7] hover:bg-[#DCE2CF] active:scale-[0.985] border border-[#5D726A] text-[#000000] text-[15px] sm:text-lg font-medium cursor-pointer shrink-0"
+                    className="min-h-[44px] inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-none bg-[#EDF0E7] hover:bg-[#DCE2CF] active:scale-[0.985] border border-[#5D726A] text-[#000000] text-[15px] sm:text-lg font-medium cursor-pointer shrink-0"
                   >
                     <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>{t.funnel.backBtn}</span>
@@ -356,7 +860,7 @@ function SellerFunnelInner() {
                       <li
                         key={idx}
                         aria-current={step === idx ? "step" : undefined}
-                        className={`h-2.5 sm:h-3 rounded-[2px] transition-all ${
+                        className={`h-2.5 sm:h-3 rounded-none transition-all ${
                           step === idx
                             ? "w-7 sm:w-10 bg-[#5D726A]"
                             : step > idx
@@ -419,7 +923,7 @@ function SellerFunnelInner() {
                           }`}
                         >
                           <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
-                            <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-[2px] bg-[#B8C49E] text-[#000000] flex items-center justify-center shrink-0">
+                            <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-none bg-[#B8C49E] text-[#000000] flex items-center justify-center shrink-0">
                               {item.icon}
                             </span>
                             <span className="text-[19px] sm:text-2xl font-medium text-[#000000]">
@@ -496,7 +1000,7 @@ function SellerFunnelInner() {
                   {gpsStatus && (
                     <p
                       role="status"
-                      className="text-base sm:text-lg font-medium text-[#000000] bg-[#FFF7D4] px-4 py-3 rounded-[2px] border border-[#5D726A]"
+                      className="text-base sm:text-lg font-medium text-[#000000] bg-[#EDF0E7] px-4 py-3 rounded-none border border-[#5D726A]"
                     >
                       {gpsStatus}
                     </p>
@@ -521,7 +1025,7 @@ function SellerFunnelInner() {
                             setAreaId(found.neighborhoods[0].id);
                           }
                         }}
-                        className="w-full min-h-[60px] sm:min-h-[68px] px-4 py-3 text-[19px] sm:text-xl font-medium bg-[#F7F7F7] border-2 border-[#5D726A] rounded-[2px] text-[#000000] cursor-pointer"
+                        className="w-full min-h-[60px] sm:min-h-[68px] px-4 py-3 text-[19px] sm:text-xl font-medium bg-[#F7F7F7] border-2 border-[#5D726A] rounded-none text-[#000000] cursor-pointer"
                       >
                         {NORWAY_CITIES.map((c) => (
                           <option key={c.id} value={c.id}>
@@ -547,7 +1051,7 @@ function SellerFunnelInner() {
                             setStep(4);
                           }, 180);
                         }}
-                        className="w-full min-h-[60px] sm:min-h-[68px] px-4 py-3 text-[19px] sm:text-xl font-medium bg-[#F7F7F7] border-2 border-[#5D726A] rounded-[2px] text-[#000000] cursor-pointer"
+                        className="w-full min-h-[60px] sm:min-h-[68px] px-4 py-3 text-[19px] sm:text-xl font-medium bg-[#F7F7F7] border-2 border-[#5D726A] rounded-none text-[#000000] cursor-pointer"
                       >
                         {currentCity.neighborhoods.map((n) => (
                           <option key={n.id} value={n.id}>
@@ -638,11 +1142,25 @@ function SellerFunnelInner() {
                         required
                         autoComplete="name"
                         enterKeyHint="next"
+                        aria-invalid={nameError ? "true" : "false"}
+                        aria-describedby={nameError ? "name-error-msg" : undefined}
                         value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
+                        onChange={(e) => {
+                          setFullName(e.target.value);
+                          if (nameError && e.target.value.trim()) setNameError("");
+                        }}
                         placeholder={t.funnel.namePlaceholder}
-                        className="w-full min-h-[62px] sm:min-h-[68px] px-4 sm:px-5 py-3.5 sm:py-4 text-[20px] sm:text-2xl font-medium bg-[#F7F7F7] border-2 border-[#5D726A] rounded-[2px] text-[#000000]"
+                        className="w-full min-h-[62px] sm:min-h-[68px] px-4 sm:px-5 py-3.5 sm:py-4 text-[20px] sm:text-2xl font-medium bg-[#F7F7F7] border-2 border-[#5D726A] rounded-none text-[#000000]"
                       />
+                      {nameError && (
+                        <p
+                          id="name-error-msg"
+                          role="alert"
+                          className="mt-2 text-base sm:text-lg font-medium text-[#BA5B3E]"
+                        >
+                          {nameError}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -669,7 +1187,7 @@ function SellerFunnelInner() {
                         onBlur={handlePhoneBlur}
                         onChange={(e) => handlePhoneInput(e.target.value)}
                         placeholder={t.funnel.phonePlaceholder}
-                        className="w-full min-h-[66px] sm:min-h-[72px] px-4 sm:px-5 py-3.5 sm:py-4 text-[24px] sm:text-3xl font-medium tabular-nums bg-[#F7F7F7] border-2 border-[#5D726A] rounded-[2px] text-[#000000] tracking-wide"
+                        className="w-full min-h-[66px] sm:min-h-[72px] px-4 sm:px-5 py-3.5 sm:py-4 text-[24px] sm:text-3xl font-medium tabular-nums bg-[#F7F7F7] border-2 border-[#5D726A] rounded-none text-[#000000] tracking-wide"
                       />
                       {phoneTouched && phoneError && (
                         <p
@@ -682,11 +1200,27 @@ function SellerFunnelInner() {
                       )}
                     </div>
 
+                    {submitError && (
+                      <p
+                        role="alert"
+                        className="p-4 bg-[hsl(6deg_100%_97%)] border-2 border-[#BA5B3E] text-[#BA5B3E] text-base sm:text-lg font-medium"
+                      >
+                        {submitError}
+                      </p>
+                    )}
+
                     <button
                       type="submit"
-                      className="kr-btn-primary w-full min-h-[72px] sm:min-h-[78px] px-6 sm:px-8 py-4 sm:py-5 border-2 border-[#5D726A] text-[20px] sm:text-2xl flex items-center justify-center gap-3"
+                      disabled={isSubmitting}
+                      className="kr-btn-primary w-full min-h-[72px] sm:min-h-[78px] px-6 sm:px-8 py-4 sm:py-5 border-2 border-[#5D726A] text-[20px] sm:text-2xl flex items-center justify-center gap-3 disabled:opacity-60"
                     >
-                      <span>{t.funnel.submitBtn}</span>
+                      <span>
+                        {isSubmitting
+                          ? lang === "no"
+                            ? "Sender inn..."
+                            : "Submitting..."
+                          : t.funnel.submitBtn}
+                      </span>
                       <ArrowRightIcon className="w-6 h-6 sm:w-7 sm:h-7 shrink-0" />
                     </button>
                   </form>
@@ -700,7 +1234,7 @@ function SellerFunnelInner() {
   );
 }
 
-export function SellerFunnel() {
+export function SellerFunnel(props: SellerFunnelProps) {
   return (
     <Suspense
       fallback={
@@ -709,7 +1243,7 @@ export function SellerFunnel() {
         </div>
       }
     >
-      <SellerFunnelInner />
+      <SellerFunnelInner {...props} />
     </Suspense>
   );
 }

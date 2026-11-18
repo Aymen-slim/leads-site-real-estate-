@@ -7,7 +7,7 @@ import { formatNok } from "@/data/norwayData";
 import { UsersFamilyIcon, ArrowRightIcon } from "@/components/Icons";
 
 export default function InheritedPropertyCalculatorPage() {
-  const { recordConversion, t } = useApp();
+  const { trackClick, t } = useApp();
 
   const [estateValue, setEstateValue] = useState<number>(7500000);
   const [heirsCount, setHeirsCount] = useState<number>(3);
@@ -23,10 +23,10 @@ export default function InheritedPropertyCalculatorPage() {
   const payoutPerHeir = Math.round(netDistributableEstate / heirsCount);
 
   return (
-    <main className="bg-[#EDF0E7] min-h-[calc(100vh-140px)] py-6 px-3 sm:py-10 sm:px-6">
-      <div className="max-w-5xl mx-auto bg-[#FFFFFF] border-2 border-[#5D726A] rounded-[2px] p-4 sm:p-10 shadow-[0_2px_10px_rgba(41,40,35,0.08)]">
+    <main className="bg-[#FFFFFF] min-h-[calc(100vh-140px)] py-10 px-4 sm:py-14 sm:px-6 lg:py-16">
+      <div className="max-w-5xl mx-auto bg-[#FFFFFF] border border-[#DCE2CF] rounded-none p-6 sm:p-10 lg:p-12">
         <div className="flex items-start gap-3 sm:gap-4 mb-6">
-          <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-[2px] bg-[#DCE2CF] border border-[#5D726A] text-[#000000] flex items-center justify-center shrink-0">
+          <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-none bg-[#DCE2CF] border border-[#5D726A] text-[#000000] flex items-center justify-center shrink-0">
             <UsersFamilyIcon className="w-6 h-6 sm:w-7 sm:h-7" />
           </span>
           <div className="min-w-0">
@@ -35,7 +35,7 @@ export default function InheritedPropertyCalculatorPage() {
           </div>
         </div>
 
-        <div className="bg-[#EDF0E7] border border-[#BFBFBD] rounded-[2px] p-4 sm:p-8 space-y-6 sm:space-y-8 mb-6 sm:mb-8">
+        <div className="bg-[#EDF0E7] border border-[#BFBFBD] rounded-none p-4 sm:p-8 space-y-6 sm:space-y-8 mb-6 sm:mb-8">
           <div>
             <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-3">
               <label
@@ -101,7 +101,7 @@ export default function InheritedPropertyCalculatorPage() {
           </div>
         </div>
 
-        <div className="bg-[#FFFFFF] border-2 border-[#5D726A] rounded-[2px] overflow-hidden mb-6 sm:mb-8">
+        <div className="bg-[#FFFFFF] border-2 border-[#5D726A] rounded-none overflow-hidden mb-6 sm:mb-8">
           <div className="p-4 sm:p-6 divide-y divide-[#DFDFDF] space-y-3 text-[16px] sm:text-lg">
             <div className="flex justify-between items-baseline gap-4 pt-1">
               <span className="font-medium text-[#292823]">
@@ -144,7 +144,7 @@ export default function InheritedPropertyCalculatorPage() {
 
         <Link
           href={`/connect-agency?source=inheritance&price=${estateValue}&net=${payoutPerHeir}&heirs=${heirsCount}`}
-          onClick={() => recordConversion("tool4-inherited-property")}
+          onClick={() => trackClick("inheritance")}
           className="kr-btn-primary w-full min-h-[72px] sm:min-h-[84px] px-5 sm:px-7 py-4 sm:py-5 border-2 border-[#5D726A] text-[18px] sm:text-2xl justify-between text-left"
         >
           <span>{t.tools.tool4.ctaButton}</span>

@@ -3,10 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { useApp } from "@/context/AppContext";
+import { openConsentSettings } from "@/lib/consent";
 import { ArrowLeftIcon, ArrowRightIcon, ShieldCheckIcon } from "@/components/Icons";
 
 export default function PrivacyPolicyPage() {
-  const { lang } = useApp();
+  const { lang, trackClick } = useApp();
 
   const sections =
     lang === "no"
@@ -24,8 +25,8 @@ export default function PrivacyPolicyPage() {
             body: "Opplysningene brukes utelukkende til å koble deg med relevante lokale eiendomsmeglere eller seriøse kjøpere som kan gi deg en gratis, uforpliktende verdivurdering eller et kjøpstilbud. Kontaktinformasjonen din blir aldri solgt til urelaterte tredjeparter.",
           },
           {
-            title: "4. Lagringstid og nettleserdata",
-            body: "Språkvalg og testvariant for brukeropplevelsen lagres lokalt i nettleseren din (localStorage) slik at siden husker dine valg. Henvendelser lagres kun så lenge det er nødvendig for å gi deg verdivurderingen eller oppfylle lovpålagte krav.",
+            title: "4. Informasjonskapsler, samtykke og analyse",
+            body: "Nødvendige informasjonskapsler (kr_lang, kr_ab, kr_consent) brukes for å huske språkvalg, vise samme sideversjon ved nytt besøk og lagre ditt samtykkevalg. Valgfri analyse (kr_vid og Google Analytics 4) aktiveres kun dersom du trykker «Godta alle», og brukes til å forstå sidebesøk, tid brukt på siden og hvilke skjemaer som hjelper selgere best. Du kan når som helst endre eller trekke tilbake samtykket ditt.",
           },
           {
             title: "5. Dine rettigheter etter GDPR",
@@ -50,8 +51,8 @@ export default function PrivacyPolicyPage() {
             body: "Your details are used exclusively to match you with vetted local real-estate agencies or active buyers able to provide a free, non-binding valuation or direct purchase offer. We never sell your contact details to unrelated third parties.",
           },
           {
-            title: "4. Retention & Browser Storage",
-            body: "Language and interface preferences are stored locally in your browser (localStorage) to keep navigation consistent. Valuation inquiries are kept only for as long as needed to deliver your match or meet statutory obligations.",
+            title: "4. Cookies, Consent & Analytics",
+            body: "Strictly necessary cookies (kr_lang, kr_ab, kr_consent) store your language choice, keep page layout consistent across visits, and remember your consent decision. Optional analytics (kr_vid and Google Analytics 4) only run if you click 'Accept all', helping us measure page visits, time spent, and conversion quality. You may update or withdraw consent at any time.",
           },
           {
             title: "5. Your Rights Under GDPR",
@@ -69,13 +70,13 @@ export default function PrivacyPolicyPage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-[2px] bg-[#EDF0E7] border border-[#DCE2CF] text-[16px] font-medium text-[#000000] hover:bg-[#DCE2CF]"
+            className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-none bg-[#EDF0E7] border border-[#DCE2CF] text-[16px] font-medium text-[#000000] hover:bg-[#DCE2CF]"
           >
             <ArrowLeftIcon className="w-4 h-4" />
             <span>{lang === "no" ? "Tilbake til forsiden" : "Back to Home"}</span>
           </Link>
 
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[2px] bg-[#EDF0E7] border border-[#DCE2CF] text-[#000000] text-[14px] font-medium">
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-none bg-[#EDF0E7] border border-[#DCE2CF] text-[#000000] text-[14px] font-medium">
             <ShieldCheckIcon className="w-4 h-4 text-[#5D726A]" />
             <span>
               {lang === "no"
@@ -85,7 +86,7 @@ export default function PrivacyPolicyPage() {
           </span>
         </div>
 
-        <section className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-[2px] p-6 sm:p-10 space-y-4">
+        <section className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-none p-6 sm:p-10 space-y-4">
           <h1 className="kr-display-serif text-[#000000]">
             {lang === "no" ? "Personvernerklæring" : "Privacy Policy"}
           </h1>
@@ -100,7 +101,7 @@ export default function PrivacyPolicyPage() {
           {sections.map((section) => (
             <article
               key={section.title}
-              className="bg-[#FFFFFF] border border-[#DFDFDF] rounded-[2px] p-6 sm:p-8 space-y-2"
+              className="bg-[#FFFFFF] border border-[#DFDFDF] rounded-none p-6 sm:p-8 space-y-2"
             >
               <h2 className="kr-h3 text-[#000000]">{section.title}</h2>
               <p className="text-[17px] leading-[1.6] text-[#292823]">
@@ -110,7 +111,7 @@ export default function PrivacyPolicyPage() {
           ))}
         </section>
 
-        <section className="bg-[#DCE2CF] rounded-[2px] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <section className="bg-[#DCE2CF] rounded-none p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="kr-h3 text-[#000000]">
               {lang === "no"
@@ -123,15 +124,25 @@ export default function PrivacyPolicyPage() {
                 : "Completely free and non-binding in under one minute."}
             </p>
           </div>
-          <Link
-            href="/connect-agency"
-            className="kr-btn-primary border border-[#5D726A] w-full sm:w-auto shrink-0"
-          >
-            <span>
-              {lang === "no" ? "Koble til megler" : "Connect Agency"}
-            </span>
-            <ArrowRightIcon className="w-5 h-5" />
-          </Link>
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={openConsentSettings}
+              className="min-h-[52px] px-5 py-3 rounded-none bg-[#FFFFFF] border border-[#5D726A] text-[#000000] hover:bg-[#EDF0E7] text-[16px] font-medium cursor-pointer"
+            >
+              {lang === "no" ? "Endre cookie-valg" : "Manage Cookie Settings"}
+            </button>
+            <Link
+              href="/connect-agency?source=nav"
+              onClick={() => trackClick("nav")}
+              className="kr-btn-primary border border-[#5D726A] w-full sm:w-auto shrink-0"
+            >
+              <span>
+                {lang === "no" ? "Koble til megler" : "Connect Agency"}
+              </span>
+              <ArrowRightIcon className="w-5 h-5" />
+            </Link>
+          </div>
         </section>
       </div>
     </main>

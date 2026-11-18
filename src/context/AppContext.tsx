@@ -2,94 +2,67 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Language, ABVariant, TRANSLATIONS } from "@/data/translations";
-
-interface ConversionStats {
-  landingA: number;
-  landingB: number;
-  funnelA: number;
-  funnelB: number;
-}
+import { trackCtaAndGa } from "@/lib/trackerClient";
+import { writeCookie } from "@/lib/consent";
 
 interface AppContextType {
   lang: Language;
   setLang: (lang: Language) => void;
   landingVariant: ABVariant;
-  setLandingVariant: (v: ABVariant) => void;
   funnelVariant: ABVariant;
-  setFunnelVariant: (v: ABVariant) => void;
-  stats: ConversionStats;
-  recordConversion: (source: string) => void;
+  isAdmin: boolean;
+  isPreview: boolean;
+  trackClick: (source: string) => void;
   t: (typeof TRANSLATIONS)[Language];
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Language>("en");
-  const [landingVariant, setLandingVariantState] = useState<ABVariant>("A");
-  const [funnelVariant, setFunnelVariantState] = useState<ABVariant>("A");
-  const [stats, setStats] = useState<ConversionStats>({
-    landingA: 14,
-    landingB: 19,
-    funnelA: 22,
-    funnelB: 27,
-  });
+interface AppProviderProps {
+  children: React.ReactNode;
+  initialLang?: Language;
+  initialLandingVariant?: ABVariant;
+  initialFunnelVariant?: ABVariant;
+  isAdmin?: boolean;
+  isPreview?: boolean;
+}
+
+export function AppProvider({
+  children,
+  initialLang = "en",
+  initialLandingVariant = "A",
+  initialFunnelVariant = "A",
+  isAdmin = false,
+  isPreview = false,
+}: AppProviderProps) {
+  const [lang, setLangState] = useState<Language>(initialLang);
 
   useEffect(() => {
     try {
       const savedLang = localStorage.getItem("kr_lang") as Language | null;
-      if (savedLang === "no" || savedLang === "en") {
-        setLangState(savedLang);
-      }
-      const savedLanding = localStorage.getItem("kr_ab_landing") as ABVariant | null;
-      if (savedLanding === "A" || savedLanding === "B") {
-        setLandingVariantState(savedLanding);
-      } else {
-        const assigned: ABVariant = Math.random() < 0.5 ? "A" : "B";
-        localStorage.setItem("kr_ab_landing", assigned);
-        setLandingVariantState(assigned);
-      }
-      const savedFunnel = localStorage.getItem("kr_ab_funnel") as ABVariant | null;
-      if (savedFunnel === "A" || savedFunnel === "B") {
-        setFunnelVariantState(savedFunnel);
-      } else {
-        const assignedF: ABVariant = Math.random() < 0.5 ? "A" : "B";
-        localStorage.setItem("kr_ab_funnel", assignedF);
-        setFunnelVariantState(assignedF);
+      if ((savedLang === "no" || savedLang === "en") && savedLang !== initialLang) {
+        writeCookie("kr_lang", initialLang, 60 * 60 * 24 * 365);
       }
     } catch {
       // Ignore storage access errors in private mode
     }
-  }, []);
+  }, [initialLang]);
 
   const setLang = (next: Language) => {
     setLangState(next);
     try {
       localStorage.setItem("kr_lang", next);
-    } catch {}
+      writeCookie("kr_lang", next, 60 * 60 * 24 * 365);
+    } catch {
+      // Ignore storage access errors
+    }
   };
 
-  const setLandingVariant = (v: ABVariant) => {
-    setLandingVariantState(v);
-    try {
-      localStorage.setItem("kr_ab_landing", v);
-    } catch {}
-  };
-
-  const setFunnelVariant = (v: ABVariant) => {
-    setFunnelVariantState(v);
-    try {
-      localStorage.setItem("kr_ab_funnel", v);
-    } catch {}
-  };
-
-  const recordConversion = (_source: string) => {
-    setStats((prev) => ({
-      landingA: landingVariant === "A" ? prev.landingA + 1 : prev.landingA,
-      landingB: landingVariant === "B" ? prev.landingB + 1 : prev.landingB,
-      funnelA: funnelVariant === "A" ? prev.funnelA + 1 : prev.funnelA,
-      funnelB: funnelVariant === "B" ? prev.funnelB + 1 : prev.funnelB,
-    }));
+  const trackClick = (source: string) => {
+    trackCtaAndGa(source, {
+      landingVariant: initialLandingVariant,
+      funnelVariant: initialFunnelVariant,
+    });
   };
 
   return (
@@ -97,12 +70,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       value={{
         lang,
         setLang,
-        landingVariant,
-        setLandingVariant,
-        funnelVariant,
-        setFunnelVariant,
-        stats,
-        recordConversion,
+        landingVariant: initialLandingVariant,
+        funnelVariant: initialFunnelVariant,
+        isAdmin,
+        isPreview,
+        trackClick,
         t: TRANSLATIONS[lang],
       }}
     >

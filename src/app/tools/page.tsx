@@ -13,7 +13,7 @@ import {
 } from "@/components/Icons";
 
 export default function FreeToolsHubPage() {
-  const { lang, t } = useApp();
+  const { lang, trackClick, t } = useApp();
 
   const tools = [
     {
@@ -74,8 +74,8 @@ export default function FreeToolsHubPage() {
   ];
 
   return (
-    <main className="bg-[#EDF0E7] min-h-[calc(100vh-140px)] py-8 sm:py-12 lg:py-16">
-      <div className="kr-container space-y-8 sm:space-y-10">
+    <main className="bg-[#FFFFFF] min-h-[calc(100vh-140px)] py-10 sm:py-14 lg:py-16">
+      <div className="kr-container space-y-10 sm:space-y-12">
         <div className="max-w-3xl space-y-3">
           <h1 className="kr-h1">{t.landing.toolsSectionTitle}</h1>
           <p className="kr-body-lg">{t.landing.toolsSectionDesc}</p>
@@ -85,10 +85,10 @@ export default function FreeToolsHubPage() {
           {tools.map((tool) => (
             <div
               key={tool.href}
-              className="bg-[#FFFFFF] border border-[#BFBFBD] rounded-[2px] p-5 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6"
+              className="bg-[#FFFFFF] border border-[#BFBFBD] rounded-none p-5 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6"
             >
               <div className="flex items-start gap-4 sm:gap-5 max-w-2xl">
-                <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-[2px] bg-[#DCE2CF] border border-[#5D726A] text-[#000000] flex items-center justify-center shrink-0">
+                <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-none bg-[#DCE2CF] border border-[#5D726A] text-[#000000] flex items-center justify-center shrink-0">
                   {tool.icon}
                 </span>
                 <div className="min-w-0">
@@ -98,14 +98,14 @@ export default function FreeToolsHubPage() {
                   <p className="text-[16px] sm:text-[17px] text-[#292823] mt-2 leading-relaxed">
                     {tool.desc}
                   </p>
-                  <span className="inline-block mt-3 px-3 py-1 bg-[#FFF7D4] text-[#292823] text-[14px] font-medium rounded-[2px] border border-[#DFDFDF]">
+                  <span className="inline-block mt-3 px-3 py-1 bg-[#EDF0E7] text-[#292823] text-[14px] font-medium rounded-none border border-[#DCE2CF]">
                     {tool.controlHint}
                   </span>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 shrink-0">
-                <div className="bg-[#EDF0E7] px-4 py-3 rounded-[2px] border border-[#DFDFDF] text-left sm:text-right">
+                <div className="bg-[#EDF0E7] px-4 py-3 rounded-none border border-[#DFDFDF] text-left sm:text-right">
                   <span className="block text-[13px] font-normal text-[#292823]">
                     {lang === "no" ? "Eksempel" : "Sample"}
                   </span>
@@ -125,7 +125,7 @@ export default function FreeToolsHubPage() {
           ))}
         </div>
 
-        <div className="bg-[#DCE2CF] border border-[#5D726A] rounded-[2px] p-5 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="bg-[#DCE2CF] border border-[#5D726A] rounded-none p-5 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
             <h2 className="kr-h2-serif">
               {lang === "no"
@@ -139,7 +139,8 @@ export default function FreeToolsHubPage() {
             </p>
           </div>
           <Link
-            href="/connect-agency"
+            href="/connect-agency?source=tools-hub"
+            onClick={() => trackClick("tools-hub")}
             className="kr-btn-primary w-full sm:w-auto border border-[#5D726A] shrink-0 min-h-[58px]"
           >
             <span>

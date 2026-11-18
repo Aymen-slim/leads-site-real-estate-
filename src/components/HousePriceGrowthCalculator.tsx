@@ -48,7 +48,7 @@ function formatCompactMillions(value: number, lang: "no" | "en"): string {
 }
 
 export function HousePriceGrowthCalculator() {
-  const { lang, recordConversion } = useApp();
+  const { lang, trackClick } = useApp();
 
   const [calcMode, setCalcMode] = useState<CalcMode>("growth");
   const [propertyKind, setPropertyKind] = useState<PropertyKind>("house");
@@ -173,22 +173,22 @@ export function HousePriceGrowthCalculator() {
   return (
     <section
       id="house-growth-calculator"
-      className="bg-[#FFFFFF] text-[#292823] py-10 sm:py-14 border-y border-[#DCE2CF]"
+      className="bg-[#FFFFFF] text-[#292823] py-10 sm:py-14 lg:py-16"
     >
       <div className="kr-container">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
           {/* LEFT LIGHT CONTROL PANEL */}
-          <div className="lg:col-span-5 bg-[#EDF0E7] border border-[#DCE2CF] rounded-[4px] p-5 sm:p-7 flex flex-col justify-between gap-6">
+          <div className="lg:col-span-5 bg-[#EDF0E7] border border-[#DCE2CF] rounded-none p-6 sm:p-8 flex flex-col justify-between gap-6">
             <div className="space-y-6">
               <div>
                 <p className="text-[14px] font-medium text-[#292823] mb-2.5">
                   {lang === "no" ? "Hva vil du regne ut?" : "What do you want to calculate?"}
                 </p>
-                <div className="grid grid-cols-2 p-1 rounded-[4px] bg-[#DCE2CF] border border-[#BFBFBD]">
+                <div className="grid grid-cols-2 p-1 rounded-none bg-[#DCE2CF] border border-[#BFBFBD]">
                   <button
                     type="button"
                     onClick={() => setCalcMode("growth")}
-                    className={`min-h-[42px] px-3 py-1.5 rounded-[2px] text-[14px] font-medium transition-colors cursor-pointer ${
+                    className={`min-h-[42px] px-3 py-1.5 rounded-none text-[14px] font-medium transition-colors cursor-pointer ${
                       calcMode === "growth"
                         ? "bg-[#FFFFFF] text-[#000000] border border-[#5D726A]"
                         : "text-[#292823] hover:text-[#000000]"
@@ -199,7 +199,7 @@ export function HousePriceGrowthCalculator() {
                   <button
                     type="button"
                     onClick={() => setCalcMode("bestPriceNow")}
-                    className={`min-h-[42px] px-3 py-1.5 rounded-[2px] text-[14px] font-medium transition-colors cursor-pointer ${
+                    className={`min-h-[42px] px-3 py-1.5 rounded-none text-[14px] font-medium transition-colors cursor-pointer ${
                       calcMode === "bestPriceNow"
                         ? "bg-[#FFFFFF] text-[#000000] border border-[#5D726A]"
                         : "text-[#292823] hover:text-[#000000]"
@@ -211,7 +211,7 @@ export function HousePriceGrowthCalculator() {
               </div>
 
               <div>
-                <div className="flex items-start justify-between gap-3 mb-1">
+                <div className="flex items-start justify-between gap-3 mb-1.5">
                   <div>
                     <label
                       htmlFor="growth-current-value-kr"
@@ -223,7 +223,7 @@ export function HousePriceGrowthCalculator() {
                       {lang === "no" ? "1 mill. – 25 mill. kr" : "1M – 25M kr"}
                     </span>
                   </div>
-                  <div className="px-3.5 py-2 rounded-[2px] bg-[#FFFFFF] border border-[#5D726A] text-[15px] font-medium text-[#000000] tabular-nums whitespace-nowrap">
+                  <div className="px-3.5 py-2 rounded-none bg-[#FFFFFF] border border-[#BFBFBD] text-[15px] font-medium text-[#000000] tabular-nums whitespace-nowrap">
                     {formatNok(currentValue)}
                   </div>
                 </div>
@@ -247,7 +247,7 @@ export function HousePriceGrowthCalculator() {
               </div>
 
               <div>
-                <div className="flex items-start justify-between gap-3 mb-1">
+                <div className="flex items-start justify-between gap-3 mb-1.5">
                   <div>
                     <label
                       htmlFor="growth-years-kr"
@@ -259,7 +259,7 @@ export function HousePriceGrowthCalculator() {
                       {lang === "no" ? "1 – 25 år" : "1 – 25 years"}
                     </span>
                   </div>
-                  <div className="px-3.5 py-2 rounded-[2px] bg-[#FFFFFF] border border-[#5D726A] text-[15px] font-medium text-[#000000] tabular-nums whitespace-nowrap">
+                  <div className="px-3.5 py-2 rounded-none bg-[#FFFFFF] border border-[#BFBFBD] text-[15px] font-medium text-[#000000] tabular-nums whitespace-nowrap">
                     {years} {lang === "no" ? "år" : years === 1 ? "year" : "years"}
                   </div>
                 </div>
@@ -286,13 +286,13 @@ export function HousePriceGrowthCalculator() {
                 <p className="text-[15px] font-medium text-[#000000] mb-2.5">
                   {lang === "no" ? "Type eiendom" : "Property type"}
                 </p>
-                <div className="grid grid-cols-3 p-1 rounded-[4px] bg-[#DCE2CF] border border-[#BFBFBD]">
+                <div className="grid grid-cols-3 p-1 rounded-none bg-[#DCE2CF] border border-[#BFBFBD]">
                   {(["house", "land", "apartment"] as PropertyKind[]).map((kind) => (
                     <button
                       key={kind}
                       type="button"
                       onClick={() => handlePropertySwitch(kind)}
-                      className={`min-h-[40px] px-2 py-1.5 rounded-[2px] text-[13px] sm:text-[14px] font-medium transition-colors cursor-pointer ${
+                      className={`min-h-[40px] px-2 py-1.5 rounded-none text-[13px] sm:text-[14px] font-medium transition-colors cursor-pointer ${
                         propertyKind === kind
                           ? "bg-[#FFFFFF] text-[#000000] border border-[#5D726A]"
                           : "text-[#292823] hover:text-[#000000]"
@@ -307,7 +307,7 @@ export function HousePriceGrowthCalculator() {
               </div>
 
               <div>
-                <div className="flex items-center justify-between gap-3 mb-1">
+                <div className="flex items-center justify-between gap-3 mb-1.5">
                   <label
                     htmlFor="growth-annual-rate-kr"
                     className="text-[15px] font-medium text-[#000000]"
@@ -316,7 +316,7 @@ export function HousePriceGrowthCalculator() {
                       ? "Forventet årlig prisvekst"
                       : "Expected annual house growth"}
                   </label>
-                  <div className="px-3.5 py-2 rounded-[2px] bg-[#FFFFFF] border border-[#5D726A] text-[15px] font-medium text-[#000000] tabular-nums whitespace-nowrap">
+                  <div className="px-3.5 py-2 rounded-none bg-[#FFFFFF] border border-[#BFBFBD] text-[15px] font-medium text-[#000000] tabular-nums whitespace-nowrap">
                     {annualRate.toFixed(1).replace(".", ",")} %
                   </div>
                 </div>
@@ -433,7 +433,7 @@ export function HousePriceGrowthCalculator() {
           {/* RIGHT LIGHT RESULT & CHART PANEL */}
           <div className="lg:col-span-7 flex flex-col justify-between gap-6 py-1">
             <div className="space-y-4">
-              <p className="text-[16px] sm:text-[18px] text-[#292823]">
+              <p className="text-[16px] sm:text-[17px] text-[#292823]">
                 {calcMode === "growth"
                   ? lang === "no"
                     ? `Med en boligverdi på ${formatNok(currentValue)} i dag kan boligen i ${endYear} være verdt:`
@@ -444,12 +444,12 @@ export function HousePriceGrowthCalculator() {
               </p>
 
               <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                <span className="font-serif text-[44px] sm:text-[58px] lg:text-[64px] leading-none font-normal text-[#000000] tabular-nums tracking-[-0.02em]">
+                <span className="font-sans text-[40px] sm:text-[48px] lg:text-[54px] leading-none font-semibold text-[#000000] tabular-nums tracking-[-0.02em]">
                   {calcMode === "growth"
                     ? formatNok(finalPoint.projectedValue)
                     : formatNok(bestPriceNowTotal)}
                 </span>
-                <span className="text-[18px] sm:text-[21px] text-[#5D726A] font-medium">
+                <span className="text-[17px] sm:text-[19px] text-[#5D726A] font-medium">
                   {calcMode === "growth"
                     ? lang === "no"
                       ? `om ${years} år`
@@ -461,31 +461,31 @@ export function HousePriceGrowthCalculator() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                <div className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-[2px] p-3.5">
+                <div className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-none p-4">
                   <div className="flex items-center gap-2 text-[13px] font-medium text-[#292823]">
                     <span className="inline-block w-3 h-0.5 bg-[#5D726A]" />
                     <span>{lang === "no" ? "Verdi i dag" : "Current value"}</span>
                   </div>
-                  <div className="text-[19px] sm:text-[20px] font-medium text-[#000000] tabular-nums mt-1">
+                  <div className="text-[19px] sm:text-[20px] font-semibold text-[#000000] tabular-nums mt-1.5">
                     {formatNok(currentValue)}
                   </div>
                 </div>
 
-                <div className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-[2px] p-3.5">
+                <div className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-none p-4">
                   <div className="flex items-center gap-2 text-[13px] font-medium text-[#292823]">
-                    <span className="inline-block w-2.5 h-2.5 rounded-[2px] bg-[#5D726A]" />
+                    <span className="inline-block w-2.5 h-2.5 rounded-none bg-[#5D726A]" />
                     <span>
                       {lang === "no" ? "Estimert prisvekst" : "Projected value gain"}
                     </span>
                   </div>
-                  <div className="text-[19px] sm:text-[20px] font-medium text-[#000000] tabular-nums mt-1">
+                  <div className="text-[19px] sm:text-[20px] font-semibold text-[#000000] tabular-nums mt-1.5">
                     +{formatNok(Math.max(0, totalGrowthKr))}
                   </div>
                 </div>
 
-                <div className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-[2px] p-3.5">
+                <div className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-none p-4">
                   <div className="flex items-center gap-2 text-[13px] font-medium text-[#292823]">
-                    <span className="inline-block w-2.5 h-2.5 rounded-[2px] bg-[#B85A3F]" />
+                    <span className="inline-block w-2.5 h-2.5 rounded-none bg-[#B85A3F]" />
                     <span>
                       {compareNormalSale
                         ? lang === "no"
@@ -496,23 +496,23 @@ export function HousePriceGrowthCalculator() {
                           : "Top agency boost today"}
                     </span>
                   </div>
-                  <div className="text-[19px] sm:text-[20px] font-medium text-[#000000] tabular-nums mt-1">
+                  <div className="text-[19px] sm:text-[20px] font-semibold text-[#000000] tabular-nums mt-1.5">
                     +{formatNok(compareNormalSale ? outperformanceVsMarket : bestAgencyPremiumToday)}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#FFFFFF] border border-[#DCE2CF] rounded-[4px] p-4 sm:p-6 space-y-4">
+            <div className="bg-[#FFFFFF] border border-[#DCE2CF] rounded-none p-5 sm:p-6 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="font-serif text-[20px] sm:text-[22px] font-medium text-[#000000]">
+                <h2 className="font-sans text-[19px] sm:text-[20px] font-semibold text-[#000000]">
                   {lang === "no" ? "Verdiutvikling over tid" : "House value growth over time"}
                 </h2>
-                <div className="inline-flex p-1 rounded-[4px] bg-[#EDF0E7] border border-[#DCE2CF]">
+                <div className="inline-flex p-1 rounded-none bg-[#EDF0E7] border border-[#DCE2CF]">
                   <button
                     type="button"
                     onClick={() => setViewMode("chart")}
-                    className={`min-h-[36px] px-4 py-1 rounded-[2px] text-[14px] font-medium transition-colors cursor-pointer ${
+                    className={`min-h-[36px] px-4 py-1 rounded-none text-[14px] font-medium transition-colors cursor-pointer ${
                       viewMode === "chart"
                         ? "bg-[#FFFFFF] text-[#000000] border border-[#5D726A]"
                         : "text-[#292823] hover:text-[#000000]"
@@ -523,7 +523,7 @@ export function HousePriceGrowthCalculator() {
                   <button
                     type="button"
                     onClick={() => setViewMode("table")}
-                    className={`min-h-[36px] px-4 py-1 rounded-[2px] text-[14px] font-medium transition-colors cursor-pointer ${
+                    className={`min-h-[36px] px-4 py-1 rounded-none text-[14px] font-medium transition-colors cursor-pointer ${
                       viewMode === "table"
                         ? "bg-[#FFFFFF] text-[#000000] border border-[#5D726A]"
                         : "text-[#292823] hover:text-[#000000]"
@@ -536,7 +536,7 @@ export function HousePriceGrowthCalculator() {
 
               {viewMode === "chart" ? (
                 <div className="space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-[2px] bg-[#EDF0E7] border border-[#DCE2CF] text-[13px] sm:text-[14px]">
+                  <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5 rounded-none bg-[#EDF0E7] border border-[#DCE2CF] text-[13px] sm:text-[14px]">
                     <span className="font-medium text-[#5D726A] tabular-nums">
                       {activePoint.year} ({lang === "no" ? `År ${activePoint.yearIndex}` : `Year ${activePoint.yearIndex}`})
                     </span>
@@ -684,7 +684,7 @@ export function HousePriceGrowthCalculator() {
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="inline-block w-2.5 h-2.5 rounded-[2px] bg-[#5D726A]" />
+                      <span className="inline-block w-2.5 h-2.5 rounded-none bg-[#5D726A]" />
                       <span>{lang === "no" ? "Verdi i dag" : "Value today"}</span>
                     </div>
                     {compareNormalSale && (
@@ -698,7 +698,7 @@ export function HousePriceGrowthCalculator() {
                   </div>
                 </div>
               ) : (
-                <div className="max-h-[290px] overflow-y-auto rounded-[2px] border border-[#DCE2CF] bg-[#FFFFFF]">
+                <div className="max-h-[290px] overflow-y-auto rounded-none border border-[#DCE2CF] bg-[#FFFFFF]">
                   <table className="w-full text-left text-[14px] tabular-nums">
                     <thead className="sticky top-0 bg-[#EDF0E7] text-[#000000] border-b border-[#DCE2CF]">
                       <tr>
@@ -731,11 +731,11 @@ export function HousePriceGrowthCalculator() {
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 pt-1">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
               <Link
                 href={`/connect-agency?source=growth-calc&type=${propertyKind}&value=${currentValue}&years=${years}`}
-                onClick={() => recordConversion("growth-calc-best-agency")}
-                className="min-h-[54px] inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-[2px] bg-[#B8C49E] hover:bg-[#C5D0AF] border border-[#5D726A] active:scale-[0.985] text-[#000000] text-[15px] sm:text-[16px] font-medium transition-all"
+                onClick={() => trackClick("growth-calc")}
+                className="sm:flex-1 min-h-[54px] inline-flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-none bg-[#B8C49E] hover:bg-[#C5D0AF] border border-[#5D726A] active:scale-[0.985] text-[#000000] text-[15px] font-medium transition-all"
               >
                 <span>
                   {lang === "no"
@@ -748,7 +748,7 @@ export function HousePriceGrowthCalculator() {
               <button
                 type="button"
                 onClick={handleCopySummary}
-                className="min-h-[54px] inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-[2px] bg-[#FFFFFF] border border-[#5D726A] hover:bg-[#EDF0E7] text-[#000000] text-[15px] font-medium transition-colors cursor-pointer"
+                className="shrink-0 min-h-[54px] inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-none bg-[#FFFFFF] border border-[#BFBFBD] hover:border-[#5D726A] hover:bg-[#EDF0E7] text-[#000000] text-[15px] font-medium transition-colors cursor-pointer"
               >
                 {copied ? (
                   <>

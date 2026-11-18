@@ -7,9 +7,16 @@
 /.next/
 /out/
 next-env.d.ts
+*.tsbuildinfo
 
 # Local env files
 .env*.local
+.dev.vars
+
+# Cloudflare / OpenNext build artifacts
+/.open-next/
+/.wrangler/
+cloudflare-env.d.ts
 
 # OS & Editor files
 .DS_Store

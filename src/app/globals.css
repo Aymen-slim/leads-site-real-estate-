@@ -42,7 +42,7 @@
   /* Krogsveen.no Grid & Rhythm */
   --grid-width: 1268px;
   --grid-padding: 16px;
-  --kr-radius: 2px;
+  --kr-radius: 0px;
 
   color-scheme: light;
   accent-color: #5D726A;
@@ -79,7 +79,7 @@
 }
 
 ::selection {
-  background-color: #b3d4fc;
+  background-color: #DCE2CF;
   color: #000000;
   text-shadow: none;
 }
@@ -162,7 +162,7 @@ body {
   min-height: 52px;
   background-color: #B8C49E;
   color: #000000;
-  border-radius: 2px;
+  border-radius: 0px;
   padding: 14px 20px;
   font-size: var(--text-body-lg-size);
   font-weight: 500;
@@ -195,7 +195,7 @@ body {
   min-height: 52px;
   background-color: #EDF0E7;
   color: #000000;
-  border-radius: 2px;
+  border-radius: 0px;
   padding: 14px 20px;
   font-size: var(--text-body-lg-size);
   font-weight: 500;
@@ -214,7 +214,7 @@ body {
 }
 
 .kr-tap-card {
-  border-radius: 2px;
+  border-radius: 0px;
   transition: background-color 150ms ease, border-color 150ms ease, transform 120ms ease;
   touch-action: manipulation;
   cursor: pointer;
@@ -244,11 +244,11 @@ input:not([type="range"]):user-invalid {
 
 /* Native accessible range slider themed with Krogsveen.no sage & deep pine */
 input[type="range"].kr-slider {
-  --slider-track-size: 0.875rem;
-  --slider-thumb-size: 2.35rem;
-  --slider-track-radius: 2px;
+  --slider-track-size: 0.375rem;
+  --slider-thumb-size: 1.25rem;
+  --slider-track-radius: 0px;
   --slider-thumb-radius: 50%;
-  --slider-track-color: #DCE2CF;
+  --slider-track-color: #C9D2BE;
   --slider-fill-color: #5D726A;
   --slider-thumb-color: #292823;
   --attr-min: 0;
@@ -261,7 +261,7 @@ input[type="range"].kr-slider {
 
   appearance: none;
   inline-size: 100%;
-  block-size: 3.25rem;
+  block-size: 2.75rem;
   margin: 0;
   padding: 0;
   border: 0;
@@ -272,7 +272,7 @@ input[type="range"].kr-slider {
 
 input[type="range"].kr-slider::-webkit-slider-runnable-track {
   block-size: var(--slider-track-size);
-  border: 1px solid #949391;
+  border: 0;
   border-radius: var(--slider-track-radius);
   background: linear-gradient(
     to right,
@@ -289,15 +289,15 @@ input[type="range"].kr-slider::-webkit-slider-thumb {
   margin-block-start: calc(
     (var(--slider-track-size) - var(--slider-thumb-size)) / 2
   );
-  border: 3px solid #B8C49E;
+  border: 2px solid #FFFFFF;
   border-radius: var(--slider-thumb-radius);
   background: var(--slider-thumb-color);
-  box-shadow: 0 3px 8px rgba(41, 40, 35, 0.25);
+  box-shadow: 0 1px 4px rgba(41, 40, 35, 0.28);
 }
 
 input[type="range"].kr-slider::-moz-range-track {
   block-size: var(--slider-track-size);
-  border: 1px solid #949391;
+  border: 0;
   border-radius: var(--slider-track-radius);
   background: var(--slider-track-color);
 }
@@ -311,10 +311,10 @@ input[type="range"].kr-slider::-moz-range-progress {
 input[type="range"].kr-slider::-moz-range-thumb {
   inline-size: var(--slider-thumb-size);
   block-size: var(--slider-thumb-size);
-  border: 3px solid #B8C49E;
+  border: 2px solid #FFFFFF;
   border-radius: var(--slider-thumb-radius);
   background: var(--slider-thumb-color);
-  box-shadow: 0 3px 8px rgba(41, 40, 35, 0.25);
+  box-shadow: 0 1px 4px rgba(41, 40, 35, 0.28);
 }
 
 input[type="range"].kr-slider:focus-visible {

@@ -12,7 +12,9 @@ import {
 
 export function MobileBottomNav() {
   const pathname = usePathname();
-  const { lang } = useApp();
+  const { lang, trackClick } = useApp();
+
+  if (pathname.startsWith("/admin")) return null;
 
   const isHome = pathname === "/";
   const isTools = pathname.startsWith("/tools");
@@ -26,7 +28,7 @@ export function MobileBottomNav() {
       <div className="max-w-lg mx-auto grid grid-cols-3 gap-2 items-center">
         <Link
           href="/"
-          className={`min-h-[52px] px-2 py-1.5 rounded-[2px] flex flex-col items-center justify-center gap-0.5 text-[12px] font-medium transition-colors active:scale-[0.97] ${
+          className={`min-h-[52px] px-2 py-1.5 rounded-none flex flex-col items-center justify-center gap-0.5 text-[12px] font-medium transition-colors active:scale-[0.97] ${
             isHome
               ? "bg-[#FFFFFF] text-[#000000]"
               : "text-[#292823] hover:bg-[#DCE2CF]"
@@ -38,7 +40,7 @@ export function MobileBottomNav() {
 
         <Link
           href="/tools"
-          className={`min-h-[52px] px-2 py-1.5 rounded-[2px] flex flex-col items-center justify-center gap-0.5 text-[12px] font-medium transition-colors active:scale-[0.97] ${
+          className={`min-h-[52px] px-2 py-1.5 rounded-none flex flex-col items-center justify-center gap-0.5 text-[12px] font-medium transition-colors active:scale-[0.97] ${
             isTools
               ? "bg-[#FFFFFF] text-[#000000]"
               : "text-[#292823] hover:bg-[#DCE2CF]"
@@ -49,8 +51,9 @@ export function MobileBottomNav() {
         </Link>
 
         <Link
-          href="/connect-agency"
-          className={`min-h-[52px] px-2.5 py-1.5 rounded-[2px] flex flex-col items-center justify-center gap-0.5 text-[12px] font-medium transition-colors active:scale-[0.97] ${
+          href="/connect-agency?source=nav"
+          onClick={() => trackClick("nav")}
+          className={`min-h-[52px] px-2.5 py-1.5 rounded-none flex flex-col items-center justify-center gap-0.5 text-[12px] font-medium transition-colors active:scale-[0.97] ${
             isAgency
               ? "bg-[#5D726A] text-[#FFFFFF]"
               : "bg-[#B8C49E] text-[#000000]"
