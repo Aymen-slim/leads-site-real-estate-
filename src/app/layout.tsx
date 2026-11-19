@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
-import {
-  Albert_Sans,
-  Bricolage_Grotesque,
-  Manrope,
-  Source_Serif_4,
-} from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { AdminPreviewBar } from "@/components/AdminPreviewBar";
@@ -17,28 +12,36 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { isFunnelVariant, isLandingVariant } from "@/lib/ab";
 import { Language } from "@/data/translations";
 
-const albertSans = Albert_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+const albertSans = localFont({
+  src: "../fonts/AlbertSans-latin.woff2",
+  weight: "400 800",
+  style: "normal",
   variable: "--font-sans",
+  display: "swap",
 });
 
-const sourceSerif = Source_Serif_4({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
+const sourceSerif = localFont({
+  src: "../fonts/SourceSerif4-latin.woff2",
+  weight: "500 700",
+  style: "normal",
   variable: "--font-serif",
+  display: "swap",
 });
 
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
+const bricolage = localFont({
+  src: "../fonts/BricolageGrotesque-latin.woff2",
+  weight: "500 700",
+  style: "normal",
   variable: "--font-display",
+  display: "swap",
 });
 
-const manrope = Manrope({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+const manrope = localFont({
+  src: "../fonts/Manrope-latin.woff2",
+  weight: "400 700",
+  style: "normal",
   variable: "--font-modern-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
