@@ -10,8 +10,15 @@ import {
   formatNok,
 } from "@/data/norwayData";
 import { LandPlotIcon, ArrowRightIcon, CheckMarkIcon } from "@/components/Icons";
+import { ModernLandBuildability } from "@/components/modern/ModernLandBuildability";
 
 export default function LandBuildabilityCalculatorPage() {
+  const { isModern } = useApp();
+  if (isModern) return <ModernLandBuildability />;
+  return <ClassicLandBuildability />;
+}
+
+function ClassicLandBuildability() {
   const { lang, trackClick, t } = useApp();
 
   const [sizeId, setSizeId] = useState<string>(LAND_SIZE_OPTIONS[1].id);

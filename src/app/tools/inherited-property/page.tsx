@@ -5,8 +5,15 @@ import Link from "next/link";
 import { useApp } from "@/context/AppContext";
 import { formatNok } from "@/data/norwayData";
 import { UsersFamilyIcon, ArrowRightIcon } from "@/components/Icons";
+import { ModernInheritedProperty } from "@/components/modern/ModernInheritedProperty";
 
 export default function InheritedPropertyCalculatorPage() {
+  const { isModern } = useApp();
+  if (isModern) return <ModernInheritedProperty />;
+  return <ClassicInheritedProperty />;
+}
+
+function ClassicInheritedProperty() {
   const { trackClick, t } = useApp();
 
   const [estateValue, setEstateValue] = useState<number>(7500000);

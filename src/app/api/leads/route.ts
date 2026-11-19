@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   AB_COOKIE,
+  FunnelVariant,
   NAV_SOURCE,
-  isVariant,
+  isFunnelVariant,
+  isLandingVariant,
   normalizeSource,
   parseAbCookie,
   resolveFormVariant,
@@ -45,9 +47,13 @@ export async function POST(req: NextRequest) {
   const abCookie = parseAbCookie(req.cookies.get(AB_COOKIE)?.value);
 
   const landingVariant =
-    abCookie.landing?.v ?? (isVariant(body.landingVariant) ? body.landingVariant : "A");
-  const assignedFunnel =
-    abCookie.funnel?.v ?? (isVariant(body.formVariant) ? body.formVariant : "A");
+    abCookie.landing?.v ?? (isLandingVariant(body.landingVariant) ? body.landingVariant : "A");
+  const cookieFunnel = abCookie.funnel?.v;
+  const assignedFunnel: FunnelVariant = isFunnelVariant(cookieFunnel)
+    ? cookieFunnel
+    : isFunnelVariant(body.formVariant)
+    ? body.formVariant
+    : "A";
 
   const resolved = resolveFormVariant(
     config,
@@ -56,7 +62,9 @@ export async function POST(req: NextRequest) {
   );
 
   // Respect UI-rendered variant if cookie was blocked, otherwise use authoritative server decision.
-  const formVariant = isVariant(body.formVariant) ? body.formVariant : resolved.variant;
+  const formVariant: FunnelVariant = isFunnelVariant(body.formVariant)
+    ? body.formVariant
+    : resolved.variant;
   const routed = typeof body.routed === "boolean" ? body.routed : resolved.routed;
   const source = normalizeSource(typeof body.source === "string" ? body.source : null) ?? NAV_SOURCE;
   const consent = req.cookies.get("kr_consent")?.value === "all";

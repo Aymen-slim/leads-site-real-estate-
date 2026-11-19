@@ -2,16 +2,19 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useApp } from "@/context/AppContext";
 import { openConsentSettings } from "@/lib/consent";
-import { HouseIcon, ShieldCheckIcon, ArrowRightIcon } from "@/components/Icons";
+import { ShieldCheckIcon, ArrowRightIcon } from "@/components/Icons";
+import { ModernFooter } from "@/components/modern/ModernFooter";
 
 export function Footer() {
   const pathname = usePathname();
-  const { lang, trackClick, t } = useApp();
+  const { lang, isModern, trackClick, t } = useApp();
 
   if (pathname.startsWith("/admin")) return null;
+  if (isModern) return <ModernFooter />;
 
   return (
     <footer className="bg-[#EDF0E7] text-[#292823] border-t border-[#DCE2CF]">
@@ -21,14 +24,15 @@ export function Footer() {
           <div className="md:col-span-5 space-y-5">
             <Link
               href="/"
-              className="inline-flex items-center gap-3 text-[#000000] min-h-[44px]"
+              className="inline-flex items-center min-h-[44px]"
             >
-              <span className="w-10 h-10 rounded-none bg-[#000000] text-[#EDF0E7] flex items-center justify-center shrink-0">
-                <HouseIcon className="w-5 h-5" />
-              </span>
-              <span className="text-[22px] font-medium tracking-tight text-[#000000] leading-none">
-                Krogsveen Stil
-              </span>
+              <Image
+                src="/images/vurderboligen-logo.png"
+                alt="VurderBoligen"
+                width={205}
+                height={35}
+                className="h-8 sm:h-9 w-auto"
+              />
             </Link>
 
             <p className="text-[16px] text-[#292823] leading-relaxed max-w-md">
@@ -121,7 +125,7 @@ export function Footer() {
         {/* Bottom Legal Bar */}
         <div className="mt-12 pt-6 border-t border-[#DCE2CF] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-[14px] text-[#292823]">
           <p>
-            © {new Date().getFullYear()} Krogsveen Stil —{" "}
+            © {new Date().getFullYear()} VurderBoligen —{" "}
             {lang === "no"
               ? "Norsk selgerportal for bolig og tomt."
               : "Norwegian Home & Land Seller Portal."}

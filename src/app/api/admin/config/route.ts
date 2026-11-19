@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ExperimentId, isVariant } from "@/lib/ab";
+import {
+  DEFAULT_CONFIG,
+  ExperimentId,
+  Variant,
+  isVariantForExperiment,
+} from "@/lib/ab";
 import { isSameOrigin } from "@/lib/auth";
 import { getSiteConfig, invalidateSiteConfig } from "@/lib/config";
-import { sbUpdate, supabaseConfigured } from "@/lib/supabase";
+import { sbInsert, sbUpdate, supabaseConfigured } from "@/lib/supabase";
 
 export async function GET() {
   const config = await getSiteConfig({ fresh: true });
   return NextResponse.json({ configured: supabaseConfigured(), config });
+}
+
+function equalWeights(count: number): number[] {
+  const base = Math.floor(100 / count);
+  const rem = 100 - base * count;
+  return Array.from({ length: count }, (_, i) => base + (i === count - 1 ? rem : 0));
 }
 
 export async function PATCH(req: NextRequest) {
@@ -30,36 +41,52 @@ export async function PATCH(req: NextRequest) {
   }
 
   const current = (await getSiteConfig({ fresh: true })).experiments[expId as ExperimentId];
+  const expectedDefs = DEFAULT_CONFIG.experiments[expId as ExperimentId].variants;
+  const labelFor = (key: Variant) =>
+    current.variants.find((v) => v.key === key)?.label ??
+    expectedDefs.find((v) => v.key === key)?.label ??
+    `Variant ${key}`;
+
   const now = new Date().toISOString();
   const action = body.action;
 
   try {
     if (action === "winner") {
-      if (!isVariant(body.winner)) {
+      if (!isVariantForExperiment(expId, body.winner)) {
         return NextResponse.json({ error: "Invalid winner variant" }, { status: 400 });
       }
       const winner = body.winner;
-      const loser = winner === "A" ? "B" : "A";
+      const upsertRows = expectedDefs.map((def) => ({
+        experiment_id: expId,
+        key: def.key,
+        label: labelFor(def.key),
+        weight: def.key === winner ? 100 : 0,
+        enabled: def.key === winner,
+      }));
       await Promise.all([
         sbUpdate("experiments", `id=eq.${expId}`, {
           status: "winner",
           winner,
           updated_at: now,
         }),
-        sbUpdate("variants", `experiment_id=eq.${expId}&key=eq.${winner}`, {
-          weight: 100,
-          enabled: true,
-        }),
-        sbUpdate("variants", `experiment_id=eq.${expId}&key=eq.${loser}`, {
-          weight: 0,
-          enabled: false,
-        }),
+        sbInsert("variants", upsertRows, { upsert: true, onConflict: "experiment_id,key" }),
       ]);
     } else if (action === "resume") {
-      // Re-open split test with 50/50 weights if one variant was turned off, and start a fresh round.
-      const vA = current.variants.find((v) => v.key === "A");
-      const vB = current.variants.find((v) => v.key === "B");
-      const bothEnabled = Boolean(vA?.enabled && vB?.enabled && (vA.weight + vB.weight === 100));
+      const enabledCount = current.variants.filter((v) => v.enabled).length;
+      const weightSum = current.variants
+        .filter((v) => v.enabled)
+        .reduce((acc, v) => acc + v.weight, 0);
+      const validExisting = enabledCount >= 2 && weightSum === 100;
+
+      const eq = equalWeights(expectedDefs.length);
+      const upsertRows = expectedDefs.map((def, idx) => ({
+        experiment_id: expId,
+        key: def.key,
+        label: labelFor(def.key),
+        weight: eq[idx],
+        enabled: true,
+      }));
+
       await Promise.all([
         sbUpdate("experiments", `id=eq.${expId}`, {
           status: "running",
@@ -68,18 +95,9 @@ export async function PATCH(req: NextRequest) {
           started_at: now,
           updated_at: now,
         }),
-        ...(bothEnabled
+        ...(validExisting
           ? []
-          : [
-              sbUpdate("variants", `experiment_id=eq.${expId}&key=eq.A`, {
-                weight: 50,
-                enabled: true,
-              }),
-              sbUpdate("variants", `experiment_id=eq.${expId}&key=eq.B`, {
-                weight: 50,
-                enabled: true,
-              }),
-            ]),
+          : [sbInsert("variants", upsertRows, { upsert: true, onConflict: "experiment_id,key" })]),
       ]);
     } else if (action === "reset") {
       await sbUpdate("experiments", `id=eq.${expId}`, {
@@ -95,13 +113,13 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ error: "Missing variants array" }, { status: 400 });
       }
 
-      const parsed: { key: "A" | "B"; weight: number; enabled: boolean }[] = [];
+      const parsed: { key: Variant; weight: number; enabled: boolean }[] = [];
       for (const item of incoming) {
         if (!item || typeof item !== "object") continue;
         const k = (item as { key?: unknown }).key;
         const w = Number((item as { weight?: unknown }).weight);
         const en = Boolean((item as { enabled?: unknown }).enabled);
-        if (!isVariant(k) || !Number.isInteger(w) || w < 0 || w > 100) {
+        if (!isVariantForExperiment(expId, k) || !Number.isInteger(w) || w < 0 || w > 100) {
           return NextResponse.json({ error: "Invalid variant weight" }, { status: 400 });
         }
         parsed.push({ key: k, weight: en ? w : 0, enabled: en });
@@ -109,7 +127,10 @@ export async function PATCH(req: NextRequest) {
 
       const enabled = parsed.filter((v) => v.enabled);
       if (enabled.length === 0) {
-        return NextResponse.json({ error: "At least one variant must stay enabled" }, { status: 400 });
+        return NextResponse.json(
+          { error: "At least one variant must stay enabled" },
+          { status: 400 }
+        );
       }
       const sum = enabled.reduce((acc, v) => acc + v.weight, 0);
       if (sum !== 100) {
@@ -119,14 +140,15 @@ export async function PATCH(req: NextRequest) {
         );
       }
 
-      await Promise.all(
-        parsed.map((v) =>
-          sbUpdate("variants", `experiment_id=eq.${expId}&key=eq.${v.key}`, {
-            weight: v.weight,
-            enabled: v.enabled,
-          })
-        )
-      );
+      const upsertRows = parsed.map((v) => ({
+        experiment_id: expId,
+        key: v.key,
+        label: labelFor(v.key),
+        weight: v.weight,
+        enabled: v.enabled,
+      }));
+
+      await sbInsert("variants", upsertRows, { upsert: true, onConflict: "experiment_id,key" });
 
       const resetRound = Boolean(body.resetRound);
       await sbUpdate("experiments", `id=eq.${expId}`, {

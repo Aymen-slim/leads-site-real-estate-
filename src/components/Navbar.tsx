@@ -2,15 +2,18 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useApp } from "@/context/AppContext";
-import { HouseIcon, ArrowRightIcon } from "@/components/Icons";
+import { ArrowRightIcon } from "@/components/Icons";
+import { ModernNavbar } from "@/components/modern/ModernNavbar";
 
 export function Navbar() {
   const pathname = usePathname();
-  const { lang, setLang, trackClick } = useApp();
+  const { lang, setLang, isModern, trackClick } = useApp();
 
   if (pathname.startsWith("/admin")) return null;
+  if (isModern) return <ModernNavbar />;
 
   const isHome = pathname === "/";
   const isTools = pathname.startsWith("/tools");
@@ -22,14 +25,16 @@ export function Navbar() {
         <div className="flex flex-row items-center justify-between py-3.5 sm:py-4 gap-3 min-h-[68px] md:min-h-[78px]">
           <Link
             href="/"
-            className="inline-flex items-center gap-3 text-[#000000] group min-h-[44px] w-fit focus-visible:outline-2 focus-visible:outline-[#5D726A]"
+            className="inline-flex items-center min-h-[44px] w-fit focus-visible:outline-2 focus-visible:outline-[#5D726A]"
           >
-            <span className="w-10 h-10 rounded-none bg-[#000000] text-[#EDF0E7] flex items-center justify-center shrink-0">
-              <HouseIcon className="w-5 h-5" />
-            </span>
-            <span className="text-[22px] sm:text-[24px] font-medium tracking-tight text-[#000000] leading-none">
-              Krogsveen Stil
-            </span>
+            <Image
+              src="/images/vurderboligen-logo.png"
+              alt="VurderBoligen"
+              width={210}
+              height={36}
+              priority
+              className="h-8 sm:h-9 w-auto"
+            />
           </Link>
 
           <div className="flex items-center gap-2.5 sm:gap-3">

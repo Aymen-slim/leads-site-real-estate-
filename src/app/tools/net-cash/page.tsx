@@ -5,8 +5,15 @@ import Link from "next/link";
 import { useApp } from "@/context/AppContext";
 import { formatNok } from "@/data/norwayData";
 import { HouseIcon, ArrowRightIcon, CheckMarkIcon } from "@/components/Icons";
+import { ModernNetCash } from "@/components/modern/ModernNetCash";
 
 export default function NetCashCalculatorPage() {
+  const { isModern } = useApp();
+  if (isModern) return <ModernNetCash />;
+  return <ClassicNetCash />;
+}
+
+function ClassicNetCash() {
   const { trackClick, t } = useApp();
 
   const [expectedPrice, setExpectedPrice] = useState<number>(6800000);

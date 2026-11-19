@@ -29,7 +29,6 @@ function PagesInner() {
 
   const rows = useMemo(() => {
     const raw = data?.pages ?? [];
-    // Include known pages even if they have 0 views so admin sees the whole site map.
     const byPath = new Map(raw.map((r) => [r.path, r]));
     const merged = [...raw];
     for (const kp of KNOWN_PAGES) {
@@ -88,102 +87,120 @@ function PagesInner() {
     <button
       type="button"
       onClick={() => toggleSort(k)}
-      className="inline-flex items-center gap-1 font-medium hover:text-[#000000] cursor-pointer"
+      className="inline-flex items-center gap-1 font-semibold hover:text-[#0F291E] cursor-pointer"
     >
       <span>{label}</span>
-      {sortKey === k && <span className="text-[#5D726A]">{sortDesc ? "↓" : "↑"}</span>}
+      {sortKey === k && <span className="text-[#147A53]">{sortDesc ? "↓" : "↑"}</span>}
     </button>
   );
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-serif text-[32px] leading-tight text-[#000000]">
+          <h1 className="font-display text-[30px] sm:text-[34px] font-semibold tracking-tight leading-tight text-[#0F291E]">
             Pages Performance
           </h1>
-          <p className="text-[15px] text-[#5A5954]">
-            Views, active time spent, CTA clicks, and conversions for every page on the site.
+          <p className="text-[14px] text-[#5B7065] mt-0.5">
+            Views, active time spent, CTA clicks, and conversions for every route on your site.
           </p>
         </div>
         <button
           type="button"
           onClick={() => void reload()}
           disabled={loading}
-          className="min-h-[40px] px-3.5 py-2 bg-[#FFFFFF] border border-[#BFBFBD] hover:bg-[#EDF0E7] text-[14px] font-medium inline-flex items-center gap-2 cursor-pointer"
+          className="h-9 px-3.5 rounded-full bg-[#FFFFFF] border border-[#D8E2DC] hover:bg-[#EAF4EF] text-[#0F291E] text-[13px] font-semibold inline-flex items-center gap-1.5 cursor-pointer transition-colors"
         >
-          <RefreshIcon className="w-4 h-4" />
+          <RefreshIcon className={`w-3.5 h-3.5 text-[#147A53] ${loading ? "animate-spin" : ""}`} />
           <span>{loading ? "Loading..." : "Refresh"}</span>
         </button>
       </div>
 
       {error && (
-        <div role="alert" className="p-4 bg-[hsl(6deg_100%_97%)] border border-[#BA5B3E] text-[#BA5B3E] text-[15px]">
+        <div role="alert" className="p-4 rounded-2xl bg-[#FEF2F0] border border-[#F0C2B9] text-[#B8422C] text-[14px]">
           {error}
         </div>
       )}
 
-      <div className="bg-[#FFFFFF] border border-[#DFDFDF] overflow-x-auto">
-        <table className="w-full text-left border-collapse text-[14px]">
-          <thead>
-            <tr className="bg-[#EDF0E7] border-b border-[#DCE2CF] text-[#292823]">
-              <th className="py-3 px-4 font-medium">Page</th>
-              <th className="py-3 px-3 text-right">{sortHeader("Views", "views")}</th>
-              <th className="py-3 px-3 text-right">{sortHeader("Sessions", "sessions")}</th>
-              <th className="py-3 px-3 text-right">{sortHeader("Avg Time", "avg_time_ms")}</th>
-              <th className="py-3 px-3 text-right">{sortHeader("Exit %", "exit_rate")}</th>
-              <th className="py-3 px-3 text-right">{sortHeader("CTA Clicks", "cta_clicks")}</th>
-              <th className="py-3 px-3 text-right">1st-Touch Leads</th>
-              <th className="py-3 px-3 text-right">{sortHeader("Session Leads", "lead_sessions")}</th>
-              <th className="py-3 px-4 text-right">{sortHeader("Conv. Rate", "cr")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.path} className="border-b border-[#EDF0E7] hover:bg-[#F7F7F7]">
-                <td className="py-3 px-4">
-                  <span className="block font-medium text-[#000000]">
-                    {pageTitleMap.get(r.path) || r.path}
-                  </span>
-                  <span className="block text-[12px] font-mono text-[#5A5954]">{r.path}</span>
-                </td>
-                <td className="py-3 px-3 text-right tabular-nums">{r.views}</td>
-                <td className="py-3 px-3 text-right tabular-nums">{r.sessions}</td>
-                <td className="py-3 px-3 text-right tabular-nums font-medium">
-                  {formatDuration(r.avg_time_ms)}
-                </td>
-                <td className="py-3 px-3 text-right tabular-nums">
-                  {r.views > 0 ? formatPct(r.exit_rate, 0) : "—"}
-                </td>
-                <td className="py-3 px-3 text-right tabular-nums">{r.cta_clicks}</td>
-                <td className="py-3 px-3 text-right tabular-nums">
-                  {r.first_touch_leads > 0 ? (
-                    <Link
-                      href={`/admin/leads?${rangeQs}&landingPage=${encodeURIComponent(r.path)}`}
-                      className="underline decoration-[#5D726A] font-medium"
-                    >
-                      {r.first_touch_leads}
-                    </Link>
-                  ) : (
-                    0
-                  )}
-                </td>
-                <td className="py-3 px-3 text-right tabular-nums font-semibold">
-                  {r.lead_sessions}
-                </td>
-                <td className="py-3 px-4 text-right tabular-nums font-semibold text-[#5D726A]">
-                  {r.sessions > 0 ? formatPct(r.cr, 1) : "—"}
-                </td>
+      <div className="bg-[#FFFFFF] border border-[#E2E8E4] rounded-2xl overflow-hidden shadow-[0_1px_2px_rgba(15,41,30,0.03),0_8px_24px_rgba(15,41,30,0.03)]">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-[14px]">
+            <thead>
+              <tr className="bg-[#F7FAF8] border-b border-[#E6ECE8] text-[#5B7065] text-[12px] uppercase tracking-wider">
+                <th className="py-3.5 px-5 font-semibold">Page</th>
+                <th className="py-3.5 px-3 text-right">{sortHeader("Views", "views")}</th>
+                <th className="py-3.5 px-3 text-right">{sortHeader("Sessions", "sessions")}</th>
+                <th className="py-3.5 px-3 text-right">{sortHeader("Avg Time", "avg_time_ms")}</th>
+                <th className="py-3.5 px-3 text-right">{sortHeader("Exit %", "exit_rate")}</th>
+                <th className="py-3.5 px-3 text-right">{sortHeader("CTA Clicks", "cta_clicks")}</th>
+                <th className="py-3.5 px-3 text-right font-semibold">1st-Touch</th>
+                <th className="py-3.5 px-3 text-right">{sortHeader("Leads", "lead_sessions")}</th>
+                <th className="py-3.5 px-5 text-right">{sortHeader("Conv. Rate", "cr")}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr
+                  key={r.path}
+                  className="border-b border-[#F1F5F2] last:border-0 hover:bg-[#F7FAF8] transition-colors"
+                >
+                  <td className="py-3.5 px-5">
+                    <span className="block font-semibold text-[#0F291E]">
+                      {pageTitleMap.get(r.path) || r.path}
+                    </span>
+                    <span className="block text-[12px] font-mono text-[#6E8278]">{r.path}</span>
+                  </td>
+                  <td className="py-3.5 px-3 text-right tabular-nums text-[#14201A] font-medium">
+                    {r.views}
+                  </td>
+                  <td className="py-3.5 px-3 text-right tabular-nums text-[#4B5F55]">
+                    {r.sessions}
+                  </td>
+                  <td className="py-3.5 px-3 text-right tabular-nums font-semibold text-[#0F291E]">
+                    {formatDuration(r.avg_time_ms)}
+                  </td>
+                  <td className="py-3.5 px-3 text-right tabular-nums text-[#5B7065]">
+                    {r.views > 0 ? formatPct(r.exit_rate, 0) : "—"}
+                  </td>
+                  <td className="py-3.5 px-3 text-right tabular-nums text-[#4B5F55]">
+                    {r.cta_clicks}
+                  </td>
+                  <td className="py-3.5 px-3 text-right tabular-nums">
+                    {r.first_touch_leads > 0 ? (
+                      <Link
+                        href={`/admin/leads?${rangeQs}&landingPage=${encodeURIComponent(r.path)}`}
+                        className="text-[#147A53] underline font-semibold"
+                      >
+                        {r.first_touch_leads}
+                      </Link>
+                    ) : (
+                      <span className="text-[#8DA096]">0</span>
+                    )}
+                  </td>
+                  <td className="py-3.5 px-3 text-right tabular-nums font-semibold text-[#0F291E]">
+                    {r.lead_sessions}
+                  </td>
+                  <td className="py-3.5 px-5 text-right tabular-nums">
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-[12px] font-semibold ${
+                        r.cr > 0
+                          ? "bg-[#EAF4EF] text-[#14533C]"
+                          : "bg-[#F3F6F4] text-[#7D9186]"
+                      }`}
+                    >
+                      {r.sessions > 0 ? formatPct(r.cr, 1) : "—"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <p className="text-[13px] text-[#5A5954]">
-        <strong>Avg Time</strong> counts active time while the browser tab is visible and the visitor interacted within the last 30 seconds.{" "}
-        <strong>Session Leads / Conv. Rate</strong> measures sessions that viewed the page and submitted the form;{" "}
-        <strong>1st-Touch Leads</strong> counts leads whose very first landing page in that session was that route.
+      <p className="text-[13px] text-[#5B7065]">
+        <strong>Avg Time</strong> counts active time while the tab is visible and the visitor interacted within 30s.{" "}
+        <strong>Leads / Conv. Rate</strong> counts sessions that visited the page and submitted a lead.
       </p>
     </div>
   );
@@ -191,7 +208,7 @@ function PagesInner() {
 
 export default function AdminPagesPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-[#5D726A]">Loading page analytics...</div>}>
+    <Suspense fallback={<div className="p-6 text-[#147A53]">Loading page analytics...</div>}>
       <PagesInner />
     </Suspense>
   );

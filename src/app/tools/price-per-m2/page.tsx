@@ -10,8 +10,15 @@ import {
   ArrowRightIcon,
   ScaleMeasureIcon,
 } from "@/components/Icons";
+import { ModernPricePerM2 } from "@/components/modern/ModernPricePerM2";
 
 export default function PricePerM2CalculatorPage() {
+  const { isModern } = useApp();
+  if (isModern) return <ModernPricePerM2 />;
+  return <ClassicPricePerM2 />;
+}
+
+function ClassicPricePerM2() {
   const { trackClick, t } = useApp();
 
   const [cityId, setCityId] = useState<string>(NORWAY_CITIES[0].id);

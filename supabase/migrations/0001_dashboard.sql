@@ -129,19 +129,21 @@ insert into public.experiments (id, name) values
 on conflict (id) do nothing;
 
 insert into public.variants (experiment_id, key, label, weight) values
-  ('landing', 'A', 'A - Split photo hero + calculator', 50),
-  ('landing', 'B', 'B - Sage hero, single CTA',          50),
-  ('funnel',  'A', 'A - Tap cards, 5 steps',             50),
-  ('funnel',  'B', 'B - Single page typed form',         50)
+  ('landing', 'A', 'A - Classic split photo hero + calculator', 33),
+  ('landing', 'B', 'B - Classic sage hero, single CTA',          33),
+  ('landing', 'M', 'M - Modern NordHjem site (Home A)',         34),
+  ('funnel',  'A', 'A - Tap cards, 5 steps',                    50),
+  ('funnel',  'B', 'B - Single page typed form',                50)
 on conflict do nothing;
 
 insert into public.route_rules (source, label) values
-  ('*',           'Fallback (unknown / no source)'),
-  ('nav',         'Menu / navigation links'),
-  ('hero-a',      'Home A - hero button'),
-  ('landing-b',   'Home B - hero button'),
-  ('growth-calc', 'Home - price growth calculator'),
-  ('land-value',  'Home - land value section'),
+  ('*',             'Fallback (unknown / no source)'),
+  ('nav',           'Menu / navigation links'),
+  ('hero-a',        'Home A / Modern - hero button'),
+  ('landing-b',     'Home B - hero button'),
+  ('growth-calc',   'Home - price growth calculator'),
+  ('recipe-banner', 'Modern home - fjord recipe banner CTA'),
+  ('land-value',    'Home - land value section'),
   ('sell-as-is',  'Home - sell as-is section'),
   ('sample-ads',  'Home - sample ads header CTA'),
   ('tools-hub',   'Tools overview page CTA'),

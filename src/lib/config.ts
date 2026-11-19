@@ -34,6 +34,8 @@ interface RouteRow {
   destination: RouteDestination;
 }
 
+const KEY_ORDER: Record<string, number> = { A: 0, B: 1, M: 2 };
+
 async function load(): Promise<SiteConfig> {
   const [exps, vars, routes] = await Promise.all([
     sbSelect<ExperimentRow>("experiments?select=id,name,status,winner,version,started_at"),
@@ -43,12 +45,22 @@ async function load(): Promise<SiteConfig> {
 
   const experiments = { ...DEFAULT_CONFIG.experiments };
   for (const e of exps.rows) {
-    const variants: VariantConfig[] = vars.rows
+    const dbVariants: VariantConfig[] = vars.rows
       .filter((v) => v.experiment_id === e.id)
       .map((v) => ({ key: v.key, label: v.label, weight: v.weight, enabled: v.enabled }));
+
+    // Ensure every expected variant key (e.g. 'M' on landing) is always represented in UI/config.
+    const expected = DEFAULT_CONFIG.experiments[e.id].variants;
+    const merged: VariantConfig[] = expected.map((def) => {
+      const found = dbVariants.find((v) => v.key === def.key);
+      if (found) return found;
+      return { ...def, weight: 0, enabled: false };
+    });
+    merged.sort((a, b) => (KEY_ORDER[a.key] ?? 9) - (KEY_ORDER[b.key] ?? 9));
+
     experiments[e.id] = {
       ...e,
-      variants: variants.length ? variants : DEFAULT_CONFIG.experiments[e.id].variants,
+      variants: dbVariants.length ? merged : expected,
     } as ExperimentConfig;
   }
 

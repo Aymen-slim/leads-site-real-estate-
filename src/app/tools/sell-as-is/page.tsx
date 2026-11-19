@@ -13,8 +13,15 @@ import {
   ArrowRightIcon,
   CheckMarkIcon,
 } from "@/components/Icons";
+import { ModernSellAsIs } from "@/components/modern/ModernSellAsIs";
 
 export default function SellAsIsCalculatorPage() {
+  const { isModern } = useApp();
+  if (isModern) return <ModernSellAsIs />;
+  return <ClassicSellAsIs />;
+}
+
+function ClassicSellAsIs() {
   const { lang, trackClick, t } = useApp();
 
   const [baseHouseValue, setBaseHouseValue] = useState<number>(5800000);

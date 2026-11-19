@@ -5,16 +5,21 @@ import Link from "next/link";
 import { useApp } from "@/context/AppContext";
 import { openConsentSettings } from "@/lib/consent";
 import { ArrowLeftIcon, ArrowRightIcon, ShieldCheckIcon } from "@/components/Icons";
+import { ModernPrivacyPolicy } from "@/components/modern/ModernPrivacyPolicy";
 
 export default function PrivacyPolicyPage() {
-  const { lang, trackClick } = useApp();
+  const { lang, isModern, trackClick } = useApp();
+
+  if (isModern) {
+    return <ModernPrivacyPolicy />;
+  }
 
   const sections =
     lang === "no"
       ? [
           {
             title: "1. Hvem som er behandlingsansvarlig",
-            body: "Krogsveen Stil driver denne norske selgerportalen for enebolig, byggetomt og leilighet. Vi behandler alle personopplysninger i samsvar med norsk personopplysningslov og EUs personvernforordning (GDPR).",
+            body: "VurderBoligen driver denne norske selgerportalen for enebolig, byggetomt og leilighet. Vi behandler alle personopplysninger i samsvar med norsk personopplysningslov og EUs personvernforordning (GDPR).",
           },
           {
             title: "2. Hvilke opplysninger vi samler inn",
@@ -34,13 +39,13 @@ export default function PrivacyPolicyPage() {
           },
           {
             title: "6. Kontakt for personvern og sletting",
-            body: "Har du spørsmål om personvern, innsyn eller sletting av dine data? Kontakt oss på personvern@krogsveen-stil.no, så svarer vi innen én virkedag.",
+            body: "Har du spørsmål om personvern, innsyn eller sletting av dine data? Kontakt oss på personvern@vurderboligen.no, så svarer vi innen én virkedag.",
           },
         ]
       : [
           {
             title: "1. Data Controller & Scope",
-            body: "Krogsveen Stil operates this Norwegian property seller portal for houses, family villas, constructible land plots, and apartments. We process personal data in compliance with the Norwegian Personal Data Act and EU GDPR.",
+            body: "VurderBoligen operates this Norwegian property seller portal for houses, family villas, constructible land plots, and apartments. We process personal data in compliance with the Norwegian Personal Data Act and EU GDPR.",
           },
           {
             title: "2. Information We Collect",
@@ -60,7 +65,7 @@ export default function PrivacyPolicyPage() {
           },
           {
             title: "6. Contact & Deletion Requests",
-            body: "For any privacy questions, data access requests, or deletion requests, email us at personvern@krogsveen-stil.no and we will respond within one business day.",
+            body: "For any privacy questions, data access requests, or deletion requests, email us at personvern@vurderboligen.no and we will respond within one business day.",
           },
         ];
 

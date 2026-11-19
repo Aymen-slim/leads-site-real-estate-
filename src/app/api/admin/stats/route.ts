@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSiteConfig } from "@/lib/config";
-import { evaluateExperiment, resolveDateRange } from "@/lib/stats";
+import { ConfidenceStatus, evaluateExperiment, resolveDateRange } from "@/lib/stats";
 import { sbRpc, supabaseConfigured } from "@/lib/supabase";
 
 interface OverviewRpc {
@@ -27,7 +27,7 @@ interface PageRpc {
 }
 
 interface ExpRpc {
-  variant: "A" | "B";
+  variant: string;
   exposures: number;
   conversions: number;
 }
@@ -38,17 +38,70 @@ interface FunnelRpc {
   sessions: number;
 }
 
-function buildExpStats(rows: ExpRpc[]) {
-  const a = rows.find((r) => r.variant === "A");
-  const b = rows.find((r) => r.variant === "B");
-  const expA = Number(a?.exposures ?? 0);
-  const convA = Number(a?.conversions ?? 0);
-  const expB = Number(b?.exposures ?? 0);
-  const convB = Number(b?.conversions ?? 0);
+export interface VariantStatRow {
+  key: string;
+  exposures: number;
+  conversions: number;
+  rate: number;
+  liftVsBaseline: number | null;
+  confidenceVsBaseline: number;
+  statusVsBaseline: ConfidenceStatus | "baseline";
+}
+
+function buildExpStats(rows: ExpRpc[], keys: string[]) {
+  const byKey = new Map<string, { exposures: number; conversions: number }>();
+  for (const k of keys) {
+    const found = rows.find((r) => r.variant === k);
+    byKey.set(k, {
+      exposures: Number(found?.exposures ?? 0),
+      conversions: Number(found?.conversions ?? 0),
+    });
+  }
+
+  const base = byKey.get("A") ?? { exposures: 0, conversions: 0 };
+  const baseRate = base.exposures > 0 ? base.conversions / base.exposures : 0;
+
+  const variants: VariantStatRow[] = keys.map((k) => {
+    const cur = byKey.get(k) ?? { exposures: 0, conversions: 0 };
+    const rate = cur.exposures > 0 ? cur.conversions / cur.exposures : 0;
+    if (k === "A") {
+      return {
+        key: k,
+        exposures: cur.exposures,
+        conversions: cur.conversions,
+        rate,
+        liftVsBaseline: null,
+        confidenceVsBaseline: 0,
+        statusVsBaseline: "baseline",
+      };
+    }
+    const sig = evaluateExperiment(base.exposures, base.conversions, cur.exposures, cur.conversions);
+    return {
+      key: k,
+      exposures: cur.exposures,
+      conversions: cur.conversions,
+      rate,
+      liftVsBaseline: sig.relativeLiftPct,
+      confidenceVsBaseline: sig.confidencePct,
+      statusVsBaseline: sig.status,
+    };
+  });
+
+  // Determine overall leader & top vs runner-up significance
+  const sorted = [...variants].sort((a, b) => b.rate - a.rate || b.conversions - a.conversions);
+  const top = sorted[0];
+  const runnerUp = sorted[1];
+  const topTest =
+    top && runnerUp
+      ? evaluateExperiment(runnerUp.exposures, runnerUp.conversions, top.exposures, top.conversions)
+      : evaluateExperiment(0, 0, 0, 0);
+
   return {
-    A: { exposures: expA, conversions: convA },
-    B: { exposures: expB, conversions: convB },
-    significance: evaluateExperiment(expA, convA, expB, convB),
+    variants,
+    leader: top && top.exposures > 0 ? top.key : "tie",
+    confidencePct: topTest.confidencePct,
+    status: topTest.status,
+    baseRate,
   };
 }
 
@@ -66,6 +119,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       configured: false,
       range: dateRange,
+      expWindow,
       config: await getSiteConfig(),
       overview: {
         page_views: 0,
@@ -79,8 +133,8 @@ export async function GET(req: NextRequest) {
       },
       pages: [],
       experiments: {
-        landing: buildExpStats([]),
-        funnel: buildExpStats([]),
+        landing: buildExpStats([], ["A", "B", "M"]),
+        funnel: buildExpStats([], ["A", "B"]),
       },
       funnel: [],
     });
@@ -122,8 +176,8 @@ export async function GET(req: NextRequest) {
       overview,
       pages,
       experiments: {
-        landing: buildExpStats(landingExp),
-        funnel: buildExpStats(funnelExp),
+        landing: buildExpStats(landingExp, ["A", "B", "M"]),
+        funnel: buildExpStats(funnelExp, ["A", "B"]),
       },
       funnel,
     });

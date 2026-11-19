@@ -2,7 +2,7 @@
 
 import { getConsent } from "@/lib/consent";
 import { sendGaEvent } from "@/lib/ga";
-import { ABVariant } from "@/data/translations";
+import { ABVariant, LandingVariant } from "@/data/translations";
 
 const SID_KEY = "kr_sid";
 const SID_AT_KEY = "kr_sid_at";
@@ -130,7 +130,7 @@ export interface TrackEventInput {
   type: "page_view" | "page_time" | "cta_click" | "funnel_view" | "funnel_step";
   path: string;
   view_id?: string | null;
-  landing_variant?: ABVariant;
+  landing_variant?: LandingVariant;
   funnel_variant?: ABVariant;
   routed?: boolean;
   source?: string | null;
@@ -170,7 +170,7 @@ export function sendTrackEvent(input: TrackEventInput, useBeacon = false) {
 
 export function trackCtaAndGa(
   source: string,
-  opts: { path?: string; landingVariant?: ABVariant; funnelVariant?: ABVariant } = {}
+  opts: { path?: string; landingVariant?: LandingVariant; funnelVariant?: ABVariant } = {}
 ) {
   if (isTrackingDisabled() || typeof window === "undefined") return;
   const path = opts.path ?? window.location.pathname;

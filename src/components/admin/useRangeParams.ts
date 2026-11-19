@@ -3,17 +3,24 @@
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { SiteConfig } from "@/lib/ab";
-import type { ExperimentSignificance, ResolvedDateRange } from "@/lib/stats";
+import type { ConfidenceStatus, ResolvedDateRange } from "@/lib/stats";
 
-export interface ExpSideStats {
+export interface VariantStatRow {
+  key: string;
   exposures: number;
   conversions: number;
+  rate: number;
+  liftVsBaseline: number | null;
+  confidenceVsBaseline: number;
+  statusVsBaseline: ConfidenceStatus | "baseline";
 }
 
 export interface ExpStatsBundle {
-  A: ExpSideStats;
-  B: ExpSideStats;
-  significance: ExperimentSignificance;
+  variants: VariantStatRow[];
+  leader: string;
+  confidencePct: number;
+  status: ConfidenceStatus;
+  baseRate: number;
 }
 
 export interface StatsResponse {

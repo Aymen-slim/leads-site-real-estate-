@@ -39,21 +39,23 @@ function StepDropoffCard({
   const submitCount = counts.get("submit") ?? 0;
 
   return (
-    <section className="bg-[#FFFFFF] border border-[#DFDFDF] p-5 sm:p-6 space-y-5">
-      <div className="flex flex-wrap items-start justify-between gap-2 border-b border-[#EDF0E7] pb-4">
+    <section className="bg-[#FFFFFF] border border-[#E2E8E4] rounded-2xl p-5 sm:p-6 shadow-[0_1px_2px_rgba(15,41,30,0.03),0_8px_24px_rgba(15,41,30,0.03)] space-y-5">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#EDF2EF] pb-4">
         <div>
-          <h2 className="font-serif text-[24px] text-[#000000]">{title}</h2>
-          <p className="text-[14px] text-[#5A5954] mt-0.5">{subtitle}</p>
+          <h2 className="font-display text-[21px] font-semibold text-[#0F291E]">{title}</h2>
+          <p className="text-[13px] text-[#5B7065] mt-0.5">{subtitle}</p>
         </div>
-        <div className="bg-[#EDF0E7] border border-[#DCE2CF] px-3.5 py-2 text-right">
-          <span className="block text-[12px] text-[#5A5954]">Completion rate</span>
-          <span className="text-[20px] font-semibold text-[#000000] tabular-nums">
+        <div className="rounded-xl bg-[#EAF4EF] border border-[#CBE3D6] px-3.5 py-2 text-right">
+          <span className="block text-[11px] font-semibold uppercase tracking-wider text-[#14533C]">
+            Completion
+          </span>
+          <span className="font-display text-[22px] font-semibold text-[#0F291E] tabular-nums leading-tight">
             {startCount > 0 ? formatPct(submitCount / startCount, 1) : "—"}
           </span>
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3.5">
         {steps.map((s, idx) => {
           const val = counts.get(s.key) ?? 0;
           const prevVal = idx > 0 ? counts.get(steps[idx - 1].key) ?? 0 : val;
@@ -63,24 +65,24 @@ function StepDropoffCard({
 
           return (
             <div key={s.key} className="space-y-1.5">
-              <div className="flex flex-wrap items-center justify-between gap-2 text-[14px]">
-                <span className="font-medium text-[#000000]">{s.label}</span>
-                <div className="flex items-center gap-3 tabular-nums">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-[13px]">
+                <span className="font-semibold text-[#14201A]">{s.label}</span>
+                <div className="flex items-center gap-2.5 tabular-nums">
                   {dropFromPrev !== null && dropFromPrev > 0 && (
-                    <span className="text-[12px] text-[#BA5B3E] font-medium">
+                    <span className="px-2 py-0.5 rounded-full bg-[#FEF2F0] text-[#B8422C] text-[11px] font-semibold">
                       −{formatPct(dropFromPrev, 0)} drop
                     </span>
                   )}
-                  <span className="font-semibold text-[#000000]">
-                    {val} sessions ({pctOfStart.toFixed(0)}%)
+                  <span className="font-semibold text-[#0F291E]">
+                    {val} <span className="font-normal text-[#5B7065]">({pctOfStart.toFixed(0)}%)</span>
                   </span>
                 </div>
               </div>
-              <div className="h-4 w-full bg-[#EDF0E7] border border-[#DCE2CF]">
+              <div className="h-3 w-full bg-[#EEF2EF] rounded-full overflow-hidden">
                 <div
                   style={{ width: `${Math.min(100, pctOfStart)}%` }}
-                  className={`h-full transition-all ${
-                    s.key === "submit" ? "bg-[#5D726A]" : "bg-[#B8C49E]"
+                  className={`h-full rounded-full transition-all ${
+                    s.key === "submit" ? "bg-[#0F291E]" : "bg-[#147A53]"
                   }`}
                 />
               </div>
@@ -107,23 +109,23 @@ function FunnelInner() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-serif text-[32px] leading-tight text-[#000000]">
+          <h1 className="font-display text-[30px] sm:text-[34px] font-semibold tracking-tight leading-tight text-[#0F291E]">
             Funnel Drop-off
           </h1>
-          <p className="text-[15px] text-[#5A5954]">
-            See exactly which question or step causes sellers to abandon Funnel A or Funnel B.
+          <p className="text-[14px] text-[#5B7065] mt-0.5">
+            Track step-by-step retention across Funnel A and Funnel B to pinpoint seller friction.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex bg-[#FFFFFF] border border-[#BFBFBD] p-0.5 text-[13px]">
+          <div className="inline-flex bg-[#EEF2EF] rounded-full p-1 border border-[#DFE6E1] text-[13px]">
             <button
               type="button"
               onClick={() => setIncludeRouted(true)}
-              className={`px-3 py-1.5 font-medium cursor-pointer ${
-                includeRouted ? "bg-[#292823] text-[#FFFFFF]" : "text-[#000000]"
+              className={`px-3 py-1 rounded-full font-medium cursor-pointer transition-all ${
+                includeRouted ? "bg-[#FFFFFF] text-[#0F291E] font-semibold shadow-2xs" : "text-[#4D6157]"
               }`}
             >
               All form visits
@@ -131,8 +133,8 @@ function FunnelInner() {
             <button
               type="button"
               onClick={() => setIncludeRouted(false)}
-              className={`px-3 py-1.5 font-medium cursor-pointer ${
-                !includeRouted ? "bg-[#292823] text-[#FFFFFF]" : "text-[#000000]"
+              className={`px-3 py-1 rounded-full font-medium cursor-pointer transition-all ${
+                !includeRouted ? "bg-[#FFFFFF] text-[#0F291E] font-semibold shadow-2xs" : "text-[#4D6157]"
               }`}
             >
               A/B split only
@@ -143,16 +145,16 @@ function FunnelInner() {
             type="button"
             onClick={() => void reload()}
             disabled={loading}
-            className="min-h-[38px] px-3 py-1.5 bg-[#FFFFFF] border border-[#BFBFBD] hover:bg-[#EDF0E7] text-[13px] font-medium inline-flex items-center gap-1.5 cursor-pointer"
+            className="h-9 px-3.5 rounded-full bg-[#FFFFFF] border border-[#D8E2DC] hover:bg-[#EAF4EF] text-[13px] font-semibold inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <RefreshIcon className="w-4 h-4" />
+            <RefreshIcon className={`w-3.5 h-3.5 text-[#147A53] ${loading ? "animate-spin" : ""}`} />
             <span>Refresh</span>
           </button>
         </div>
       </div>
 
       {error && (
-        <div role="alert" className="p-4 bg-[hsl(6deg_100%_97%)] border border-[#BA5B3E] text-[#BA5B3E] text-[15px]">
+        <div role="alert" className="p-4 rounded-2xl bg-[#FEF2F0] border border-[#F0C2B9] text-[#B8422C] text-[14px]">
           {error}
         </div>
       )}
@@ -167,14 +169,14 @@ function FunnelInner() {
 
         <StepDropoffCard
           title="Funnel B — Single-Page Typed Form"
-          subtitle="All 4 questions typed on one page"
+          subtitle="All 4 seller questions typed on one page"
           steps={FUNNEL_B_STEPS}
           counts={mapB}
         />
       </div>
 
-      <p className="text-[13px] text-[#5A5954]">
-        Note: Visitors arriving from calculators with pre-filled property type and size skip directly to Step 2 or Step 3 in Funnel A.
+      <p className="text-[13px] text-[#5B7065]">
+        Note: Sellers arriving from calculators with pre-filled property type and size skip directly to Step 2 or Step 3 in Funnel A.
       </p>
     </div>
   );
@@ -182,7 +184,7 @@ function FunnelInner() {
 
 export default function AdminFunnelPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-[#5D726A]">Loading funnel metrics...</div>}>
+    <Suspense fallback={<div className="p-6 text-[#147A53]">Loading funnel metrics...</div>}>
       <FunnelInner />
     </Suspense>
   );

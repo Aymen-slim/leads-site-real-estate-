@@ -1,6 +1,8 @@
-// Shared A/B + routing logic. Edge-safe (used by middleware, API routes and server components).
+// Shared A/B/M + routing logic. Edge-safe (used by middleware, API routes and server components).
 
-export type Variant = "A" | "B";
+export type LandingVariant = "A" | "B" | "M";
+export type FunnelVariant = "A" | "B";
+export type Variant = LandingVariant;
 export type ExperimentId = "landing" | "funnel";
 export type RouteDestination = "split" | "A" | "B";
 
@@ -39,12 +41,53 @@ export const FUNNEL_PATHS = ["/connect-agency", "/sell"];
 export const FALLBACK_SOURCE = "*";
 export const NAV_SOURCE = "nav";
 
+export const VARIANT_META: Record<
+  ExperimentId,
+  Record<string, { short: string; name: string; desc: string; color: string }>
+> = {
+  landing: {
+    A: {
+      short: "Classic A",
+      name: "Classic A — Krogsveen Split Hero",
+      desc: "Editorial two-image split hero with House Value Growth Calculator & classic Krogsveen layout.",
+      color: "#1B4332",
+    },
+    B: {
+      short: "Classic B",
+      name: "Classic B — Krogsveen Sage Direct",
+      desc: "Botanical sage full-bleed hero with single agency CTA & classic Krogsveen layout.",
+      color: "#C9963B",
+    },
+    M: {
+      short: "Modern",
+      name: "Modern — VurderBoligen Full Site (Home A)",
+      desc: "Modern VurderBoligen architecture: frosted pill navbar, interactive charts, rounded cards (Home A only).",
+      color: "#147A53",
+    },
+  },
+  funnel: {
+    A: {
+      short: "Funnel A",
+      name: "Funnel A — 5-Step Tap Cards",
+      desc: "Zero-typing oversized tap cards with auto-advance and 1-tap GPS location.",
+      color: "#1B4332",
+    },
+    B: {
+      short: "Funnel B",
+      name: "Funnel B — 1-Page Typed Form",
+      desc: "All 4 seller questions on a single page with zone buyer demand banner.",
+      color: "#147A53",
+    },
+  },
+};
+
 export const KNOWN_SOURCES: { source: string; group: string; label: string }[] = [
   { source: "*", group: "System", label: "Fallback (unknown / no source)" },
   { source: "nav", group: "Navigation", label: "Menu / navigation links" },
-  { source: "hero-a", group: "Home", label: "Home A — hero button" },
+  { source: "hero-a", group: "Home", label: "Home A / Modern — hero button" },
   { source: "landing-b", group: "Home", label: "Home B — hero button" },
   { source: "growth-calc", group: "Home", label: "Home — price growth calculator" },
+  { source: "recipe-banner", group: "Home", label: "Modern home — fjord recipe banner CTA" },
   { source: "land-value", group: "Home", label: "Home — land value section" },
   { source: "sell-as-is", group: "Home", label: "Home — sell as-is section" },
   { source: "sample-ads", group: "Home", label: "Home — sample ads header CTA" },
@@ -76,34 +119,47 @@ export const DEFAULT_CONFIG: SiteConfig = {
   experiments: {
     landing: {
       id: "landing",
-      name: "Landing page",
+      name: "Site Experience & Landing Page",
       status: "running",
       winner: null,
       version: 1,
       started_at: new Date(0).toISOString(),
       variants: [
-        { key: "A", label: "A", weight: 50, enabled: true },
-        { key: "B", label: "B", weight: 50, enabled: true },
+        { key: "A", label: "A - Classic split photo hero + calculator", weight: 33, enabled: true },
+        { key: "B", label: "B - Classic sage hero, single CTA", weight: 33, enabled: true },
+        { key: "M", label: "M - Modern VurderBoligen site (Home A)", weight: 34, enabled: true },
       ],
     },
     funnel: {
       id: "funnel",
-      name: "Seller form",
+      name: "Seller Form",
       status: "running",
       winner: null,
       version: 1,
       started_at: new Date(0).toISOString(),
       variants: [
-        { key: "A", label: "A", weight: 50, enabled: true },
-        { key: "B", label: "B", weight: 50, enabled: true },
+        { key: "A", label: "A - Tap cards, 5 steps", weight: 50, enabled: true },
+        { key: "B", label: "B - Single page typed form", weight: 50, enabled: true },
       ],
     },
   },
   routes: { [FALLBACK_SOURCE]: "split" },
 };
 
-export function isVariant(v: unknown): v is Variant {
+export function isLandingVariant(v: unknown): v is LandingVariant {
+  return v === "A" || v === "B" || v === "M";
+}
+
+export function isFunnelVariant(v: unknown): v is FunnelVariant {
   return v === "A" || v === "B";
+}
+
+export function isVariant(v: unknown): v is Variant {
+  return isLandingVariant(v);
+}
+
+export function isVariantForExperiment(expId: ExperimentId, v: unknown): v is Variant {
+  return expId === "landing" ? isLandingVariant(v) : isFunnelVariant(v);
 }
 
 /** Weighted random pick among enabled variants with weight > 0. */
@@ -151,13 +207,13 @@ export function resolveAssignment(
   return { assignment: { v: pickWeighted(exp.variants), ver: exp.version }, changed: true };
 }
 
-/** Cookie format: "landing:A:1|funnel:B:3" */
+/** Cookie format: "landing:M:1|funnel:B:3" */
 export function parseAbCookie(value: string | undefined): Partial<Record<ExperimentId, Assignment>> {
   const out: Partial<Record<ExperimentId, Assignment>> = {};
   if (!value) return out;
   for (const part of value.split("|")) {
     const [id, v, ver] = part.split(":");
-    if ((id === "landing" || id === "funnel") && isVariant(v)) {
+    if ((id === "landing" || id === "funnel") && isVariantForExperiment(id, v)) {
       const n = Number(ver);
       if (Number.isInteger(n) && n > 0) out[id] = { v, ver: n };
     }
@@ -176,7 +232,7 @@ export function parsePreviewCookie(
   if (!value) return out;
   for (const part of value.split("|")) {
     const [id, v] = part.split(":");
-    if ((id === "landing" || id === "funnel") && isVariant(v)) out[id] = v;
+    if ((id === "landing" || id === "funnel") && isVariantForExperiment(id, v)) out[id] = v;
   }
   return out;
 }
@@ -202,8 +258,8 @@ export function normalizeSource(raw: string | null | undefined): string | null {
 export function resolveFormVariant(
   config: SiteConfig,
   rawSource: string | null | undefined,
-  assignedFunnel: Variant
-): { variant: Variant; routed: boolean; source: string } {
+  assignedFunnel: FunnelVariant
+): { variant: FunnelVariant; routed: boolean; source: string } {
   const source = normalizeSource(rawSource) ?? NAV_SOURCE;
   const rule = config.routes[source] ?? config.routes[FALLBACK_SOURCE] ?? "split";
   if (rule === "A" || rule === "B") {

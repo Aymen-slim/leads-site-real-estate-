@@ -2,7 +2,7 @@
 
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { KNOWN_SOURCES } from "@/lib/ab";
+import { KNOWN_SOURCES, VARIANT_META } from "@/lib/ab";
 import type { LeadRow, LeadStatus } from "@/lib/leadsQuery";
 import { DownloadCsvIcon, RefreshIcon } from "@/components/AdminIcons";
 
@@ -21,16 +21,15 @@ interface LeadsApiResponse {
 }
 
 const STATUS_BADGE: Record<LeadStatus, string> = {
-  new: "bg-[#B8C49E] border-[#5D726A] text-[#000000]",
-  contacted: "bg-[#FFF7D4] border-[#BFBFBD] text-[#000000]",
-  won: "bg-[#5D726A] border-[#43544E] text-[#FFFFFF]",
-  lost: "bg-[#F7F7F7] border-[#BFBFBD] text-[#5A5954]",
+  new: "bg-[#EAF4EF] border-[#B6DCC8] text-[#14533C]",
+  contacted: "bg-[#FEF6E2] border-[#ECD8A4] text-[#7A4E00]",
+  won: "bg-[#0F291E] border-[#0F291E] text-[#FFFFFF]",
+  lost: "bg-[#F3F5F4] border-[#DCE2DE] text-[#6B7D73]",
 };
 
 function LeadsInner() {
   const sp = useSearchParams();
 
-  // Read global date range from URL + initialize optional source filter from URL (?source=...)
   const range = sp.get("range") || "30d";
   const rangeFrom = sp.get("from") || "";
   const rangeTo = sp.get("to") || "";
@@ -119,7 +118,7 @@ function LeadsInner() {
       if (k.source !== "*") map.set(k.source, k);
     }
     for (const s of data?.facets.sources ?? []) {
-      if (!map.has(s)) map.set(s, { source: s, group: "Campaign / Custom", label: s });
+      if (!map.has(s)) map.set(s, { source: s, group: "Campaign", label: s });
     }
     return Array.from(map.values());
   }, [data?.facets.sources]);
@@ -207,35 +206,38 @@ function LeadsInner() {
     return KNOWN_SOURCES.find((k) => k.source === key)?.label ?? key;
   };
 
+  const siteLabel = (v: string | null) =>
+    v ? VARIANT_META.landing[v]?.short ?? v : "—";
+
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.limit)) : 1;
 
   return (
-    <div className="space-y-5">
-      {/* Header + CSV Download Button */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-6">
+      {/* Header + CSV Download */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-serif text-[32px] leading-tight text-[#000000]">
-            Leads &amp; Form Submissions
+          <h1 className="font-display text-[30px] sm:text-[34px] font-semibold tracking-tight leading-tight text-[#0F291E]">
+            Leads &amp; Submissions
           </h1>
-          <p className="text-[15px] text-[#5A5954]">
-            Filter leads by which button, tool, or page they came from, and export filtered results to CSV.
+          <p className="text-[14px] text-[#5B7065] mt-0.5">
+            Filter leads by source button, site version, or form, and download filtered results as CSV.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => void load()}
             disabled={loading}
-            className="min-h-[44px] px-3.5 py-2 bg-[#FFFFFF] border border-[#BFBFBD] hover:bg-[#EDF0E7] text-[14px] font-medium inline-flex items-center gap-2 cursor-pointer"
+            className="h-10 px-3.5 rounded-full bg-[#FFFFFF] border border-[#D8E2DC] hover:bg-[#EAF4EF] text-[13px] font-semibold inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <RefreshIcon className="w-4 h-4" />
+            <RefreshIcon className={`w-3.5 h-3.5 text-[#147A53] ${loading ? "animate-spin" : ""}`} />
             <span>Refresh</span>
           </button>
 
           <a
             href={`/api/admin/leads/export?${filterQs}`}
-            className="min-h-[44px] px-4 py-2 bg-[#B8C49E] hover:bg-[#C5D0AF] border border-[#5D726A] text-[#000000] text-[14px] font-semibold inline-flex items-center gap-2"
+            className="h-10 px-5 rounded-full bg-[#147A53] hover:bg-[#0D5E3F] text-[#FFFFFF] text-[13px] font-semibold inline-flex items-center gap-2 transition-colors shadow-xs"
           >
             <DownloadCsvIcon className="w-4 h-4" />
             <span>Download CSV ({data?.total ?? 0})</span>
@@ -244,13 +246,11 @@ function LeadsInner() {
       </div>
 
       {/* Filters Panel */}
-      <section className="bg-[#FFFFFF] border border-[#DFDFDF] p-4 sm:p-5 space-y-4">
+      <section className="bg-[#FFFFFF] border border-[#E2E8E4] rounded-2xl p-5 shadow-[0_1px_2px_rgba(15,41,30,0.03),0_8px_24px_rgba(15,41,30,0.03)] space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-[15px] font-semibold text-[#000000]">
-            Filter Leads
-          </h2>
+          <h2 className="text-[14px] font-semibold text-[#0F291E]">Filter Leads</h2>
           <div className="flex items-center gap-4 text-[13px]">
-            <label className="inline-flex items-center gap-2 cursor-pointer">
+            <label className="inline-flex items-center gap-2 cursor-pointer text-[#4B5F55]">
               <input
                 type="checkbox"
                 checked={useAllDates}
@@ -258,14 +258,14 @@ function LeadsInner() {
                   setPage(1);
                   setUseAllDates(e.target.checked);
                 }}
-                className="accent-[#5D726A] w-4 h-4"
+                className="accent-[#147A53] w-4 h-4"
               />
-              <span>All dates (ignore top date range)</span>
+              <span>All dates</span>
             </label>
             <button
               type="button"
               onClick={resetFilters}
-              className="underline decoration-[#5D726A] text-[#000000] font-medium cursor-pointer"
+              className="text-[#147A53] hover:text-[#0F291E] font-semibold cursor-pointer"
             >
               Reset filters
             </button>
@@ -274,7 +274,7 @@ function LeadsInner() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div>
-            <label htmlFor="f-search" className="block text-[12px] font-medium text-[#5A5954] mb-1">
+            <label htmlFor="f-search" className="block text-[12px] font-semibold text-[#5B7065] mb-1">
               Search name, phone or city
             </label>
             <input
@@ -286,12 +286,72 @@ function LeadsInner() {
                 setSearchText(e.target.value);
               }}
               placeholder="e.g. Henrik or 900..."
-              className="w-full min-h-[40px] px-3 bg-[#F7F7F7] border border-[#BFBFBD] text-[14px]"
+              className="w-full h-10 px-3.5 rounded-xl bg-[#F7FAF8] border border-[#D4DFD8] focus:border-[#147A53] outline-none text-[14px]"
             />
           </div>
 
           <div>
-            <label htmlFor="f-lp" className="block text-[12px] font-medium text-[#5A5954] mb-1">
+            <label htmlFor="f-lv" className="block text-[12px] font-semibold text-[#5B7065] mb-1">
+              Site Version Seen
+            </label>
+            <select
+              id="f-lv"
+              value={landingVariant}
+              onChange={(e) => {
+                setPage(1);
+                setLandingVariant(e.target.value);
+              }}
+              className="w-full h-10 px-3 rounded-xl bg-[#F7FAF8] border border-[#D4DFD8] focus:border-[#147A53] outline-none text-[14px]"
+            >
+              <option value="">All site versions</option>
+              <option value="A">Classic A</option>
+              <option value="B">Classic B</option>
+              <option value="M">Modern (VurderBoligen)</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="f-form" className="block text-[12px] font-semibold text-[#5B7065] mb-1">
+              Form Shown
+            </label>
+            <select
+              id="f-form"
+              value={formVariant}
+              onChange={(e) => {
+                setPage(1);
+                setFormVariant(e.target.value);
+              }}
+              className="w-full h-10 px-3 rounded-xl bg-[#F7FAF8] border border-[#D4DFD8] focus:border-[#147A53] outline-none text-[14px]"
+            >
+              <option value="">All forms</option>
+              <option value="A">Funnel A (Tap Cards)</option>
+              <option value="B">Funnel B (Typed 1-Page)</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="f-status" className="block text-[12px] font-semibold text-[#5B7065] mb-1">
+              Lead Status
+            </label>
+            <select
+              id="f-status"
+              value={status}
+              onChange={(e) => {
+                setPage(1);
+                setStatus(e.target.value);
+              }}
+              className="w-full h-10 px-3 rounded-xl bg-[#F7FAF8] border border-[#D4DFD8] focus:border-[#147A53] outline-none text-[14px]"
+            >
+              <option value="">All statuses</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="won">Won</option>
+              <option value="lost">Lost</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="f-lp" className="block text-[12px] font-semibold text-[#5B7065] mb-1">
               Entry Landing Page
             </label>
             <select
@@ -301,7 +361,7 @@ function LeadsInner() {
                 setPage(1);
                 setLandingPage(e.target.value);
               }}
-              className="w-full min-h-[40px] px-3 bg-[#F7F7F7] border border-[#BFBFBD] text-[14px]"
+              className="w-full h-10 px-3 rounded-xl bg-[#F7FAF8] border border-[#D4DFD8] focus:border-[#147A53] outline-none text-[14px]"
             >
               <option value="">All landing pages</option>
               {(data?.facets.landing_pages ?? []).map((p) => (
@@ -313,47 +373,7 @@ function LeadsInner() {
           </div>
 
           <div>
-            <label htmlFor="f-form" className="block text-[12px] font-medium text-[#5A5954] mb-1">
-              Form Shown
-            </label>
-            <select
-              id="f-form"
-              value={formVariant}
-              onChange={(e) => {
-                setPage(1);
-                setFormVariant(e.target.value);
-              }}
-              className="w-full min-h-[40px] px-3 bg-[#F7F7F7] border border-[#BFBFBD] text-[14px]"
-            >
-              <option value="">All forms</option>
-              <option value="A">Funnel A (Tap Cards)</option>
-              <option value="B">Funnel B (Typed 1-Page)</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="f-status" className="block text-[12px] font-medium text-[#5A5954] mb-1">
-              Lead Status
-            </label>
-            <select
-              id="f-status"
-              value={status}
-              onChange={(e) => {
-                setPage(1);
-                setStatus(e.target.value);
-              }}
-              className="w-full min-h-[40px] px-3 bg-[#F7F7F7] border border-[#BFBFBD] text-[14px]"
-            >
-              <option value="">All statuses</option>
-              <option value="new">New</option>
-              <option value="contacted">Contacted</option>
-              <option value="won">Won</option>
-              <option value="lost">Lost</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="f-routed" className="block text-[12px] font-medium text-[#5A5954] mb-1">
+            <label htmlFor="f-routed" className="block text-[12px] font-semibold text-[#5B7065] mb-1">
               Routing Mode
             </label>
             <select
@@ -363,7 +383,7 @@ function LeadsInner() {
                 setPage(1);
                 setRoutedFilter(e.target.value);
               }}
-              className="w-full min-h-[40px] px-3 bg-[#F7F7F7] border border-[#BFBFBD] text-[14px]"
+              className="w-full h-10 px-3 rounded-xl bg-[#F7FAF8] border border-[#D4DFD8] focus:border-[#147A53] outline-none text-[14px]"
             >
               <option value="">Split + Forced</option>
               <option value="false">A/B Split only</option>
@@ -372,26 +392,7 @@ function LeadsInner() {
           </div>
 
           <div>
-            <label htmlFor="f-lv" className="block text-[12px] font-medium text-[#5A5954] mb-1">
-              Home Variant Seen
-            </label>
-            <select
-              id="f-lv"
-              value={landingVariant}
-              onChange={(e) => {
-                setPage(1);
-                setLandingVariant(e.target.value);
-              }}
-              className="w-full min-h-[40px] px-3 bg-[#F7F7F7] border border-[#BFBFBD] text-[14px]"
-            >
-              <option value="">A &amp; B</option>
-              <option value="A">Landing A</option>
-              <option value="B">Landing B</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="f-ptype" className="block text-[12px] font-medium text-[#5A5954] mb-1">
+            <label htmlFor="f-ptype" className="block text-[12px] font-semibold text-[#5B7065] mb-1">
               Property Type
             </label>
             <select
@@ -401,7 +402,7 @@ function LeadsInner() {
                 setPage(1);
                 setPropertyType(e.target.value);
               }}
-              className="w-full min-h-[40px] px-3 bg-[#F7F7F7] border border-[#BFBFBD] text-[14px]"
+              className="w-full h-10 px-3 rounded-xl bg-[#F7FAF8] border border-[#D4DFD8] focus:border-[#147A53] outline-none text-[14px]"
             >
               <option value="">All types</option>
               <option value="house">House / Villa</option>
@@ -411,7 +412,7 @@ function LeadsInner() {
           </div>
 
           <div>
-            <label htmlFor="f-city" className="block text-[12px] font-medium text-[#5A5954] mb-1">
+            <label htmlFor="f-city" className="block text-[12px] font-semibold text-[#5B7065] mb-1">
               City
             </label>
             <select
@@ -421,7 +422,7 @@ function LeadsInner() {
                 setPage(1);
                 setCity(e.target.value);
               }}
-              className="w-full min-h-[40px] px-3 bg-[#F7F7F7] border border-[#BFBFBD] text-[14px]"
+              className="w-full h-10 px-3 rounded-xl bg-[#F7FAF8] border border-[#D4DFD8] focus:border-[#147A53] outline-none text-[14px]"
             >
               <option value="">All cities</option>
               {(data?.facets.cities ?? []).map((c) => (
@@ -433,11 +434,11 @@ function LeadsInner() {
           </div>
         </div>
 
-        {/* Multi-select Source Filter Chips ("filter from which form/button it came") */}
-        <div className="pt-2 border-t border-[#EDF0E7] space-y-2">
+        {/* Multi-select Source Chips */}
+        <div className="pt-3 border-t border-[#EDF2EF] space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-[13px] font-medium text-[#292823]">
-              Filter by Source (where the lead came from):
+            <span className="text-[12px] font-semibold uppercase tracking-wider text-[#5B7065]">
+              Filter by Source (button / calculator / ad):
             </span>
             {selectedSources.length > 0 && (
               <button
@@ -446,9 +447,9 @@ function LeadsInner() {
                   setPage(1);
                   setSelectedSources([]);
                 }}
-                className="text-[12px] underline text-[#5D726A] cursor-pointer"
+                className="text-[12px] font-semibold text-[#147A53] cursor-pointer"
               >
-                Clear source filter ({selectedSources.length})
+                Clear ({selectedSources.length})
               </button>
             )}
           </div>
@@ -461,10 +462,10 @@ function LeadsInner() {
                   type="button"
                   onClick={() => toggleSource(opt.source)}
                   title={`${opt.group}: ${opt.label}`}
-                  className={`px-2.5 py-1 text-[12px] border cursor-pointer transition-colors ${
+                  className={`px-3 py-1 rounded-full text-[12px] border cursor-pointer transition-all ${
                     active
-                      ? "bg-[#292823] border-[#292823] text-[#FFFFFF] font-semibold"
-                      : "bg-[#EDF0E7] border-[#DCE2CF] text-[#000000] hover:bg-[#DCE2CF]"
+                      ? "bg-[#0F291E] border-[#0F291E] text-[#FFFFFF] font-semibold shadow-2xs"
+                      : "bg-[#F4F7F5] border-[#DCE5DF] text-[#273930] hover:bg-[#EAF4EF] hover:border-[#B6DCC8]"
                   }`}
                 >
                   {opt.source}
@@ -475,7 +476,7 @@ function LeadsInner() {
 
           {(data?.facets.utm_sources ?? []).length > 0 && (
             <div className="flex flex-wrap items-center gap-2 pt-1">
-              <label htmlFor="f-utm" className="text-[12px] font-medium text-[#5A5954]">
+              <label htmlFor="f-utm" className="text-[12px] font-semibold text-[#5B7065]">
                 UTM Source:
               </label>
               <select
@@ -485,7 +486,7 @@ function LeadsInner() {
                   setPage(1);
                   setUtmSource(e.target.value);
                 }}
-                className="px-2.5 py-1 bg-[#F7F7F7] border border-[#BFBFBD] text-[13px]"
+                className="px-3 py-1 rounded-full bg-[#F7FAF8] border border-[#D4DFD8] text-[12px]"
               >
                 <option value="">All UTM</option>
                 {data?.facets.utm_sources.map((u) => (
@@ -500,132 +501,134 @@ function LeadsInner() {
       </section>
 
       {error && (
-        <div role="alert" className="p-4 bg-[hsl(6deg_100%_97%)] border border-[#BA5B3E] text-[#BA5B3E] text-[15px]">
+        <div role="alert" className="p-4 rounded-2xl bg-[#FEF2F0] border border-[#F0C2B9] text-[#B8422C] text-[14px]">
           {error}
         </div>
       )}
 
       {/* Leads Table */}
-      <div className="bg-[#FFFFFF] border border-[#DFDFDF] overflow-x-auto">
-        <table className="w-full text-left border-collapse text-[14px]">
-          <thead>
-            <tr className="bg-[#EDF0E7] border-b border-[#DCE2CF] text-[#292823]">
-              <th className="py-3 px-4 font-medium">Date</th>
-              <th className="py-3 px-3 font-medium">Seller</th>
-              <th className="py-3 px-3 font-medium">Property &amp; Location</th>
-              <th className="py-3 px-3 font-medium">Came From (Source)</th>
-              <th className="py-3 px-3 font-medium">Form / Variants</th>
-              <th className="py-3 px-3 font-medium">Status</th>
-              <th className="py-3 px-4 text-right font-medium">Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(data?.leads ?? []).length === 0 ? (
-              <tr>
-                <td colSpan={7} className="py-10 text-center text-[#5A5954]">
-                  {loading ? "Loading leads..." : "No leads match these filters."}
-                </td>
+      <div className="bg-[#FFFFFF] border border-[#E2E8E4] rounded-2xl overflow-hidden shadow-[0_1px_2px_rgba(15,41,30,0.03),0_8px_24px_rgba(15,41,30,0.03)]">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-[14px]">
+            <thead>
+              <tr className="bg-[#F7FAF8] border-b border-[#E6ECE8] text-[#5B7065] text-[12px] uppercase tracking-wider">
+                <th className="py-3.5 px-5 font-semibold">Date</th>
+                <th className="py-3.5 px-3 font-semibold">Seller</th>
+                <th className="py-3.5 px-3 font-semibold">Property &amp; Location</th>
+                <th className="py-3.5 px-3 font-semibold">Came From</th>
+                <th className="py-3.5 px-3 font-semibold">Site / Form</th>
+                <th className="py-3.5 px-3 font-semibold">Status</th>
+                <th className="py-3.5 px-5 text-right font-semibold">Details</th>
               </tr>
-            ) : (
-              data?.leads.map((l) => (
-                <tr key={l.id} className="border-b border-[#EDF0E7] hover:bg-[#F7F7F7]">
-                  <td className="py-3 px-4 whitespace-nowrap text-[13px] tabular-nums text-[#5A5954]">
-                    {formatTs(l.created_at)}
-                  </td>
-                  <td className="py-3 px-3">
-                    <span className="block font-semibold text-[#000000]">{l.name}</span>
-                    <a
-                      href={`tel:${l.phone.replace(/\s+/g, "")}`}
-                      className="text-[13px] tabular-nums text-[#5D726A] underline"
-                    >
-                      {l.phone}
-                    </a>
-                  </td>
-                  <td className="py-3 px-3 text-[13px]">
-                    <span className="block text-[#000000] font-medium">
-                      {l.property_text ||
-                        [l.property_type, l.size].filter(Boolean).join(" · ") ||
-                        "—"}
-                    </span>
-                    <span className="block text-[#5A5954]">
-                      {l.location_text ||
-                        [l.city, l.area].filter(Boolean).join(" — ") ||
-                        "—"}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 text-[13px]">
-                    <span className="inline-block px-2 py-0.5 bg-[#EDF0E7] border border-[#DCE2CF] font-mono text-[12px] text-[#000000]">
-                      {l.source || "nav"}
-                    </span>
-                    <span className="block text-[12px] text-[#5A5954] mt-0.5">
-                      {sourceTitle(l.source)}
-                    </span>
-                    {l.landing_page && (
-                      <span className="block text-[11px] text-[#5A5954]">
-                        1st page: {l.landing_page}
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-3 px-3 text-[12px]">
-                    <span className="block font-medium text-[#000000]">
-                      Form {l.form_variant || "?"}{" "}
-                      <span className="text-[#5A5954]">
-                        ({l.routed ? "Forced" : "Split"})
-                      </span>
-                    </span>
-                    <span className="block text-[#5A5954]">
-                      Home: {l.landing_variant || "?"}
-                      {l.utm_source ? ` · utm:${l.utm_source}` : ""}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3">
-                    <select
-                      aria-label={`Status for ${l.name}`}
-                      value={l.status}
-                      onChange={(e) =>
-                        void updateLeadStatus(l.id, e.target.value as LeadStatus)
-                      }
-                      className={`px-2 py-1 text-[12px] font-semibold border cursor-pointer ${
-                        STATUS_BADGE[l.status]
-                      }`}
-                    >
-                      <option value="new">New</option>
-                      <option value="contacted">Contacted</option>
-                      <option value="won">Won</option>
-                      <option value="lost">Lost</option>
-                    </select>
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveLead(l);
-                        setNotesDraft(l.notes || "");
-                      }}
-                      className="px-2.5 py-1 bg-[#FFFFFF] border border-[#5D726A] hover:bg-[#DCE2CF] text-[12px] font-medium cursor-pointer"
-                    >
-                      Inspect
-                    </button>
+            </thead>
+            <tbody>
+              {(data?.leads ?? []).length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-[#6E8278]">
+                    {loading ? "Loading leads..." : "No leads match these filters."}
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                data?.leads.map((l) => (
+                  <tr
+                    key={l.id}
+                    className="border-b border-[#F1F5F2] last:border-0 hover:bg-[#F7FAF8] transition-colors"
+                  >
+                    <td className="py-3.5 px-5 whitespace-nowrap text-[13px] tabular-nums text-[#63786D]">
+                      {formatTs(l.created_at)}
+                    </td>
+                    <td className="py-3.5 px-3">
+                      <span className="block font-semibold text-[#0F291E]">{l.name}</span>
+                      <a
+                        href={`tel:${l.phone.replace(/\s+/g, "")}`}
+                        className="text-[13px] tabular-nums text-[#147A53] hover:underline font-medium"
+                      >
+                        {l.phone}
+                      </a>
+                    </td>
+                    <td className="py-3.5 px-3 text-[13px]">
+                      <span className="block text-[#0F291E] font-medium">
+                        {l.property_text ||
+                          [l.property_type, l.size].filter(Boolean).join(" · ") ||
+                          "—"}
+                      </span>
+                      <span className="block text-[#63786D]">
+                        {l.location_text ||
+                          [l.city, l.area].filter(Boolean).join(" — ") ||
+                          "—"}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-3 text-[13px]">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#EAF4EF] text-[#14533C] font-mono text-[11px] font-semibold">
+                        {l.source || "nav"}
+                      </span>
+                      <span className="block text-[12px] text-[#5B7065] mt-0.5">
+                        {sourceTitle(l.source)}
+                      </span>
+                      {l.landing_page && (
+                        <span className="block text-[11px] text-[#7D9186]">
+                          1st: {l.landing_page}
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-3 text-[12px]">
+                      <span className="block font-semibold text-[#0F291E]">
+                        {siteLabel(l.landing_variant)} · Form {l.form_variant || "?"}
+                      </span>
+                      <span className="block text-[#63786D]">
+                        {l.routed ? "Forced route" : "A/B split"}
+                        {l.utm_source ? ` · ${l.utm_source}` : ""}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-3">
+                      <select
+                        aria-label={`Status for ${l.name}`}
+                        value={l.status}
+                        onChange={(e) =>
+                          void updateLeadStatus(l.id, e.target.value as LeadStatus)
+                        }
+                        className={`px-3 py-1 rounded-full text-[12px] font-semibold border cursor-pointer outline-none ${
+                          STATUS_BADGE[l.status]
+                        }`}
+                      >
+                        <option value="new">New</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="won">Won</option>
+                        <option value="lost">Lost</option>
+                      </select>
+                    </td>
+                    <td className="py-3.5 px-5 text-right">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLead(l);
+                          setNotesDraft(l.notes || "");
+                        }}
+                        className="px-3 py-1 rounded-full bg-[#F4F7F5] hover:bg-[#EAF4EF] border border-[#D8E2DC] text-[12px] font-semibold text-[#0F291E] cursor-pointer transition-colors"
+                      >
+                        Inspect
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between text-[14px]">
-          <span className="text-[#5A5954]">
-            Page {page} of {totalPages} ({data?.total ?? 0} total leads)
+        <div className="flex items-center justify-between text-[13px]">
+          <span className="text-[#5B7065]">
+            Page {page} of {totalPages} ({data?.total ?? 0} leads)
           </span>
           <div className="flex items-center gap-2">
             <button
               type="button"
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="px-3 py-1.5 bg-[#FFFFFF] border border-[#BFBFBD] disabled:opacity-40 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-full bg-[#FFFFFF] border border-[#D8E2DC] font-semibold disabled:opacity-40 cursor-pointer"
             >
               Previous
             </button>
@@ -633,7 +636,7 @@ function LeadsInner() {
               type="button"
               disabled={page >= totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="px-3 py-1.5 bg-[#FFFFFF] border border-[#BFBFBD] disabled:opacity-40 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-full bg-[#FFFFFF] border border-[#D8E2DC] font-semibold disabled:opacity-40 cursor-pointer"
             >
               Next
             </button>
@@ -641,77 +644,103 @@ function LeadsInner() {
         </div>
       )}
 
-      {/* Lead Inspector Modal */}
+      {/* Modern Slide-Over Lead Inspector Drawer */}
       {activeLead && (
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="lead-modal-title"
-          className="fixed inset-0 z-50 bg-[#000000]/45 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[#0F291E]/40 backdrop-blur-[2px] flex justify-end"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setActiveLead(null);
+          }}
         >
-          <div className="w-full max-w-xl bg-[#FFFFFF] border-2 border-[#5D726A] p-6 space-y-5 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-start justify-between gap-4 border-b border-[#EDF0E7] pb-3">
+          <div className="w-full max-w-lg bg-[#FFFFFF] h-full p-6 sm:p-7 shadow-2xl overflow-y-auto space-y-6 border-l border-[#DCE5DF]">
+            <div className="flex items-start justify-between gap-4 border-b border-[#EDF2EF] pb-4">
               <div>
-                <h2 id="lead-modal-title" className="font-serif text-[26px] text-[#000000]">
+                <h2
+                  id="lead-modal-title"
+                  className="font-display text-[25px] font-semibold text-[#0F291E]"
+                >
                   {activeLead.name}
                 </h2>
-                <p className="text-[15px] tabular-nums text-[#5D726A] font-medium">
+                <p className="text-[14px] tabular-nums text-[#147A53] font-semibold mt-0.5">
                   {activeLead.phone} · {formatTs(activeLead.created_at)}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveLead(null)}
-                className="px-3 py-1.5 bg-[#EDF0E7] border border-[#BFBFBD] text-[13px] font-medium cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full bg-[#F4F7F5] hover:bg-[#EAF4EF] border border-[#D8E2DC] text-[13px] font-semibold text-[#0F291E] cursor-pointer"
               >
                 Close
               </button>
             </div>
 
-            <dl className="grid grid-cols-2 gap-3 text-[14px] bg-[#EDF0E7] p-4 border border-[#DCE2CF]">
+            <dl className="grid grid-cols-2 gap-3.5 text-[14px] rounded-2xl bg-[#F7FAF8] p-4 border border-[#E4ECE7]">
               <div>
-                <dt className="text-[12px] text-[#5A5954]">Source CTA</dt>
-                <dd className="font-mono font-semibold text-[#000000]">
+                <dt className="text-[11px] font-semibold uppercase tracking-wider text-[#63786D]">
+                  Source CTA
+                </dt>
+                <dd className="font-mono font-semibold text-[#0F291E] mt-0.5">
                   {activeLead.source || "nav"}
                 </dd>
               </div>
               <div>
-                <dt className="text-[12px] text-[#5A5954]">First Landing Page</dt>
-                <dd className="font-mono text-[#000000]">{activeLead.landing_page || "—"}</dd>
-              </div>
-              <div>
-                <dt className="text-[12px] text-[#5A5954]">Form Shown</dt>
-                <dd className="font-medium text-[#000000]">
-                  Funnel {activeLead.form_variant} ({activeLead.routed ? "Forced" : "A/B Split"})
+                <dt className="text-[11px] font-semibold uppercase tracking-wider text-[#63786D]">
+                  First Landing Page
+                </dt>
+                <dd className="font-mono text-[#0F291E] mt-0.5">
+                  {activeLead.landing_page || "—"}
                 </dd>
               </div>
               <div>
-                <dt className="text-[12px] text-[#5A5954]">Home Variant</dt>
-                <dd className="font-medium text-[#000000]">{activeLead.landing_variant || "—"}</dd>
+                <dt className="text-[11px] font-semibold uppercase tracking-wider text-[#63786D]">
+                  Site Version
+                </dt>
+                <dd className="font-semibold text-[#0F291E] mt-0.5">
+                  {siteLabel(activeLead.landing_variant)}
+                </dd>
               </div>
               <div>
-                <dt className="text-[12px] text-[#5A5954]">Property</dt>
-                <dd className="text-[#000000]">
+                <dt className="text-[11px] font-semibold uppercase tracking-wider text-[#63786D]">
+                  Form Shown
+                </dt>
+                <dd className="font-semibold text-[#0F291E] mt-0.5">
+                  Funnel {activeLead.form_variant} ({activeLead.routed ? "Forced" : "Split"})
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-wider text-[#63786D]">
+                  Property
+                </dt>
+                <dd className="text-[#14201A] mt-0.5">
                   {activeLead.property_text ||
                     [activeLead.property_type, activeLead.size].filter(Boolean).join(" · ") ||
                     "—"}
                 </dd>
               </div>
               <div>
-                <dt className="text-[12px] text-[#5A5954]">Location</dt>
-                <dd className="text-[#000000]">
+                <dt className="text-[11px] font-semibold uppercase tracking-wider text-[#63786D]">
+                  Location
+                </dt>
+                <dd className="text-[#14201A] mt-0.5">
                   {activeLead.location_text ||
                     [activeLead.city, activeLead.area].filter(Boolean).join(" — ") ||
                     "—"}
                 </dd>
               </div>
               <div>
-                <dt className="text-[12px] text-[#5A5954]">Timeline</dt>
-                <dd className="text-[#000000]">{activeLead.timeline || "—"}</dd>
+                <dt className="text-[11px] font-semibold uppercase tracking-wider text-[#63786D]">
+                  Timeline
+                </dt>
+                <dd className="text-[#14201A] mt-0.5">{activeLead.timeline || "—"}</dd>
               </div>
               <div>
-                <dt className="text-[12px] text-[#5A5954]">Language / UTM</dt>
-                <dd className="text-[#000000]">
+                <dt className="text-[11px] font-semibold uppercase tracking-wider text-[#63786D]">
+                  Language / UTM
+                </dt>
+                <dd className="text-[#14201A] mt-0.5">
                   {activeLead.lang || "en"}
                   {activeLead.utm_source ? ` · ${activeLead.utm_source}` : ""}
                 </dd>
@@ -720,33 +749,36 @@ function LeadsInner() {
 
             {activeLead.details && Object.keys(activeLead.details).length > 0 && (
               <div className="space-y-1.5">
-                <h3 className="text-[14px] font-semibold text-[#000000]">
-                  Pre-filled Calculator Values
+                <h3 className="text-[13px] font-semibold uppercase tracking-wider text-[#5B7065]">
+                  Pre-filled Calculator Details
                 </h3>
-                <pre className="p-3 bg-[#F7F7F7] border border-[#DFDFDF] text-[12px] overflow-x-auto">
+                <pre className="p-3.5 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-[12px] overflow-x-auto text-[#0F291E]">
                   {JSON.stringify(activeLead.details, null, 2)}
                 </pre>
               </div>
             )}
 
             <div className="space-y-2">
-              <label htmlFor="lead-notes" className="block text-[14px] font-semibold text-[#000000]">
+              <label
+                htmlFor="lead-notes"
+                className="block text-[13px] font-semibold uppercase tracking-wider text-[#5B7065]"
+              >
                 Internal Notes
               </label>
               <textarea
                 id="lead-notes"
-                rows={3}
+                rows={4}
                 value={notesDraft}
                 onChange={(e) => setNotesDraft(e.target.value)}
                 placeholder="Call outcome, broker assigned, follow-up date..."
-                className="w-full p-3 bg-[#F7F7F7] border border-[#5D726A] text-[14px]"
+                className="w-full p-3.5 rounded-xl bg-[#F7FAF8] border border-[#CFDAD3] focus:border-[#147A53] outline-none text-[14px]"
               />
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end">
                 <button
                   type="button"
                   disabled={savingNote}
                   onClick={() => void saveLeadNotes()}
-                  className="px-4 py-2 bg-[#B8C49E] hover:bg-[#C5D0AF] border border-[#5D726A] text-[#000000] text-[14px] font-semibold cursor-pointer disabled:opacity-60"
+                  className="h-10 px-5 rounded-full bg-[#147A53] hover:bg-[#0D5E3F] text-[#FFFFFF] text-[13px] font-semibold cursor-pointer transition-colors disabled:opacity-60"
                 >
                   {savingNote ? "Saving..." : "Save notes"}
                 </button>
@@ -761,7 +793,7 @@ function LeadsInner() {
 
 export default function AdminLeadsPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-[#5D726A]">Loading leads...</div>}>
+    <Suspense fallback={<div className="p-6 text-[#147A53]">Loading leads...</div>}>
       <LeadsInner />
     </Suspense>
   );

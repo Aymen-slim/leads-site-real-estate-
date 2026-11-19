@@ -1,5 +1,6 @@
 export type Language = "no" | "en";
 export type ABVariant = "A" | "B";
+export type LandingVariant = "A" | "B" | "M";
 
 export const TRANSLATIONS = {
   no: {

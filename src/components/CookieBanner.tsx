@@ -13,7 +13,7 @@ import { CheckMarkIcon, ShieldCheckIcon } from "@/components/Icons";
 
 export function CookieBanner() {
   const pathname = usePathname();
-  const { lang } = useApp();
+  const { lang, isModern } = useApp();
 
   const [open, setOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -81,10 +81,20 @@ export function CookieBanner() {
       role="dialog"
       aria-modal="false"
       aria-labelledby="kr-cookie-title"
-      className="fixed bottom-[86px] md:bottom-5 left-3 right-3 md:left-auto md:right-5 md:max-w-[520px] z-50 bg-[#FFFFFF] border-2 border-[#5D726A] shadow-[0_12px_32px_rgba(41,40,35,0.18)] p-5 sm:p-6 rounded-none"
+      className={`fixed bottom-[86px] md:bottom-5 left-3 right-3 md:left-auto md:right-5 md:max-w-[520px] z-50 bg-[#FFFFFF] p-5 sm:p-6 ${
+        isModern
+          ? "rounded-2xl border border-[#DCE2D4] shadow-[0_16px_44px_rgba(29,40,28,0.18)]"
+          : "rounded-none border-2 border-[#5D726A] shadow-[0_12px_32px_rgba(41,40,35,0.18)]"
+      }`}
     >
       <div className="flex items-start gap-3">
-        <span className="w-9 h-9 bg-[#EDF0E7] border border-[#DCE2CF] text-[#5D726A] flex items-center justify-center shrink-0 mt-0.5">
+        <span
+          className={`w-9 h-9 flex items-center justify-center shrink-0 mt-0.5 ${
+            isModern
+              ? "rounded-xl bg-[#E7ECE0] border border-[#D4DCCB] text-[#243323]"
+              : "bg-[#EDF0E7] border border-[#DCE2CF] text-[#5D726A]"
+          }`}
+        >
           <ShieldCheckIcon className="w-5 h-5" />
         </span>
         <div className="min-w-0 flex-1">
@@ -105,7 +115,13 @@ export function CookieBanner() {
       </div>
 
       {settingsOpen && (
-        <div className="mt-4 space-y-2.5 bg-[#EDF0E7] border border-[#DCE2CF] p-3.5">
+        <div
+          className={`mt-4 space-y-2.5 p-3.5 ${
+            isModern
+              ? "rounded-xl bg-[#F4F5F0] border border-[#DCE2D4]"
+              : "bg-[#EDF0E7] border border-[#DCE2CF]"
+          }`}
+        >
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-[14px] font-semibold text-[#000000]">{copy.necessaryTitle}</p>
@@ -113,7 +129,13 @@ export function CookieBanner() {
                 {copy.necessaryDesc}
               </p>
             </div>
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#DCE2CF] text-[#000000] text-[12px] font-semibold shrink-0">
+            <span
+              className={`inline-flex items-center gap-1 px-2.5 py-1 text-[12px] font-semibold shrink-0 ${
+                isModern
+                  ? "rounded-full bg-[#E7ECE0] text-[#1D281C]"
+                  : "bg-[#DCE2CF] text-[#000000]"
+              }`}
+            >
               <CheckMarkIcon className="w-3.5 h-3.5 text-[#5D726A]" />
               <span>{lang === "no" ? "Aktiv" : "Active"}</span>
             </span>
@@ -133,7 +155,7 @@ export function CookieBanner() {
               type="checkbox"
               checked={analyticsEnabled}
               onChange={(e) => setAnalyticsEnabled(e.target.checked)}
-              className="w-5 h-5 mt-0.5 accent-[#5D726A] cursor-pointer shrink-0"
+              className="w-5 h-5 mt-0.5 accent-[#147A53] cursor-pointer shrink-0"
             />
           </div>
         </div>
@@ -143,7 +165,11 @@ export function CookieBanner() {
         <button
           type="button"
           onClick={() => handleSave(true)}
-          className="min-h-[44px] px-4 py-2 bg-[#B8C49E] hover:bg-[#C5D0AF] border border-[#5D726A] text-[#000000] text-[15px] font-medium rounded-none cursor-pointer transition-colors"
+          className={`min-h-[44px] px-4 py-2 text-[15px] font-medium cursor-pointer transition-colors ${
+            isModern
+              ? "rounded-full bg-[#243323] hover:bg-[#172216] text-[#FFFFFF] font-semibold"
+              : "rounded-none bg-[#B8C49E] hover:bg-[#C5D0AF] border border-[#5D726A] text-[#000000]"
+          }`}
         >
           {copy.acceptAll}
         </button>
@@ -151,7 +177,11 @@ export function CookieBanner() {
         <button
           type="button"
           onClick={() => handleSave(false)}
-          className="min-h-[44px] px-4 py-2 bg-[#EDF0E7] hover:bg-[#DCE2CF] border border-[#BFBFBD] text-[#000000] text-[15px] font-medium rounded-none cursor-pointer transition-colors"
+          className={`min-h-[44px] px-4 py-2 text-[15px] font-medium cursor-pointer transition-colors ${
+            isModern
+              ? "rounded-full bg-[#E7ECE0] hover:bg-[#DCE4D2] border border-[#CFD7C6] text-[#1D281C]"
+              : "rounded-none bg-[#EDF0E7] hover:bg-[#DCE2CF] border border-[#BFBFBD] text-[#000000]"
+          }`}
         >
           {copy.necessaryOnly}
         </button>
@@ -160,7 +190,11 @@ export function CookieBanner() {
           <button
             type="button"
             onClick={() => handleSave(analyticsEnabled)}
-            className="min-h-[44px] px-4 py-2 bg-[#292823] hover:bg-[#000000] text-[#FFFFFF] text-[14px] font-medium rounded-none cursor-pointer transition-colors sm:ml-auto"
+            className={`min-h-[44px] px-4 py-2 text-[14px] font-medium cursor-pointer transition-colors sm:ml-auto ${
+              isModern
+                ? "rounded-full bg-[#147A53] hover:bg-[#0D5E3F] text-[#FFFFFF]"
+                : "rounded-none bg-[#292823] hover:bg-[#000000] text-[#FFFFFF]"
+            }`}
           >
             {copy.saveChoice}
           </button>

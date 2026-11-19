@@ -2,8 +2,8 @@
 
 import React, { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { HouseIcon } from "@/components/Icons";
 import {
   ChartBarIcon,
   PagesDocIcon,
@@ -18,7 +18,7 @@ import {
 const NAV_ITEMS = [
   { href: "/admin", label: "Overview", icon: ChartBarIcon },
   { href: "/admin/pages", label: "Pages", icon: PagesDocIcon },
-  { href: "/admin/experiments", label: "Traffic % & A/B", icon: SlidersIcon },
+  { href: "/admin/experiments", label: "Traffic % & Sites", icon: SlidersIcon },
   { href: "/admin/routing", label: "Form Routing", icon: RouteSplitIcon },
   { href: "/admin/funnel", label: "Funnel Drop-off", icon: FunnelStepsIcon },
   { href: "/admin/leads", label: "Leads & CSV", icon: UsersLeadsIcon },
@@ -26,9 +26,9 @@ const NAV_ITEMS = [
 
 const RANGE_PRESETS = [
   { id: "today", label: "Today" },
-  { id: "7d", label: "7 days" },
-  { id: "30d", label: "30 days" },
-  { id: "90d", label: "90 days" },
+  { id: "7d", label: "7d" },
+  { id: "30d", label: "30d" },
+  { id: "90d", label: "90d" },
 ] as const;
 
 function AdminShellInner({
@@ -80,42 +80,40 @@ function AdminShellInner({
   const qs = buildRangeQs();
 
   return (
-    <div className="min-h-screen bg-[#F7F7F7] text-[#292823] flex flex-col">
-      {/* Top Admin Header */}
-      <header className="bg-[#EDF0E7] border-b border-[#DCE2CF] sticky top-0 z-30">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <Link href={`/admin?${qs}`} className="inline-flex items-center gap-2.5 text-[#000000]">
-              <span className="w-9 h-9 bg-[#000000] text-[#EDF0E7] flex items-center justify-center shrink-0">
-                <HouseIcon className="w-5 h-5" />
-              </span>
-              <div>
-                <span className="block text-[17px] font-semibold text-[#000000] leading-tight">
-                  Krogsveen Stil
-                </span>
-                <span className="block text-[12px] text-[#5D726A] font-medium">
-                  Growth &amp; Funnel Control
-                </span>
-              </div>
-            </Link>
-          </div>
+    <div className="min-h-screen bg-[#F4F6F5] text-[#14201A] font-modern flex flex-col">
+      {/* Frosted Top Navigation */}
+      <header className="bg-[#FFFFFF]/85 backdrop-blur-md border-b border-[#E2E8E4] sticky top-0 z-30">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+          <Link href={`/admin?${qs}`} className="inline-flex items-center gap-3 group">
+            <Image
+              src="/images/vurderboligen-logo.png"
+              alt="VurderBoligen"
+              width={180}
+              height={31}
+              priority
+              className="h-7 sm:h-8 w-auto"
+            />
+            <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-[#EEF2EF] text-[#14533C] text-[11px] font-semibold">
+              Studio
+            </span>
+          </Link>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Global Date Range Selector */}
+          <div className="flex items-center gap-2 overflow-x-auto">
+            {/* Pill Date Range Switcher */}
             <div
               role="group"
               aria-label="Date range"
-              className="inline-flex items-center bg-[#FFFFFF] border border-[#BFBFBD] p-0.5"
+              className="inline-flex items-center bg-[#EEF2EF] rounded-full p-1 border border-[#DFE6E1] shrink-0"
             >
               {RANGE_PRESETS.map((preset) => (
                 <button
                   key={preset.id}
                   type="button"
                   onClick={() => setRange(preset.id)}
-                  className={`px-2.5 py-1.5 text-[13px] font-medium cursor-pointer transition-colors ${
+                  className={`px-3 py-1 rounded-full text-[13px] font-medium cursor-pointer transition-all ${
                     currentRange === preset.id
-                      ? "bg-[#292823] text-[#FFFFFF]"
-                      : "text-[#000000] hover:bg-[#EDF0E7]"
+                      ? "bg-[#FFFFFF] text-[#0F291E] font-semibold shadow-xs"
+                      : "text-[#4D6157] hover:text-[#0F291E]"
                   }`}
                 >
                   {preset.label}
@@ -128,10 +126,10 @@ function AdminShellInner({
                   const weekAgo = new Date(Date.now() - 6 * 86_400_000).toISOString().slice(0, 10);
                   setRange("custom", customFrom || weekAgo, customTo || today);
                 }}
-                className={`px-2.5 py-1.5 text-[13px] font-medium cursor-pointer transition-colors ${
+                className={`px-3 py-1 rounded-full text-[13px] font-medium cursor-pointer transition-all ${
                   currentRange === "custom"
-                    ? "bg-[#292823] text-[#FFFFFF]"
-                    : "text-[#000000] hover:bg-[#EDF0E7]"
+                    ? "bg-[#FFFFFF] text-[#0F291E] font-semibold shadow-xs"
+                    : "text-[#4D6157] hover:text-[#0F291E]"
                 }`}
               >
                 Custom
@@ -139,21 +137,21 @@ function AdminShellInner({
             </div>
 
             {currentRange === "custom" && (
-              <div className="flex items-center gap-1.5 bg-[#FFFFFF] border border-[#BFBFBD] px-2 py-1">
+              <div className="hidden md:flex items-center gap-1.5 bg-[#FFFFFF] border border-[#D8E1DC] rounded-full px-3 py-1 text-[13px]">
                 <input
                   type="date"
                   aria-label="From date"
                   value={customFrom}
                   onChange={(e) => setRange("custom", e.target.value, customTo || e.target.value)}
-                  className="text-[13px] bg-transparent text-[#000000]"
+                  className="bg-transparent text-[#0F291E] outline-none"
                 />
-                <span className="text-[#5A5954]">–</span>
+                <span className="text-[#788B81]">→</span>
                 <input
                   type="date"
                   aria-label="To date"
                   value={customTo}
                   onChange={(e) => setRange("custom", customFrom || e.target.value, e.target.value)}
-                  className="text-[13px] bg-transparent text-[#000000]"
+                  className="bg-transparent text-[#0F291E] outline-none"
                 />
               </div>
             )}
@@ -161,79 +159,101 @@ function AdminShellInner({
             <Link
               href="/"
               target="_blank"
-              className="min-h-[36px] px-3 py-1.5 bg-[#FFFFFF] border border-[#5D726A] text-[#000000] hover:bg-[#DCE2CF] text-[13px] font-medium inline-flex items-center gap-1.5"
+              className="h-9 px-3.5 rounded-full bg-[#FFFFFF] border border-[#D5DFD9] text-[#0F291E] hover:bg-[#EAF4EF] hover:border-[#147A53]/40 text-[13px] font-semibold inline-flex items-center gap-1.5 transition-colors shrink-0"
             >
               <span>Live site</span>
-              <ExternalLinkIcon className="w-3.5 h-3.5" />
+              <ExternalLinkIcon className="w-3.5 h-3.5 text-[#147A53]" />
             </Link>
 
             {authEnabled ? (
               <button
                 type="button"
                 onClick={handleLogout}
-                className="min-h-[36px] px-3 py-1.5 bg-[#FFFFFF] border border-[#BFBFBD] text-[#292823] hover:bg-[#DCE2CF] text-[13px] font-medium inline-flex items-center gap-1.5 cursor-pointer"
+                className="h-9 px-3.5 rounded-full bg-[#F4F6F5] hover:bg-[#E7ECE9] border border-[#DCE3DF] text-[#3B4E44] text-[13px] font-medium inline-flex items-center gap-1.5 cursor-pointer transition-colors shrink-0"
               >
                 <LogOutIcon className="w-3.5 h-3.5" />
-                <span>Log out</span>
+                <span className="hidden sm:inline">Log out</span>
               </button>
             ) : (
-              <span className="min-h-[36px] px-3 py-1.5 bg-[#FFF7D4] border border-[#BFBFBD] text-[#000000] text-[12px] font-medium inline-flex items-center">
-                Login skipped (no password set)
+              <span className="h-9 px-3 rounded-full bg-[#FEF6E2] border border-[#EED9A4] text-[#7A4E00] text-[12px] font-semibold inline-flex items-center shrink-0">
+                Preview (Auth off)
               </span>
             )}
           </div>
         </div>
       </header>
 
-      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-6 flex-1 flex flex-col lg:flex-row gap-6">
-        {/* Sidebar / Mobile Tab Bar */}
+      <div className="max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 flex-1 flex flex-col lg:flex-row gap-6 lg:gap-8">
+        {/* Sidebar Navigation */}
         <aside className="lg:w-60 shrink-0">
-          <nav aria-label="Dashboard sections" className="flex lg:flex-col gap-1.5 overflow-x-auto pb-1 lg:pb-0">
-            {NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const active =
-                item.href === "/admin"
-                  ? pathname === "/admin"
-                  : pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={`${item.href}?${qs}`}
-                  className={`min-h-[44px] px-3.5 py-2.5 border text-[15px] font-medium inline-flex items-center gap-2.5 whitespace-nowrap transition-colors ${
-                    active
-                      ? "bg-[#DCE2CF] border-[#5D726A] text-[#000000]"
-                      : "bg-[#FFFFFF] border-[#DFDFDF] text-[#292823] hover:bg-[#EDF0E7]"
-                  }`}
-                >
-                  <Icon className="w-4 h-4 text-[#5D726A] shrink-0" />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
+          <div className="lg:sticky lg:top-24 bg-[#FFFFFF] border border-[#E2E8E4] rounded-2xl p-2 shadow-[0_1px_2px_rgba(15,41,30,0.03),0_6px_18px_rgba(15,41,30,0.03)]">
+            <nav
+              aria-label="Dashboard sections"
+              className="flex lg:flex-col gap-1 overflow-x-auto"
+            >
+              {NAV_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const active =
+                  item.href === "/admin"
+                    ? pathname === "/admin"
+                    : pathname.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={`${item.href}?${qs}`}
+                    className={`min-h-[42px] px-3.5 py-2.5 rounded-xl text-[14px] font-medium inline-flex items-center gap-2.5 whitespace-nowrap transition-all ${
+                      active
+                        ? "bg-[#0F291E] text-[#FFFFFF] font-semibold shadow-xs"
+                        : "text-[#43564C] hover:bg-[#F2F6F4] hover:text-[#0F291E]"
+                    }`}
+                  >
+                    <Icon
+                      className={`w-4 h-4 shrink-0 ${
+                        active ? "text-[#7CE5B5]" : "text-[#637B6F]"
+                      }`}
+                    />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 min-w-0 space-y-6">
           {!authEnabled && (
-            <div className="bg-[#EDF0E7] border border-[#5D726A] px-4 py-3 text-[14px] text-[#292823]">
-              <strong>Open preview mode:</strong> Admin login is skipped because{" "}
-              <code className="bg-[#FFFFFF] px-1 border border-[#DFDFDF]">ADMIN_PASSWORD</code> and{" "}
-              <code className="bg-[#FFFFFF] px-1 border border-[#DFDFDF]">ADMIN_SESSION_SECRET</code> are not set. Set both before deploying to Cloudflare to protect <code className="bg-[#FFFFFF] px-1">/admin</code>.
+            <div className="rounded-2xl bg-[#FEF6E2] border border-[#ECD8A4] px-4 py-3 text-[13px] text-[#6B4500] flex items-center justify-between gap-3">
+              <span>
+                <strong>Open preview mode:</strong> Set{" "}
+                <code className="bg-[#FFFFFF]/80 px-1.5 py-0.5 rounded-md border border-[#E6CE91]">
+                  ADMIN_PASSWORD
+                </code>{" "}
+                and{" "}
+                <code className="bg-[#FFFFFF]/80 px-1.5 py-0.5 rounded-md border border-[#E6CE91]">
+                  ADMIN_SESSION_SECRET
+                </code>{" "}
+                before deploying to lock <code className="font-mono">/admin</code>.
+              </span>
             </div>
           )}
+
           {!configured && (
-            <div className="bg-[#FFF7D4] border-2 border-[#5D726A] p-4 sm:p-5 text-[15px] text-[#000000]">
-              <p className="font-semibold">
-                Supabase connection required to store live stats and leads
+            <div className="rounded-2xl bg-[#FFFFFF] border border-[#EED9A4] p-4 sm:p-5 text-[14px] text-[#14201A] shadow-xs">
+              <p className="font-semibold text-[#7A4E00]">
+                Supabase connection required to store live analytics and leads
               </p>
-              <p className="mt-1 text-[#292823]">
-                Run <code className="bg-[#FFFFFF] px-1.5 py-0.5 border border-[#BFBFBD]">supabase/migrations/0001_dashboard.sql</code> in your Supabase SQL Editor, then set{" "}
-                <code className="bg-[#FFFFFF] px-1.5 py-0.5 border border-[#BFBFBD]">SUPABASE_URL</code> and{" "}
-                <code className="bg-[#FFFFFF] px-1.5 py-0.5 border border-[#BFBFBD]">SUPABASE_SERVICE_ROLE_KEY</code> in your environment / Cloudflare Worker secrets.
+              <p className="mt-1 text-[#4D6157]">
+                Run{" "}
+                <code className="bg-[#F4F6F5] px-1.5 py-0.5 rounded-md border border-[#DFE6E1]">
+                  supabase/migrations/0001_dashboard.sql
+                </code>{" "}
+                and set <code className="font-mono">SUPABASE_URL</code> +{" "}
+                <code className="font-mono">SUPABASE_SERVICE_ROLE_KEY</code>.
               </p>
             </div>
           )}
+
           {children}
         </main>
       </div>
@@ -251,8 +271,10 @@ export function AdminShell({
   authEnabled: boolean;
 }) {
   return (
-    <Suspense fallback={<div className="p-8 text-[#5D726A]">Loading dashboard...</div>}>
-      <AdminShellInner configured={configured} authEnabled={authEnabled}>{children}</AdminShellInner>
+    <Suspense fallback={<div className="p-8 text-[#147A53] font-modern">Loading dashboard...</div>}>
+      <AdminShellInner configured={configured} authEnabled={authEnabled}>
+        {children}
+      </AdminShellInner>
     </Suspense>
   );
 }

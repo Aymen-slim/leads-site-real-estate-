@@ -9,12 +9,14 @@ import {
   ScaleMeasureIcon,
   ArrowRightIcon,
 } from "@/components/Icons";
+import { ModernMobileBottomNav } from "@/components/modern/ModernMobileBottomNav";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
-  const { lang, trackClick } = useApp();
+  const { lang, isModern, trackClick } = useApp();
 
   if (pathname.startsWith("/admin")) return null;
+  if (isModern) return <ModernMobileBottomNav />;
 
   const isHome = pathname === "/";
   const isTools = pathname.startsWith("/tools");

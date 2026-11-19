@@ -3,8 +3,10 @@ import {
   AB_COOKIE,
   AB_COOKIE_MAX_AGE,
   FUNNEL_PATHS,
+  FunnelVariant,
   PREVIEW_COOKIE,
-  isVariant,
+  isFunnelVariant,
+  isVariantForExperiment,
   parseAbCookie,
   parsePreviewCookie,
   resolveAssignment,
@@ -44,10 +46,10 @@ export async function middleware(req: NextRequest) {
   const landing = resolveAssignment(config.experiments.landing, current.landing);
   const funnel = resolveAssignment(config.experiments.funnel, current.funnel);
 
-  // ---------- 3. Admin preview override (logged-in admin, or local unconfigured dev) ----------
+  // ---------- 3. Admin preview override (logged-in admin, or open preview when auth unset) ----------
   const isAdmin = authConfigured()
     ? await verifySessionToken(req.cookies.get(ADMIN_COOKIE)?.value)
-    : false;
+    : Boolean(req.cookies.get(PREVIEW_COOKIE)?.value || searchParams.get("preview"));
   let preview = isAdmin ? parsePreviewCookie(req.cookies.get(PREVIEW_COOKIE)?.value) : {};
   let previewCookieOp: "none" | "set" | "clear" = "none";
 
@@ -58,7 +60,7 @@ export async function middleware(req: NextRequest) {
       previewCookieOp = "clear";
     } else if (previewParam) {
       const [exp, v] = previewParam.split(":");
-      if ((exp === "landing" || exp === "funnel") && isVariant(v)) {
+      if ((exp === "landing" || exp === "funnel") && isVariantForExperiment(exp, v)) {
         preview = { ...preview, [exp]: v };
         previewCookieOp = "set";
       }
@@ -66,13 +68,16 @@ export async function middleware(req: NextRequest) {
   }
 
   const effectiveLanding = preview.landing ?? landing.assignment.v;
-  const effectiveFunnel = preview.funnel ?? funnel.assignment.v;
+  const effectiveFunnelRaw = preview.funnel ?? funnel.assignment.v;
+  const effectiveFunnel: FunnelVariant = isFunnelVariant(effectiveFunnelRaw)
+    ? effectiveFunnelRaw
+    : "A";
   const isPreviewActive = Boolean(isAdmin && (preview.landing || preview.funnel));
 
   // ---------- 4. Form routing for funnel pages ----------
   const isFunnel = FUNNEL_PATHS.includes(pathname);
   const form = isFunnel
-    ? preview.funnel
+    ? preview.funnel && isFunnelVariant(preview.funnel)
       ? { variant: preview.funnel, routed: true, source: searchParams.get("source") ?? "preview" }
       : resolveFormVariant(config, searchParams.get("source"), effectiveFunnel)
     : null;

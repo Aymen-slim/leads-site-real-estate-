@@ -88,7 +88,7 @@ export function buildLeadPostgrestFilter(f: LeadFilterParams): string[] {
 
   if (f.landingPage) parts.push(`landing_page=eq.${encodeURIComponent(f.landingPage)}`);
   if (f.formVariant === "A" || f.formVariant === "B") parts.push(`form_variant=eq.${f.formVariant}`);
-  if (f.landingVariant === "A" || f.landingVariant === "B") {
+  if (f.landingVariant === "A" || f.landingVariant === "B" || f.landingVariant === "M") {
     parts.push(`landing_variant=eq.${f.landingVariant}`);
   }
   if (f.routed === "true" || f.routed === "false") parts.push(`routed=eq.${f.routed}`);

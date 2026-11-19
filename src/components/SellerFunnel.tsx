@@ -25,6 +25,7 @@ import {
   PhoneKeypadIcon,
   ShieldCheckIcon,
 } from "@/components/Icons";
+import { ModernSellerFunnel } from "@/components/modern/ModernSellerFunnel";
 
 export interface SellerFunnelProps {
   initialFormVariant?: ABVariant;
@@ -1235,6 +1236,10 @@ function SellerFunnelInner({
 }
 
 export function SellerFunnel(props: SellerFunnelProps) {
+  const { isModern } = useApp();
+  if (isModern) {
+    return <ModernSellerFunnel {...props} />;
+  }
   return (
     <Suspense
       fallback={

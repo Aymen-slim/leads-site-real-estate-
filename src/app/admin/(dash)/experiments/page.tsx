@@ -2,27 +2,93 @@
 
 import React, { Suspense, useEffect, useState } from "react";
 import { useAdminStats } from "@/components/admin/useRangeParams";
-import type { ExperimentConfig, ExperimentId, Variant } from "@/lib/ab";
 import type { ExpStatsBundle } from "@/components/admin/useRangeParams";
+import {
+  VARIANT_META,
+  type ExperimentConfig,
+  type ExperimentId,
+  type Variant,
+} from "@/lib/ab";
 import { formatPct } from "@/lib/stats";
 import { ExternalLinkIcon, RefreshIcon } from "@/components/AdminIcons";
 
-interface DraftWeights {
-  weightA: number;
-  weightB: number;
-  enabledA: boolean;
-  enabledB: boolean;
+interface DraftVariant {
+  key: Variant;
+  weight: number;
+  enabled: boolean;
 }
 
-function draftFromConfig(exp: ExperimentConfig): DraftWeights {
-  const a = exp.variants.find((v) => v.key === "A");
-  const b = exp.variants.find((v) => v.key === "B");
-  return {
-    weightA: a?.weight ?? 50,
-    weightB: b?.weight ?? 50,
-    enabledA: a?.enabled ?? true,
-    enabledB: b?.enabled ?? true,
-  };
+function buildDraft(exp: ExperimentConfig): DraftVariant[] {
+  return exp.variants.map((v) => ({
+    key: v.key,
+    weight: v.enabled ? v.weight : 0,
+    enabled: v.enabled,
+  }));
+}
+
+/** Auto-balance enabled variants so total weight always equals 100. */
+function rebalance(draft: DraftVariant[], changedKey: Variant, targetWeight: number): DraftVariant[] {
+  const clamped = Math.max(0, Math.min(100, Math.round(targetWeight)));
+  const enabled = draft.filter((d) => d.enabled);
+  if (enabled.length <= 1) {
+    return draft.map((d) => ({ ...d, weight: d.enabled ? 100 : 0 }));
+  }
+
+  const others = enabled.filter((d) => d.key !== changedKey);
+  const remaining = 100 - clamped;
+  const otherSum = others.reduce((acc, d) => acc + d.weight, 0);
+
+  const nextWeights = new Map<Variant, number>([[changedKey, clamped]]);
+  let assigned = 0;
+  others.forEach((d, idx) => {
+    if (idx === others.length - 1) {
+      nextWeights.set(d.key, Math.max(0, remaining - assigned));
+    } else {
+      const share =
+        otherSum > 0
+          ? Math.round((remaining * d.weight) / otherSum)
+          : Math.round(remaining / others.length);
+      const bounded = Math.max(0, Math.min(remaining - assigned, share));
+      nextWeights.set(d.key, bounded);
+      assigned += bounded;
+    }
+  });
+
+  return draft.map((d) => ({
+    ...d,
+    weight: d.enabled ? nextWeights.get(d.key) ?? 0 : 0,
+  }));
+}
+
+function toggleDraftVariant(draft: DraftVariant[], key: Variant): DraftVariant[] {
+  const target = draft.find((d) => d.key === key);
+  if (!target) return draft;
+  const enabledCount = draft.filter((d) => d.enabled).length;
+  if (target.enabled && enabledCount <= 1) return draft; // keep at least 1 enabled
+
+  const toggled = draft.map((d) =>
+    d.key === key ? { ...d, enabled: !d.enabled, weight: !d.enabled ? 25 : 0 } : d
+  );
+
+  // Normalize all enabled variants to sum to 100
+  const enabled = toggled.filter((d) => d.enabled);
+  const sum = enabled.reduce((acc, d) => acc + d.weight, 0);
+  let assigned = 0;
+  const weightMap = new Map<Variant, number>();
+  enabled.forEach((d, idx) => {
+    if (idx === enabled.length - 1) {
+      weightMap.set(d.key, Math.max(0, 100 - assigned));
+    } else {
+      const share = sum > 0 ? Math.round((100 * d.weight) / sum) : Math.floor(100 / enabled.length);
+      weightMap.set(d.key, share);
+      assigned += share;
+    }
+  });
+
+  return toggled.map((d) => ({
+    ...d,
+    weight: d.enabled ? weightMap.get(d.key) ?? 0 : 0,
+  }));
 }
 
 function ExperimentCard({
@@ -32,6 +98,7 @@ function ExperimentCard({
   previewBase,
   expConfig,
   stats,
+  presets,
   onMutate,
 }: {
   expId: ExperimentId;
@@ -40,54 +107,38 @@ function ExperimentCard({
   previewBase: string;
   expConfig: ExperimentConfig;
   stats: ExpStatsBundle;
+  presets: { label: string; values: Record<string, number> }[];
   onMutate: (body: Record<string, unknown>) => Promise<void>;
 }) {
-  const [draft, setDraft] = useState<DraftWeights>(() => draftFromConfig(expConfig));
+  const [draft, setDraft] = useState<DraftVariant[]>(() => buildDraft(expConfig));
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
+  const [noticeErr, setNoticeErr] = useState(false);
+
+  const meta = VARIANT_META[expId];
 
   useEffect(() => {
-    setDraft(draftFromConfig(expConfig));
+    setDraft(buildDraft(expConfig));
   }, [expConfig]);
 
-  const setWeightA = (val: number) => {
-    const clamped = Math.max(0, Math.min(100, Math.round(val)));
-    if (!draft.enabledB) {
-      setDraft({ ...draft, weightA: 100, weightB: 0 });
-      return;
-    }
-    setDraft({ ...draft, weightA: clamped, weightB: 100 - clamped });
-  };
-
-  const toggleVariant = (key: Variant) => {
-    if (key === "A") {
-      if (draft.enabledA && !draft.enabledB) return; // keep at least 1 enabled
-      const nextA = !draft.enabledA;
-      setDraft({
-        enabledA: nextA,
-        enabledB: draft.enabledB,
-        weightA: nextA ? 50 : 0,
-        weightB: nextA ? 50 : 100,
-      });
-    } else {
-      if (draft.enabledB && !draft.enabledA) return;
-      const nextB = !draft.enabledB;
-      setDraft({
-        enabledA: draft.enabledA,
-        enabledB: nextB,
-        weightA: nextB ? 50 : 100,
-        weightB: nextB ? 50 : 0,
-      });
-    }
+  const applyPreset = (values: Record<string, number>) => {
+    setDraft((prev) =>
+      prev.map((d) => {
+        const w = values[d.key] ?? 0;
+        return { ...d, weight: w, enabled: w > 0 };
+      })
+    );
   };
 
   const runAction = async (payload: Record<string, unknown>, okMsg: string) => {
     setSaving(true);
     setNotice("");
+    setNoticeErr(false);
     try {
       await onMutate({ experimentId: expId, ...payload });
       setNotice(okMsg);
     } catch (e) {
+      setNoticeErr(true);
       setNotice(e instanceof Error ? e.message : "Failed to save");
     } finally {
       setSaving(false);
@@ -99,17 +150,17 @@ function ExperimentCard({
       {
         action: "weights",
         resetRound,
-        variants: [
-          { key: "A", weight: draft.enabledA ? draft.weightA : 0, enabled: draft.enabledA },
-          { key: "B", weight: draft.enabledB ? draft.weightB : 0, enabled: draft.enabledB },
-        ],
+        variants: draft.map((d) => ({
+          key: d.key,
+          weight: d.enabled ? d.weight : 0,
+          enabled: d.enabled,
+        })),
       },
       resetRound
-        ? "Saved new traffic split and reset assignments for a fresh round."
+        ? "Saved new traffic split and reset all visitors for a fresh round."
         : "Saved traffic split for new visitors."
     );
 
-  const sig = stats.significance;
   const startedLabel =
     expConfig.started_at && new Date(expConfig.started_at).getFullYear() > 1971
       ? new Date(expConfig.started_at).toLocaleDateString("en-GB", {
@@ -119,186 +170,210 @@ function ExperimentCard({
         })
       : "Initial";
 
+  const enabledCount = draft.filter((d) => d.enabled).length;
+
   return (
-    <section className="bg-[#FFFFFF] border-2 border-[#DCE2CF] p-5 sm:p-7 space-y-6">
+    <section className="bg-[#FFFFFF] border border-[#E2E8E4] rounded-2xl p-5 sm:p-7 shadow-[0_1px_2px_rgba(15,41,30,0.03),0_8px_24px_rgba(15,41,30,0.03)] space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#EDF0E7] pb-4">
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#EDF2EF] pb-5">
         <div>
           <div className="flex flex-wrap items-center gap-2.5">
-            <h2 className="font-serif text-[26px] leading-tight text-[#000000]">
+            <h2 className="font-display text-[23px] font-semibold tracking-tight text-[#0F291E]">
               {title}
             </h2>
             <span
-              className={`px-2.5 py-0.5 text-[12px] font-semibold ${
+              className={`px-3 py-0.5 rounded-full text-[12px] font-semibold ${
                 expConfig.status === "winner"
-                  ? "bg-[#5D726A] text-[#FFFFFF]"
-                  : "bg-[#B8C49E] text-[#000000]"
+                  ? "bg-[#0F291E] text-[#FFFFFF]"
+                  : "bg-[#EAF4EF] text-[#14533C]"
               }`}
             >
               {expConfig.status === "winner"
-                ? `Winner declared: Variant ${expConfig.winner}`
-                : `Running · Round v${expConfig.version}`}
+                ? `Winner: ${meta[expConfig.winner ?? "A"]?.short ?? expConfig.winner} (100%)`
+                : `Active · Round v${expConfig.version}`}
             </span>
           </div>
-          <p className="text-[14px] text-[#5A5954] mt-1">
-            {subtitle} · Round started: <strong>{startedLabel}</strong>
+          <p className="text-[14px] text-[#5B7065] mt-1">
+            {subtitle} · Round started: <strong className="text-[#14201A]">{startedLabel}</strong>
           </p>
         </div>
 
+        {/* Live Preview Pills */}
         <div className="flex flex-wrap items-center gap-2">
-          {(["A", "B"] as const).map((v) => (
+          {draft.map((d) => (
             <a
-              key={v}
-              href={`${previewBase}?preview=${expId}:${v}`}
+              key={d.key}
+              href={`${previewBase}?preview=${expId}:${d.key}`}
               target="_blank"
               rel="noreferrer"
-              className="min-h-[36px] px-3 py-1.5 bg-[#EDF0E7] hover:bg-[#DCE2CF] border border-[#BFBFBD] text-[13px] font-medium text-[#000000] inline-flex items-center gap-1.5"
+              className="h-9 px-3.5 rounded-full bg-[#F4F7F5] hover:bg-[#EAF4EF] border border-[#D8E2DC] text-[13px] font-semibold text-[#0F291E] inline-flex items-center gap-1.5 transition-colors"
             >
-              <span>Preview {v}</span>
-              <ExternalLinkIcon className="w-3.5 h-3.5" />
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: meta[d.key]?.color ?? "#147A53" }}
+              />
+              <span>Preview {meta[d.key]?.short ?? d.key}</span>
+              <ExternalLinkIcon className="w-3.5 h-3.5 text-[#5B7065]" />
             </a>
           ))}
         </div>
       </div>
 
-      {/* Traffic Percentage Controls */}
-      <div className="bg-[#EDF0E7] border border-[#DCE2CF] p-4 sm:p-5 space-y-4">
+      {/* Traffic Split Controls */}
+      <div className="rounded-2xl bg-[#F7FAF8] border border-[#E4ECE7] p-4 sm:p-5 space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-[16px] font-semibold text-[#000000]">
-            Traffic Split Percentage
+          <h3 className="text-[15px] font-semibold text-[#0F291E]">
+            Traffic Allocation (Always sums to 100%)
           </h3>
-          <div className="flex items-center gap-2 text-[13px]">
-            <button
-              type="button"
-              onClick={() =>
-                setDraft({ enabledA: true, enabledB: true, weightA: 50, weightB: 50 })
-              }
-              className="px-2.5 py-1 bg-[#FFFFFF] border border-[#BFBFBD] hover:bg-[#DCE2CF] font-medium cursor-pointer"
-            >
-              50 / 50
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setDraft({ enabledA: true, enabledB: true, weightA: 80, weightB: 20 })
-              }
-              className="px-2.5 py-1 bg-[#FFFFFF] border border-[#BFBFBD] hover:bg-[#DCE2CF] font-medium cursor-pointer"
-            >
-              80 / 20
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setDraft({ enabledA: true, enabledB: true, weightA: 20, weightB: 80 })
-              }
-              className="px-2.5 py-1 bg-[#FFFFFF] border border-[#BFBFBD] hover:bg-[#DCE2CF] font-medium cursor-pointer"
-            >
-              20 / 80
-            </button>
+          <div className="flex flex-wrap items-center gap-1.5 text-[12px]">
+            {presets.map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => applyPreset(p.values)}
+                className="px-3 py-1 rounded-full bg-[#FFFFFF] border border-[#D5DFD9] hover:border-[#147A53] hover:bg-[#EAF4EF] text-[#0F291E] font-medium cursor-pointer transition-colors"
+              >
+                {p.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Visual Split Bar */}
-        <div className="h-4 w-full bg-[#DCE2CF] flex overflow-hidden border border-[#5D726A]">
-          <div
-            style={{ width: `${draft.enabledA ? draft.weightA : 0}%` }}
-            className="bg-[#5D726A] transition-all"
-          />
-          <div
-            style={{ width: `${draft.enabledB ? draft.weightB : 0}%` }}
-            className="bg-[#B8C49E] transition-all"
-          />
+        {/* Multi-variant Visual Split Bar */}
+        <div className="h-4 w-full bg-[#E3EAE6] rounded-full flex overflow-hidden p-0.5 gap-0.5">
+          {draft.map((d) => {
+            const pct = d.enabled ? d.weight : 0;
+            if (pct <= 0) return null;
+            return (
+              <div
+                key={d.key}
+                style={{
+                  width: `${pct}%`,
+                  backgroundColor: meta[d.key]?.color ?? "#147A53",
+                }}
+                className="h-full rounded-full transition-all flex items-center justify-center text-[10px] font-bold text-[#FFFFFF]"
+                title={`${meta[d.key]?.short ?? d.key}: ${pct}%`}
+              >
+                {pct >= 14 ? `${pct}%` : ""}
+              </div>
+            );
+          })}
         </div>
 
-        {/* Slider */}
-        <div>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            step={5}
-            aria-label={`${title} traffic share for Variant A`}
-            disabled={!draft.enabledA || !draft.enabledB}
-            value={draft.enabledA ? draft.weightA : 0}
-            style={
-              {
-                "--attr-min": 0,
-                "--attr-max": 100,
-                "--control-value": draft.enabledA ? draft.weightA : 0,
-              } as React.CSSProperties
-            }
-            onChange={(e) => setWeightA(Number(e.target.value))}
-            className="kr-slider"
-          />
-        </div>
-
-        {/* Variant Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-          {(["A", "B"] as const).map((k) => {
-            const isA = k === "A";
-            const enabled = isA ? draft.enabledA : draft.enabledB;
-            const weight = isA ? draft.weightA : draft.weightB;
-            const label =
-              expConfig.variants.find((v) => v.key === k)?.label ?? `Variant ${k}`;
+        {/* Variant Cards Grid */}
+        <div
+          className={`grid grid-cols-1 ${
+            draft.length >= 3 ? "lg:grid-cols-3" : "md:grid-cols-2"
+          } gap-4`}
+        >
+          {draft.map((d) => {
+            const info = meta[d.key];
+            const isOnlyEnabled = d.enabled && enabledCount === 1;
+            const color = info?.color ?? "#147A53";
 
             return (
               <div
-                key={k}
-                className={`p-4 border-2 bg-[#FFFFFF] flex flex-col justify-between gap-3 ${
-                  enabled ? "border-[#5D726A]" : "border-[#DFDFDF] opacity-70"
+                key={d.key}
+                className={`rounded-2xl p-4 bg-[#FFFFFF] border transition-all flex flex-col justify-between gap-4 ${
+                  d.enabled
+                    ? "border-[#CEDBD3] shadow-xs"
+                    : "border-[#E8EEEA] opacity-65 bg-[#FAFCFB]"
                 }`}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="inline-block px-2 py-0.5 text-[12px] font-semibold bg-[#EDF0E7] border border-[#DCE2CF] text-[#000000]">
-                      Variant {k}
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <span
+                      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[12px] font-semibold text-[#FFFFFF]"
+                      style={{ backgroundColor: color }}
+                    >
+                      {info?.short ?? `Variant ${d.key}`}
                     </span>
-                    <p className="text-[15px] font-medium text-[#000000] mt-1">
-                      {label}
+
+                    {/* Modern Sliding Toggle Switch */}
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={d.enabled}
+                      aria-label={`Toggle ${info?.short ?? d.key}`}
+                      disabled={isOnlyEnabled}
+                      onClick={() => setDraft((prev) => toggleDraftVariant(prev, d.key))}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer disabled:cursor-not-allowed ${
+                        d.enabled ? "bg-[#147A53]" : "bg-[#CBD5CF]"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-[#FFFFFF] shadow-xs transition-transform ${
+                          d.enabled ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div>
+                    <p className="text-[15px] font-semibold text-[#0F291E] leading-snug">
+                      {info?.name ?? `Variant ${d.key}`}
+                    </p>
+                    <p className="text-[12px] text-[#5B7065] leading-relaxed mt-1">
+                      {info?.desc}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => toggleVariant(k)}
-                    className={`px-2.5 py-1 text-[12px] font-semibold border cursor-pointer ${
-                      enabled
-                        ? "bg-[#B8C49E] border-[#5D726A] text-[#000000]"
-                        : "bg-[#F7F7F7] border-[#BFBFBD] text-[#5A5954]"
-                    }`}
-                  >
-                    {enabled ? "Enabled" : "Disabled"}
-                  </button>
                 </div>
 
-                <div className="flex items-center justify-between gap-3 pt-1">
-                  <label className="text-[14px] text-[#292823] flex items-center gap-2">
-                    <span>Traffic %:</span>
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      disabled={!enabled || (!draft.enabledA || !draft.enabledB)}
-                      value={enabled ? weight : 0}
-                      onChange={(e) => {
-                        const n = Number(e.target.value);
-                        setWeightA(isA ? n : 100 - n);
-                      }}
-                      className="w-20 px-2.5 py-1.5 border border-[#5D726A] bg-[#F7F7F7] text-[16px] font-semibold tabular-nums text-[#000000]"
-                    />
-                  </label>
+                {/* Slider + Numeric Input */}
+                <div className="space-y-2.5 pt-2 border-t border-[#EFF4F1]">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[12px] font-medium text-[#5B7065]">Traffic share</span>
+                    <div className="inline-flex items-center gap-1">
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        aria-label={`Percentage for ${info?.short ?? d.key}`}
+                        disabled={!d.enabled || isOnlyEnabled}
+                        value={d.enabled ? d.weight : 0}
+                        onChange={(e) =>
+                          setDraft((prev) => rebalance(prev, d.key, Number(e.target.value)))
+                        }
+                        className="w-16 px-2 py-1 rounded-lg border border-[#CFDAD3] bg-[#F7FAF8] text-right text-[15px] font-semibold tabular-nums text-[#0F291E] disabled:opacity-50"
+                      />
+                      <span className="text-[14px] font-semibold text-[#5B7065]">%</span>
+                    </div>
+                  </div>
+
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    step={1}
+                    aria-label={`Slider for ${info?.short ?? d.key}`}
+                    disabled={!d.enabled || isOnlyEnabled}
+                    value={d.enabled ? d.weight : 0}
+                    style={
+                      {
+                        "--attr-min": 0,
+                        "--attr-max": 100,
+                        "--control-value": d.enabled ? d.weight : 0,
+                        "--slider-fill-color": color,
+                      } as React.CSSProperties
+                    }
+                    onChange={(e) =>
+                      setDraft((prev) => rebalance(prev, d.key, Number(e.target.value)))
+                    }
+                    className="nm-slider"
+                  />
 
                   <button
                     type="button"
-                    disabled={saving || (expConfig.status === "winner" && expConfig.winner === k)}
+                    disabled={saving || (expConfig.status === "winner" && expConfig.winner === d.key)}
                     onClick={() =>
                       runAction(
-                        { action: "winner", winner: k },
-                        `Variant ${k} declared winner — 100% of traffic now sees Variant ${k}.`
+                        { action: "winner", winner: d.key },
+                        `${info?.short ?? d.key} declared winner — 100% of traffic now sees it.`
                       )
                     }
-                    className="px-3 py-1.5 bg-[#FFFFFF] hover:bg-[#DCE2CF] border border-[#5D726A] text-[13px] font-medium text-[#000000] cursor-pointer disabled:opacity-50"
+                    className="w-full py-2 px-3 rounded-xl bg-[#F4F7F5] hover:bg-[#EAF4EF] border border-[#DCE5DF] text-[12px] font-semibold text-[#0F291E] cursor-pointer transition-colors disabled:opacity-45"
                   >
-                    Declare {k} winner (100%)
+                    Make {info?.short ?? d.key} winner (100%)
                   </button>
                 </div>
               </div>
@@ -312,7 +387,7 @@ function ExperimentCard({
             type="button"
             disabled={saving}
             onClick={() => saveWeights(false)}
-            className="min-h-[44px] px-4 py-2 bg-[#B8C49E] hover:bg-[#C5D0AF] border border-[#5D726A] text-[#000000] text-[14px] font-semibold cursor-pointer disabled:opacity-60"
+            className="h-10 px-5 rounded-full bg-[#147A53] hover:bg-[#0D5E3F] text-[#FFFFFF] text-[14px] font-semibold cursor-pointer transition-colors shadow-xs disabled:opacity-60"
           >
             Save % (new visitors only)
           </button>
@@ -320,7 +395,7 @@ function ExperimentCard({
             type="button"
             disabled={saving}
             onClick={() => saveWeights(true)}
-            className="min-h-[44px] px-4 py-2 bg-[#292823] hover:bg-[#000000] text-[#FFFFFF] text-[14px] font-medium cursor-pointer disabled:opacity-60"
+            className="h-10 px-5 rounded-full bg-[#0F291E] hover:bg-[#193F2F] text-[#FFFFFF] text-[14px] font-medium cursor-pointer transition-colors disabled:opacity-60"
           >
             Save % &amp; reset all visitors (new round)
           </button>
@@ -332,89 +407,113 @@ function ExperimentCard({
               onClick={() =>
                 runAction({ action: "resume" }, "Split test reopened for a fresh round.")
               }
-              className="min-h-[44px] px-4 py-2 bg-[#FFFFFF] hover:bg-[#DCE2CF] border border-[#5D726A] text-[#000000] text-[14px] font-medium cursor-pointer"
+              className="h-10 px-4 rounded-full bg-[#FFFFFF] hover:bg-[#EAF4EF] border border-[#CBD7D0] text-[#0F291E] text-[14px] font-semibold cursor-pointer transition-colors"
             >
-              Resume A/B split test
+              Resume split test
             </button>
           )}
         </div>
 
         {notice && (
-          <p role="status" className="text-[14px] font-medium text-[#5D726A]">
+          <p
+            role="status"
+            className={`text-[13px] font-semibold ${
+              noticeErr ? "text-[#B8422C]" : "text-[#147A53]"
+            }`}
+          >
             {notice}
           </p>
         )}
       </div>
 
-      {/* Live Experiment Results & Statistical Confidence */}
+      {/* Live Experiment Results & Confidence Table */}
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-[16px] font-semibold text-[#000000]">
-            Conversion Performance &amp; Significance
+          <h3 className="text-[15px] font-semibold text-[#0F291E]">
+            Conversion Results &amp; Statistical Confidence
           </h3>
           <span
-            className={`px-3 py-1 text-[13px] font-semibold border ${
-              sig.status === "significant"
-                ? "bg-[#B8C49E] border-[#5D726A] text-[#000000]"
-                : sig.status === "inconclusive"
-                ? "bg-[#EDF0E7] border-[#BFBFBD] text-[#292823]"
-                : "bg-[#FFF7D4] border-[#BFBFBD] text-[#292823]"
+            className={`px-3 py-1 rounded-full text-[12px] font-semibold border ${
+              stats.status === "significant"
+                ? "bg-[#EAF4EF] border-[#B6DCC8] text-[#14533C]"
+                : stats.status === "inconclusive"
+                ? "bg-[#F4F7F5] border-[#DCE5DF] text-[#43564C]"
+                : "bg-[#FEF6E2] border-[#ECD8A4] text-[#7A4E00]"
             }`}
           >
-            {sig.status === "insufficient_data"
-              ? "Not enough data yet (need 100+ sessions per variant & 5+ leads)"
-              : sig.status === "significant"
-              ? `Statistically significant: ${sig.confidencePct}% confidence (Variant ${sig.leader} leads)`
-              : `Inconclusive so far (${sig.confidencePct}% confidence — keep running)`}
+            {stats.status === "insufficient_data"
+              ? "Not enough data yet (need 100+ sessions per top variants & 5+ leads)"
+              : stats.status === "significant"
+              ? `Statistically significant: ${stats.confidencePct}% confidence (${
+                  meta[stats.leader]?.short ?? stats.leader
+                } leads)`
+              : `Inconclusive so far (${stats.confidencePct}% confidence — keep running)`}
           </span>
         </div>
 
-        <div className="overflow-x-auto border border-[#DFDFDF]">
+        <div className="overflow-x-auto rounded-xl border border-[#E4ECE7]">
           <table className="w-full text-left border-collapse text-[14px]">
             <thead>
-              <tr className="bg-[#F7F7F7] border-b border-[#DFDFDF] text-[#5A5954]">
-                <th className="py-2.5 px-4 font-medium">Variant</th>
-                <th className="py-2.5 px-3 text-right font-medium">Exposed Sessions</th>
-                <th className="py-2.5 px-3 text-right font-medium">Leads</th>
-                <th className="py-2.5 px-3 text-right font-medium">Conversion Rate</th>
-                <th className="py-2.5 px-4 text-right font-medium">Lift vs A</th>
+              <tr className="bg-[#F7FAF8] border-b border-[#E4ECE7] text-[#5B7065] text-[12px] uppercase tracking-wider">
+                <th className="py-3 px-4 font-semibold">Variant</th>
+                <th className="py-3 px-3 text-right font-semibold">Sessions</th>
+                <th className="py-3 px-3 text-right font-semibold">Leads</th>
+                <th className="py-3 px-3 text-right font-semibold">Conv. Rate</th>
+                <th className="py-3 px-3 text-right font-semibold">Lift vs A</th>
+                <th className="py-3 px-4 text-right font-semibold">Confidence vs A</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-[#EDF0E7]">
-                <td className="py-3 px-4 font-semibold text-[#000000]">Variant A</td>
-                <td className="py-3 px-3 text-right tabular-nums">{stats.A.exposures}</td>
-                <td className="py-3 px-3 text-right tabular-nums font-semibold">
-                  {stats.A.conversions}
-                </td>
-                <td className="py-3 px-3 text-right tabular-nums font-semibold">
-                  {formatPct(sig.rateA, 2)}
-                </td>
-                <td className="py-3 px-4 text-right text-[#5A5954]">Baseline</td>
-              </tr>
-              <tr>
-                <td className="py-3 px-4 font-semibold text-[#000000]">Variant B</td>
-                <td className="py-3 px-3 text-right tabular-nums">{stats.B.exposures}</td>
-                <td className="py-3 px-3 text-right tabular-nums font-semibold">
-                  {stats.B.conversions}
-                </td>
-                <td className="py-3 px-3 text-right tabular-nums font-semibold">
-                  {formatPct(sig.rateB, 2)}
-                </td>
-                <td
-                  className={`py-3 px-4 text-right tabular-nums font-semibold ${
-                    sig.relativeLiftPct !== null && sig.relativeLiftPct > 0
-                      ? "text-[#5D726A]"
-                      : sig.relativeLiftPct !== null && sig.relativeLiftPct < 0
-                      ? "text-[#BA5B3E]"
-                      : "text-[#5A5954]"
-                  }`}
-                >
-                  {sig.relativeLiftPct === null
-                    ? "—"
-                    : `${sig.relativeLiftPct > 0 ? "+" : ""}${sig.relativeLiftPct.toFixed(1)}%`}
-                </td>
-              </tr>
+              {stats.variants.map((row) => {
+                const info = meta[row.key];
+                return (
+                  <tr
+                    key={row.key}
+                    className="border-b border-[#F1F5F2] last:border-0 hover:bg-[#FAFDFB]"
+                  >
+                    <td className="py-3 px-4">
+                      <span className="inline-flex items-center gap-2 font-semibold text-[#0F291E]">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ backgroundColor: info?.color ?? "#147A53" }}
+                        />
+                        <span>{info?.short ?? row.key}</span>
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 text-right tabular-nums text-[#4B5F55]">
+                      {row.exposures}
+                    </td>
+                    <td className="py-3 px-3 text-right tabular-nums font-semibold text-[#0F291E]">
+                      {row.conversions}
+                    </td>
+                    <td className="py-3 px-3 text-right tabular-nums font-semibold text-[#0F291E]">
+                      {formatPct(row.rate, 2)}
+                    </td>
+                    <td
+                      className={`py-3 px-3 text-right tabular-nums font-semibold ${
+                        row.liftVsBaseline !== null && row.liftVsBaseline > 0
+                          ? "text-[#147A53]"
+                          : row.liftVsBaseline !== null && row.liftVsBaseline < 0
+                          ? "text-[#B8422C]"
+                          : "text-[#6E8278]"
+                      }`}
+                    >
+                      {row.statusVsBaseline === "baseline"
+                        ? "Baseline"
+                        : row.liftVsBaseline === null
+                        ? "—"
+                        : `${row.liftVsBaseline > 0 ? "+" : ""}${row.liftVsBaseline.toFixed(1)}%`}
+                    </td>
+                    <td className="py-3 px-4 text-right tabular-nums text-[13px] text-[#5B7065]">
+                      {row.statusVsBaseline === "baseline"
+                        ? "—"
+                        : row.statusVsBaseline === "insufficient_data"
+                        ? "Need 100+ each"
+                        : `${row.confidenceVsBaseline}%`}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -442,32 +541,36 @@ function ExperimentsInner() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-serif text-[32px] leading-tight text-[#000000]">
-            Traffic % &amp; A/B Split Control
+          <h1 className="font-display text-[30px] sm:text-[34px] font-semibold tracking-tight leading-tight text-[#0F291E]">
+            Traffic % &amp; Site Versions
           </h1>
-          <p className="text-[15px] text-[#5A5954]">
-            Set exact traffic percentages for each page version, keep visitors sticky, or declare a 100% winner.
+          <p className="text-[14px] text-[#5B7065] mt-0.5">
+            Control exact percentages between Classic A, Classic B, and the Modern VurderBoligen site (Home A only), plus Seller Form A vs B.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex bg-[#FFFFFF] border border-[#BFBFBD] p-0.5 text-[13px]">
+          <div className="inline-flex bg-[#EEF2EF] rounded-full p-1 border border-[#DFE6E1] text-[13px]">
             <button
               type="button"
               onClick={() => setExpWindow("round")}
-              className={`px-3 py-1.5 font-medium cursor-pointer ${
-                expWindow === "round" ? "bg-[#292823] text-[#FFFFFF]" : "text-[#000000]"
+              className={`px-3 py-1 rounded-full font-medium cursor-pointer transition-all ${
+                expWindow === "round"
+                  ? "bg-[#FFFFFF] text-[#0F291E] font-semibold shadow-2xs"
+                  : "text-[#4D6157]"
               }`}
             >
-              Current round stats
+              Current round
             </button>
             <button
               type="button"
               onClick={() => setExpWindow("range")}
-              className={`px-3 py-1.5 font-medium cursor-pointer ${
-                expWindow === "range" ? "bg-[#292823] text-[#FFFFFF]" : "text-[#000000]"
+              className={`px-3 py-1 rounded-full font-medium cursor-pointer transition-all ${
+                expWindow === "range"
+                  ? "bg-[#FFFFFF] text-[#0F291E] font-semibold shadow-2xs"
+                  : "text-[#4D6157]"
               }`}
             >
               Selected date range
@@ -478,16 +581,16 @@ function ExperimentsInner() {
             type="button"
             onClick={() => void reload()}
             disabled={loading}
-            className="min-h-[38px] px-3 py-1.5 bg-[#FFFFFF] border border-[#BFBFBD] hover:bg-[#EDF0E7] text-[13px] font-medium inline-flex items-center gap-1.5 cursor-pointer"
+            className="h-9 px-3.5 rounded-full bg-[#FFFFFF] border border-[#D8E2DC] hover:bg-[#EAF4EF] text-[13px] font-semibold inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <RefreshIcon className="w-4 h-4" />
+            <RefreshIcon className={`w-3.5 h-3.5 text-[#147A53] ${loading ? "animate-spin" : ""}`} />
             <span>Refresh</span>
           </button>
         </div>
       </div>
 
       {error && (
-        <div role="alert" className="p-4 bg-[hsl(6deg_100%_97%)] border border-[#BA5B3E] text-[#BA5B3E] text-[15px]">
+        <div role="alert" className="p-4 rounded-2xl bg-[#FEF2F0] border border-[#F0C2B9] text-[#B8422C] text-[14px]">
           {error}
         </div>
       )}
@@ -496,21 +599,32 @@ function ExperimentsInner() {
         <div className="space-y-6">
           <ExperimentCard
             expId="landing"
-            title="1. Landing Page (/)"
-            subtitle="Controls which Home Hero layout visitors see when arriving at the site"
+            title="1. Site Experience & Home Page (/)"
+            subtitle="Choose how traffic splits across Classic A, Classic B, and the Modern VurderBoligen site"
             previewBase="/"
             expConfig={data.config.experiments.landing}
             stats={data.experiments.landing}
+            presets={[
+              { label: "Equal 3-Way (33/33/34)", values: { A: 33, B: 33, M: 34 } },
+              { label: "Classic A vs Modern (50/0/50)", values: { A: 50, B: 0, M: 50 } },
+              { label: "100% Modern", values: { A: 0, B: 0, M: 100 } },
+              { label: "Classic A vs B (50/50/0)", values: { A: 50, B: 50, M: 0 } },
+            ]}
             onMutate={mutateConfig}
           />
 
           <ExperimentCard
             expId="funnel"
             title="2. Seller Form (/connect-agency & /sell)"
-            subtitle="Controls which form is shown for sources set to 'A/B Split' in Form Routing"
+            subtitle="Controls which form is shown for buttons set to 'A/B Split' in Form Routing"
             previewBase="/connect-agency"
             expConfig={data.config.experiments.funnel}
             stats={data.experiments.funnel}
+            presets={[
+              { label: "50 / 50", values: { A: 50, B: 50 } },
+              { label: "80 / 20", values: { A: 80, B: 20 } },
+              { label: "20 / 80", values: { A: 20, B: 80 } },
+            ]}
             onMutate={mutateConfig}
           />
         </div>
@@ -521,7 +635,7 @@ function ExperimentsInner() {
 
 export default function AdminExperimentsPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-[#5D726A]">Loading experiments...</div>}>
+    <Suspense fallback={<div className="p-6 text-[#147A53]">Loading traffic controls...</div>}>
       <ExperimentsInner />
     </Suspense>
   );

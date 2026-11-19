@@ -1,15 +1,16 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Language, ABVariant, TRANSLATIONS } from "@/data/translations";
+import { Language, ABVariant, LandingVariant, TRANSLATIONS } from "@/data/translations";
 import { trackCtaAndGa } from "@/lib/trackerClient";
 import { writeCookie } from "@/lib/consent";
 
 interface AppContextType {
   lang: Language;
   setLang: (lang: Language) => void;
-  landingVariant: ABVariant;
+  landingVariant: LandingVariant;
   funnelVariant: ABVariant;
+  isModern: boolean;
   isAdmin: boolean;
   isPreview: boolean;
   trackClick: (source: string) => void;
@@ -21,7 +22,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 interface AppProviderProps {
   children: React.ReactNode;
   initialLang?: Language;
-  initialLandingVariant?: ABVariant;
+  initialLandingVariant?: LandingVariant;
   initialFunnelVariant?: ABVariant;
   isAdmin?: boolean;
   isPreview?: boolean;
@@ -72,6 +73,7 @@ export function AppProvider({
         setLang,
         landingVariant: initialLandingVariant,
         funnelVariant: initialFunnelVariant,
+        isModern: initialLandingVariant === "M",
         isAdmin,
         isPreview,
         trackClick,

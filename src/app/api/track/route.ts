@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { FUNNEL_PATHS, isVariant, normalizeSource } from "@/lib/ab";
+import { FUNNEL_PATHS, isFunnelVariant, isLandingVariant, normalizeSource } from "@/lib/ab";
 import { sbInsert, supabaseConfigured } from "@/lib/supabase";
 
 const ALLOWED_TYPES = new Set([
@@ -100,8 +100,8 @@ export async function POST(req: NextRequest) {
       view_id: cleanStr(ev.view_id, 80),
       session_id: sessionId,
       visitor_id: consent ? cleanStr(ev.visitor_id, 80) : null,
-      landing_variant: isVariant(ev.landing_variant) ? ev.landing_variant : null,
-      funnel_variant: isVariant(ev.funnel_variant) ? ev.funnel_variant : null,
+      landing_variant: isLandingVariant(ev.landing_variant) ? ev.landing_variant : null,
+      funnel_variant: isFunnelVariant(ev.funnel_variant) ? ev.funnel_variant : null,
       routed: Boolean(ev.routed),
       source,
       step: cleanStr(ev.step, 40),

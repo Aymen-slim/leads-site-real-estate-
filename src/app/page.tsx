@@ -6,9 +6,14 @@ import Image from "next/image";
 import { useApp } from "@/context/AppContext";
 import { ArrowRightIcon } from "@/components/Icons";
 import { HousePriceGrowthCalculator } from "@/components/HousePriceGrowthCalculator";
+import { ModernHome } from "@/components/modern/ModernHome";
 
 export default function HomePage() {
-  const { lang, landingVariant, trackClick, t } = useApp();
+  const { lang, landingVariant, isModern, trackClick, t } = useApp();
+
+  if (isModern) {
+    return <ModernHome />;
+  }
 
   const sampleAdShowcases = [
     {

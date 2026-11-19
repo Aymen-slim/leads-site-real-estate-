@@ -11,9 +11,12 @@ import {
   PaintRollerIcon,
   ArrowRightIcon,
 } from "@/components/Icons";
+import { ModernToolsHub } from "@/components/modern/ModernToolsHub";
 
 export default function FreeToolsHubPage() {
-  const { lang, trackClick, t } = useApp();
+  const { lang, isModern, trackClick, t } = useApp();
+
+  if (isModern) return <ModernToolsHub />;
 
   const tools = [
     {
