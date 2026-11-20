@@ -14,7 +14,24 @@ interface RouteItem {
   leads: number;
 }
 
-const TOOL_SOURCES = new Set(["price-m2", "net-cash", "land", "inheritance", "as-is"]);
+const TOOL_SOURCES = new Set([
+  "price-m2",
+  "net-cash",
+  "land",
+  "inheritance",
+  "as-is",
+  "tax-calc",
+  "partner-buyout",
+  "broker-fee",
+  "bridge-loan",
+  "rent-or-sell",
+  "property-tax",
+  "document-fee",
+  "cabin-cost",
+  "energy-rating",
+  "ground-lease",
+  "sun-conditions",
+]);
 const AD_SOURCES = new Set(["ad-villa", "ad-land", "ad-family"]);
 
 function RoutingInner() {
@@ -194,7 +211,7 @@ function RoutingInner() {
             onClick={() => applyPreset((s) => TOOL_SOURCES.has(s), "A")}
             className="px-3 py-1.5 rounded-full bg-[#FFFFFF] border border-[#C3DCD0] hover:border-[#147A53] text-[#0F291E] font-semibold cursor-pointer transition-colors"
           >
-            5 Tools → Funnel A
+            All 16 Tools → Funnel A
           </button>
           <button
             type="button"

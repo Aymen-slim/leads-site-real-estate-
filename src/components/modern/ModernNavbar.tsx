@@ -6,24 +6,21 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useApp } from "@/context/AppContext";
 import {
-  HouseIcon,
-  LandPlotIcon,
-  ScaleMeasureIcon,
-  UsersFamilyIcon,
-  PaintRollerIcon,
   ArrowRightIcon,
   ChevronDownIcon,
 } from "@/components/Icons";
+import { ToolIcon } from "@/components/ToolIcon";
+import { TOOL_CATALOG } from "@/data/norwayToolsData";
 
 export function ModernNavbar() {
   const pathname = usePathname();
-  const { lang, setLang, trackClick, t } = useApp();
+  const { lang, setLang, trackClick } = useApp();
 
   const [toolsOpen, setToolsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const isHome = pathname === "/";
-  const isTools = pathname.startsWith("/tools");
+  const isTools = pathname.startsWith("/tools") || pathname.startsWith("/boligpris");
   const isAgency = pathname === "/connect-agency" || pathname === "/sell";
 
   useEffect(() => {
@@ -40,53 +37,21 @@ export function ModernNavbar() {
     return () => document.removeEventListener("mousedown", handleOutside);
   }, []);
 
-  const toolItems = [
-    {
-      href: "/tools/price-per-m2",
-      title: t.nav.tool1Short,
-      sub:
-        lang === "no"
-          ? "Sjekk m²-pris i ditt nabolag"
-          : "Neighborhood house vs. land m² lookup",
-      icon: <ScaleMeasureIcon className="w-5 h-5" />,
-    },
-    {
-      href: "/tools/net-cash",
-      title: t.nav.tool2Short,
-      sub:
-        lang === "no"
-          ? "Netto utbetalt etter skatt og gebyrer"
-          : "Take-home payout after taxes & fees",
-      icon: <HouseIcon className="w-5 h-5" />,
-    },
-    {
-      href: "/tools/land-buildability",
-      title: t.nav.tool3Short,
-      sub:
-        lang === "no"
-          ? "Utbyggingspotensial og deling (R+2/R+3)"
-          : "Plot division & R+2 / R+3 potential",
-      icon: <LandPlotIcon className="w-5 h-5" />,
-    },
-    {
-      href: "/tools/inherited-property",
-      title: t.nav.tool4Short,
-      sub:
-        lang === "no"
-          ? "Beregn andel per arving eller søsken"
-          : "Exact family estate split per heir",
-      icon: <UsersFamilyIcon className="w-5 h-5" />,
-    },
-    {
-      href: "/tools/sell-as-is",
-      title: t.nav.tool5Short,
-      sub:
-        lang === "no"
-          ? "Sammenlign oppussing mot salg som den er"
-          : "Compare renovation vs. selling as-is",
-      icon: <PaintRollerIcon className="w-5 h-5" />,
-    },
+  const topToolSlugs = [
+    "price-per-m2",
+    "net-cash",
+    "broker-fee",
+    "capital-gains-tax",
+    "partner-buyout",
+    "bridge-loan",
+    "rent-or-sell",
+    "property-tax",
+    "document-fee",
+    "sun-conditions",
   ];
+  const toolItems = topToolSlugs
+    .map((slug) => TOOL_CATALOG.find((item) => item.slug === slug))
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
   return (
     <header className="bg-[#F4F5F0]/90 backdrop-blur-md text-[#1D281C] border-b border-[#DCE2D4] sm:sticky sm:top-0 z-40">
@@ -169,40 +134,40 @@ export function ModernNavbar() {
               {toolsOpen && (
                 <div
                   role="menu"
-                  className="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 mt-2 sm:w-[370px] bg-[#FFFFFF] border border-[#DCE2D4] rounded-2xl shadow-[0_14px_40px_rgba(29,40,28,0.16)] p-3 z-50"
+                  className="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 mt-2 sm:w-[620px] bg-[#FFFFFF] border border-[#DCE2D4] rounded-2xl shadow-[0_14px_40px_rgba(29,40,28,0.16)] p-3.5 z-50"
                 >
-                  <div className="space-y-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                     {toolItems.map((item) => (
                       <Link
-                        key={item.href}
-                        href={item.href}
+                        key={item.path}
+                        href={item.path}
                         role="menuitem"
-                        className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#E7ECE0] transition-colors min-h-[56px]"
+                        className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-[#E7ECE0] transition-colors min-h-[54px]"
                       >
-                        <span className="w-10 h-10 rounded-lg bg-[#E7ECE0] text-[#243323] flex items-center justify-center shrink-0">
-                          {item.icon}
+                        <span className="w-9 h-9 rounded-lg bg-[#E7ECE0] text-[#243323] flex items-center justify-center shrink-0">
+                          <ToolIcon iconKey={item.iconKey} className="w-4 h-4" />
                         </span>
                         <div className="min-w-0">
-                          <span className="block text-[15px] font-semibold text-[#1D281C] leading-snug">
-                            {item.title}
+                          <span className="block text-[14px] font-semibold text-[#1D281C] leading-snug">
+                            {lang === "no" ? item.shortTitleNo : item.shortTitleEn}
                           </span>
-                          <span className="block text-[13px] text-[#495647] mt-0.5">
-                            {item.sub}
+                          <span className="block text-[12px] text-[#495647] mt-0.5 line-clamp-1">
+                            {lang === "no" ? item.sampleMetricNo : item.sampleMetricEn}
                           </span>
                         </div>
                       </Link>
                     ))}
                   </div>
-                  <div className="mt-2 pt-2 border-t border-[#DCE2D4]">
+                  <div className="mt-2.5 pt-2.5 border-t border-[#DCE2D4]">
                     <Link
                       href="/tools"
                       role="menuitem"
-                      className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#F4F5F0] hover:bg-[#E7ECE0] text-[15px] font-semibold text-[#243323]"
+                      className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#F4F5F0] hover:bg-[#E7ECE0] text-[15px] font-semibold text-[#243323]"
                     >
                       <span>
                         {lang === "no"
-                          ? "Se alle 5 gratis verktøy"
-                          : "View All 5 Free Tools"}
+                          ? "Se alle 16 gratis verktøy"
+                          : "View All 16 Free Tools"}
                       </span>
                       <ArrowRightIcon className="w-4 h-4" />
                     </Link>

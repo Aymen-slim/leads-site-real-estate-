@@ -479,3 +479,205 @@ export function StarBadgeIcon({ className = "w-4 h-4" }: IconProps) {
     </svg>
   );
 }
+
+export function TaxDocumentIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="9" y1="15" x2="15" y2="11" />
+      <circle cx="9.5" cy="11.5" r="0.9" fill="currentColor" />
+      <circle cx="14.5" cy="15.5" r="0.9" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function HandshakeSplitIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="8" cy="7" r="3" />
+      <circle cx="16" cy="7" r="3" />
+      <path d="M3 20v-1a4.5 4.5 0 0 1 4.5-4.5h1" />
+      <path d="M21 20v-1a4.5 4.5 0 0 0-4.5-4.5h-1" />
+      <line x1="12" y1="12" x2="12" y2="21" />
+    </svg>
+  );
+}
+
+export function BriefcasePercentIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <line x1="9.5" y1="16" x2="14.5" y2="11" />
+      <circle cx="9.8" cy="11.5" r="0.8" fill="currentColor" />
+      <circle cx="14.2" cy="15.5" r="0.8" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function BridgeArrowsIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M4 17h16" />
+      <path d="M6 17v-5a6 6 0 0 1 12 0v5" />
+      <polyline points="15 4 19 8 15 12" />
+      <line x1="19" y1="8" x2="11" y2="8" />
+    </svg>
+  );
+}
+
+export function KeyRentIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="8" cy="15" r="4" />
+      <path d="M11 12l9-9" />
+      <path d="M17 6l3 3" />
+      <path d="M14.5 8.5l2.5 2.5" />
+    </svg>
+  );
+}
+
+export function LandmarkTaxIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <polygon points="12 3 3 8 21 8 12 3" />
+      <line x1="6" y1="11" x2="6" y2="18" />
+      <line x1="10" y1="11" x2="10" y2="18" />
+      <line x1="14" y1="11" x2="14" y2="18" />
+      <line x1="18" y1="11" x2="18" y2="18" />
+      <line x1="3" y1="21" x2="21" y2="21" />
+    </svg>
+  );
+}
+
+export function StampReceiptIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M5 3h14v18l-2.5-1.5L14 21l-2-1.5L10 21l-2.5-1.5L5 21V3z" />
+      <line x1="8.5" y1="8" x2="15.5" y2="8" />
+      <line x1="8.5" y1="12" x2="15.5" y2="12" />
+      <line x1="8.5" y1="16" x2="12.5" y2="16" />
+    </svg>
+  );
+}
+
+export function CabinMountainIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M2 20L9 7l4.5 7 3.5-5 5 11H2z" />
+      <path d="M9 13.5V20" />
+    </svg>
+  );
+}
+
+export function CompassLeaseIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <polygon points="15.5 8.5 13.5 13.5 8.5 15.5 10.5 10.5 15.5 8.5" />
+    </svg>
+  );
+}
+
+export function SunHorizonIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M3 18h18" />
+      <path d="M7 18a5 5 0 0 1 10 0" />
+      <line x1="12" y1="4" x2="12" y2="8" />
+      <line x1="5.6" y1="8.6" x2="8.2" y2="11.2" />
+      <line x1="18.4" y1="8.6" x2="15.8" y2="11.2" />
+    </svg>
+  );
+}

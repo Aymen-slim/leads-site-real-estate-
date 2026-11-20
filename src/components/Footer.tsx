@@ -122,8 +122,59 @@ export function Footer() {
           </div>
         </div>
 
+        {/* SEO Links Strip: Top Calculators & Local Prices */}
+        <div className="mt-10 pt-6 border-t border-[#DCE2CF] grid grid-cols-1 md:grid-cols-2 gap-6 text-[14px]">
+          <div className="space-y-2">
+            <h3 className="text-[13px] font-semibold uppercase tracking-wider text-[#000000]">
+              {lang === "no" ? "Populære boligkalkulatorer" : "Popular Free Calculators"}
+            </h3>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+              <Link href="/tools/broker-fee" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">
+                {lang === "no" ? "Meglerkostnad" : "Broker Fee"}
+              </Link>
+              <Link href="/tools/capital-gains-tax" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">
+                {lang === "no" ? "Gevinstskatt & botid" : "Capital Gains Tax"}
+              </Link>
+              <Link href="/tools/partner-buyout" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">
+                {lang === "no" ? "Kjøpe ut samboer" : "Partner Buyout"}
+              </Link>
+              <Link href="/tools/bridge-loan" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">
+                {lang === "no" ? "Mellomfinansiering" : "Bridge Loan"}
+              </Link>
+              <Link href="/tools/rent-or-sell" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">
+                {lang === "no" ? "Leie ut eller selge" : "Rent vs. Sell"}
+              </Link>
+              <Link href="/tools/property-tax" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">
+                {lang === "no" ? "Eiendomsskatt" : "Property Tax"}
+              </Link>
+              <Link href="/tools/document-fee" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">
+                {lang === "no" ? "Dokumentavgift" : "Stamp Duty"}
+              </Link>
+              <Link href="/tools/sun-conditions" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">
+                {lang === "no" ? "Solforhold" : "Sun Conditions"}
+              </Link>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-[13px] font-semibold uppercase tracking-wider text-[#000000]">
+              {lang === "no" ? "Boligpris per m² i Norge" : "Local Prices per m²"}
+            </h3>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+              <Link href="/boligpris/oslo" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">Oslo</Link>
+              <Link href="/boligpris/baerum" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">Bærum</Link>
+              <Link href="/boligpris/bergen" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">Bergen</Link>
+              <Link href="/boligpris/stavanger" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">Stavanger</Link>
+              <Link href="/boligpris/trondheim" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">Trondheim</Link>
+              <Link href="/boligpris/drammen" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">Drammen</Link>
+              <Link href="/boligpris/kristiansand" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">Kristiansand</Link>
+              <Link href="/boligpris/tromso" className="hover:text-[#000000] underline decoration-[#5D726A]/60 underline-offset-4">Tromsø</Link>
+            </div>
+          </div>
+        </div>
+
         {/* Bottom Legal Bar */}
-        <div className="mt-12 pt-6 border-t border-[#DCE2CF] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-[14px] text-[#292823]">
+        <div className="mt-8 pt-6 border-t border-[#DCE2CF] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-[14px] text-[#292823]">
           <p>
             © {new Date().getFullYear()} VurderBoligen —{" "}
             {lang === "no"

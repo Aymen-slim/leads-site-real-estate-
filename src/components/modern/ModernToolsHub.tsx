@@ -1,9 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useApp } from "@/context/AppContext";
+import { NORWAY_CITIES } from "@/data/norwayData";
+import {
+  TOOL_CATALOG,
+  TOOL_CATEGORIES,
+  ToolCategory,
+} from "@/data/norwayToolsData";
 import {
   HouseIcon,
   UsersFamilyIcon,
@@ -18,11 +24,13 @@ import {
   LightBulbIcon,
   LocationCrosshairIcon,
 } from "@/components/Icons";
+import { ToolIcon } from "@/components/ToolIcon";
 
 export function ModernToolsHub() {
   const { lang, trackClick } = useApp();
+  const [activeCat, setActiveCat] = useState<"all" | ToolCategory>("all");
 
-  const cards = [
+  const featuredCards = [
     {
       href: "/tools/net-cash",
       title:
@@ -93,10 +101,16 @@ export function ModernToolsHub() {
     },
   ];
 
+  const newToolsAll = TOOL_CATALOG.filter((t) => t.isNew);
+  const filteredDirectory =
+    activeCat === "all"
+      ? newToolsAll
+      : TOOL_CATALOG.filter((t) => t.category === activeCat);
+
   const statsTiles = [
     {
-      value: "10K+",
-      label: lang === "no" ? "Boliger vurdert" : "Properties valued",
+      value: "16",
+      label: lang === "no" ? "Gratis verktøy" : "Free calculators",
       icon: <HouseIcon className="w-5 h-5" />,
     },
     {
@@ -113,7 +127,7 @@ export function ModernToolsHub() {
 
   return (
     <main className="bg-[#F4F5F0] text-[#1D281C]">
-      {/* 1. ARCHITECTURAL TOOLS HERO MATCHING HOME PAGE & MOCKUP */}
+      {/* 1. ARCHITECTURAL TOOLS HERO */}
       <section className="relative overflow-hidden bg-[#F4F5F0] border-b border-[#DCE2D4]">
         <div className="hidden lg:block absolute inset-y-0 right-0 w-[62%]">
           <Image
@@ -138,7 +152,6 @@ export function ModernToolsHub() {
           />
         </div>
 
-        {/* Organic decorative sweep arc */}
         <svg
           viewBox="0 0 1440 420"
           fill="none"
@@ -153,7 +166,7 @@ export function ModernToolsHub() {
           <div className="max-w-2xl space-y-5">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E7ECE0] border border-[#D4DCCB] text-[#243323] text-[14px] font-medium">
               <BoltFastIcon className="w-4 h-4 text-[#243323]" />
-              <span>{lang === "no" ? "Smarte verktøy" : "Smart Tools"}</span>
+              <span>{lang === "no" ? "16 smarte verktøy" : "16 Smart Tools"}</span>
             </div>
 
             <h1 className="font-serif text-[40px] sm:text-[52px] lg:text-[60px] leading-[1.06] font-normal text-[#1D281C] tracking-[-0.02em] text-balance">
@@ -164,19 +177,18 @@ export function ModernToolsHub() {
 
             <p className="text-[17px] sm:text-[19px] leading-relaxed text-[#495647] max-w-lg">
               {lang === "no"
-                ? "Få umiddelbare tall, beregn salgspriser og utforsk dine muligheter på sekunder — alt samlet på ett sted."
-                : "Get instant insights, calculate prices and explore your options with our easy-to-use tools — all in one place."}
+                ? "Få umiddelbare tall på pris per m², meglerkostnad, gevinstskatt, samboerutkjøp, eiendomsskatt, hytte og solforhold — alt på ett sted."
+                : "Get instant numbers on price per m², broker costs, capital gains tax, partner buyout, property tax, cabin costs, and sunlight — all in one place."}
             </p>
 
-            {/* 3 Trust Highlights Row */}
             <div className="pt-2 flex flex-wrap items-center gap-x-6 gap-y-2.5 text-[14px] sm:text-[15px] font-medium text-[#243323]">
               <span className="inline-flex items-center gap-2">
                 <ShieldCheckIcon className="w-4 h-4 text-[#243323]" />
-                <span>{lang === "no" ? "Brukt av tusenvis" : "Trusted by thousands"}</span>
+                <span>{lang === "no" ? "SSB & Skatteetaten-satser" : "Norwegian 2026 rates"}</span>
               </span>
               <span className="inline-flex items-center gap-2">
                 <BoltFastIcon className="w-4 h-4 text-[#243323]" />
-                <span>{lang === "no" ? "Raskt & nøyaktig" : "Fast & accurate"}</span>
+                <span>{lang === "no" ? "Raskt & uten tasting" : "Fast & zero typing"}</span>
               </span>
               <span className="inline-flex items-center gap-2">
                 <HeartFreeIcon className="w-4 h-4 text-[#243323]" />
@@ -187,13 +199,12 @@ export function ModernToolsHub() {
         </div>
       </section>
 
-      {/* 2. 6-CARD BENTO TOOLS GRID (1 FEATURED + 4 VISUAL TOOL CARDS + 1 HELP CARD) */}
+      {/* 2. FEATURED BENTO TOOLS GRID */}
       <section className="py-8 sm:py-12">
-        <div className="nm-container space-y-8">
+        <div className="nm-container space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
             {/* CARD 1: FEATURED DARK OLIVE CARD — Price per m2 */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1F2D1E] via-[#2B3D29] to-[#566A53] text-[#FFFFFF] p-6 sm:p-8 min-h-[260px] flex flex-col justify-between shadow-md border border-[#344732]">
-              {/* Subtle Map Lines + Pin Overlay on Right */}
               <div
                 className="pointer-events-none absolute inset-y-0 right-0 w-[55%] opacity-45"
                 aria-hidden="true"
@@ -204,7 +215,6 @@ export function ModernToolsHub() {
                 </svg>
               </div>
 
-              {/* Floating Live m2 Pill Badge on Right */}
               <div className="hidden sm:flex flex-col items-center gap-2.5 absolute right-7 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
                 <div className="px-4 py-2 rounded-xl bg-[#FFFFFF] text-[#1D281C] text-[16px] font-semibold tabular-nums shadow-lg inline-flex items-center gap-2">
                   <span>108 200 kr / m²</span>
@@ -247,14 +257,12 @@ export function ModernToolsHub() {
               </div>
             </div>
 
-            {/* CARDS 2–5: CLEAN WHITE BENTO CARDS WITH STUDIO RIGHT IMAGES */}
-            {cards.map((card) => (
+            {featuredCards.map((card) => (
               <Link
                 key={card.href}
                 href={card.href}
                 className="group relative overflow-hidden rounded-2xl bg-[#FFFFFF] border border-[#DCE2D4] hover:border-[#B8C2AE] p-6 sm:p-8 min-h-[260px] flex flex-col justify-between shadow-xs hover:shadow-md transition-all"
               >
-                {/* Right-Aligned Blended Visual */}
                 <div className="pointer-events-none absolute inset-y-0 right-0 w-[56%] sm:w-[52%]">
                   <Image
                     src={card.image}
@@ -294,9 +302,8 @@ export function ModernToolsHub() {
               </Link>
             ))}
 
-            {/* CARD 6: SAGE HELP CARD — Need More Help? -> Connect Agency */}
+            {/* CARD 6: SAGE HELP CARD */}
             <div className="relative overflow-hidden rounded-2xl bg-[#E7ECE0] border border-[#D4DCCB] p-6 sm:p-8 min-h-[260px] flex flex-col justify-between shadow-xs">
-              {/* Right Bottom Fjord Accent & Subtle Sweep */}
               <div className="hidden sm:block pointer-events-none absolute inset-y-0 right-0 w-[48%] opacity-75">
                 <Image
                   src="/images/ad-land-plot.jpg"
@@ -350,7 +357,112 @@ export function ModernToolsHub() {
             </div>
           </div>
 
-          {/* 3. DARK FOREST FULL-WIDTH BOTTOM BANNER WITH 3 FROSTED STAT TILES */}
+          {/* 3. ALL 11 NEW SPECIALIZED NORWEGIAN CALCULATORS + CATEGORY FILTER */}
+          <div className="space-y-5 pt-2">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div>
+                <h2 className="nm-h2">
+                  {lang === "no"
+                    ? "Flere gratis kalkulatorer for bolig, skatt, hytte og solforhold"
+                    : "More Free Calculators for Tax, Buyout, Cabins & Sunlight"}
+                </h2>
+                <p className="text-[16px] text-[#495647] mt-1">
+                  {lang === "no"
+                    ? "Filtrer etter din situasjon — alle kalkulatorer er oppdatert for norske regler i 2026."
+                    : "Filter by your situation — every calculator reflects 2026 Norwegian rules."}
+                </p>
+              </div>
+
+              <div
+                role="group"
+                aria-label={lang === "no" ? "Filtrer kalkulatorer" : "Filter calculators"}
+                className="flex flex-wrap gap-2"
+              >
+                {TOOL_CATEGORIES.map((cat) => {
+                  const active = activeCat === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setActiveCat(cat.id)}
+                      aria-pressed={active}
+                      className={`min-h-[40px] px-4 py-1.5 rounded-full text-[13px] sm:text-[14px] font-semibold border transition-colors cursor-pointer ${
+                        active
+                          ? "bg-[#243323] border-[#243323] text-[#FFFFFF]"
+                          : "bg-[#FFFFFF] border-[#DCE2D4] hover:bg-[#E7ECE0] text-[#1D281C]"
+                      }`}
+                    >
+                      {cat.id === "all"
+                        ? lang === "no"
+                          ? "Alle nye (11)"
+                          : "All New (11)"
+                        : lang === "no"
+                        ? cat.labelNo
+                        : cat.labelEn}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              {filteredDirectory.map((tool) => (
+                <Link
+                  key={tool.slug}
+                  href={tool.path}
+                  className="group rounded-2xl bg-[#FFFFFF] border border-[#DCE2D4] hover:border-[#147A53] p-5 sm:p-6 flex flex-col justify-between gap-5 shadow-2xs hover:shadow-md transition-all"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="w-11 h-11 rounded-xl bg-[#E6F2EC] border border-[#C3DEC9] text-[#0F3D2E] flex items-center justify-center">
+                        <ToolIcon iconKey={tool.iconKey} className="w-5 h-5" />
+                      </span>
+                      <span className="px-3 py-1 rounded-full bg-[#F4F5F0] border border-[#DCE2D4] text-[13px] font-semibold text-[#1D281C] tabular-nums">
+                        {lang === "no" ? tool.sampleMetricNo : tool.sampleMetricEn}
+                      </span>
+                    </div>
+
+                    <h3 className="font-serif text-[21px] sm:text-[23px] leading-[1.2] font-normal text-[#1D281C]">
+                      {lang === "no" ? tool.shortTitleNo : tool.shortTitleEn}
+                    </h3>
+
+                    <p className="text-[14px] sm:text-[15px] text-[#495647] leading-relaxed">
+                      {lang === "no" ? tool.descNo : tool.descEn}
+                    </p>
+                  </div>
+
+                  <span className="inline-flex items-center gap-2 text-[14px] font-semibold text-[#147A53] group-hover:text-[#0F3D2E]">
+                    <span>
+                      {lang === "no" ? "Åpne kalkulator" : "Open Calculator"}
+                    </span>
+                    <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* 4. LOCAL SEO CITY PRICE DIRECTORY */}
+          <div className="rounded-2xl bg-[#FFFFFF] border border-[#DCE2D4] p-6 sm:p-8 space-y-4">
+            <h2 className="nm-h3">
+              {lang === "no"
+                ? "Lokale boligpriser per m² i norske byer"
+                : "Local Price per m² Across Major Norwegian Cities"}
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {NORWAY_CITIES.map((city) => (
+                <Link
+                  key={city.id}
+                  href={`/boligpris/${city.id}`}
+                  className="px-4 py-2 rounded-full bg-[#F4F5F0] hover:bg-[#E7ECE0] border border-[#DCE2D4] text-[14px] font-semibold text-[#1D281C] transition-colors"
+                >
+                  {lang === "no" ? `Boligpris ${city.name}` : `${city.name} m² Prices`}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* 5. DARK FOREST FULL-WIDTH BOTTOM BANNER */}
           <div className="relative overflow-hidden rounded-2xl bg-[#1E2A1E] text-[#FFFFFF] shadow-md border border-[#2E3E2D]">
             <div className="hidden md:block absolute inset-y-0 right-0 w-[62%]">
               <Image
@@ -405,7 +517,6 @@ export function ModernToolsHub() {
                 </div>
               </div>
 
-              {/* 3 Frosted Glass Stat Tiles */}
               <div className="lg:col-span-6 grid grid-cols-3 gap-3 sm:gap-4">
                 {statsTiles.map((stat) => (
                   <div

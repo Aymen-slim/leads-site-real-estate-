@@ -1,6 +1,15 @@
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { isFunnelVariant, NAV_SOURCE } from "@/lib/ab";
+import { SITE_URL } from "@/lib/seo";
 import { SellerFunnel } from "@/components/SellerFunnel";
+
+export const metadata: Metadata = {
+  title: "Koble til lokal eiendomsmegler — Gratis verdivurdering | VurderBoligen",
+  description:
+    "Få en uforpliktende verdivurdering og sammenlign tilbud fra lokale eiendomsmeglere i Norge på under 60 sekunder.",
+  alternates: { canonical: `${SITE_URL}/connect-agency` },
+};
 
 export const dynamic = "force-dynamic";
 

@@ -164,6 +164,50 @@ function ModernSellerFunnelInner({
           : `Sell As-Is (${paramRepairs})`
       );
     }
+    const paramBuyout = searchParams.get("buyout");
+    const paramBrokerCost = searchParams.get("brokerCost");
+    const paramBridge = searchParams.get("bridge");
+    const paramPropTax = searchParams.get("propTax");
+    const paramEnergy = searchParams.get("energyGrade");
+    const paramSun = searchParams.get("sunHours");
+    if (paramBuyout) {
+      summaryParts.push(
+        lang === "no"
+          ? `Utkjøpssum: ${formatNok(Number(paramBuyout))}`
+          : `Buyout sum: ${formatNok(Number(paramBuyout))}`
+      );
+    }
+    if (paramBrokerCost) {
+      summaryParts.push(
+        lang === "no"
+          ? `Meglerkostnad estimat: ${formatNok(Number(paramBrokerCost))}`
+          : `Broker fee est.: ${formatNok(Number(paramBrokerCost))}`
+      );
+    }
+    if (paramBridge) {
+      summaryParts.push(
+        lang === "no"
+          ? `Mellomfinansiering: ${formatNok(Number(paramBridge))}`
+          : `Bridge cost: ${formatNok(Number(paramBridge))}`
+      );
+    }
+    if (paramPropTax) {
+      summaryParts.push(
+        lang === "no"
+          ? `Eiendomsskatt: ${formatNok(Number(paramPropTax))}/år`
+          : `Property tax: ${formatNok(Number(paramPropTax))}/yr`
+      );
+    }
+    if (paramEnergy) {
+      summaryParts.push(
+        lang === "no" ? `Energimerke ${paramEnergy}` : `Energy grade ${paramEnergy}`
+      );
+    }
+    if (paramSun) {
+      summaryParts.push(
+        lang === "no" ? `Sommersol: ${paramSun} t` : `Summer sun: ${paramSun}h`
+      );
+    }
 
     if (summaryParts.length > 0) {
       setPrefillBanner(summaryParts.join(" · "));
@@ -327,7 +371,27 @@ function ModernSellerFunnelInner({
     const visitorId = getOrCreateVisitorId();
 
     const details: Record<string, string> = {};
-    for (const key of ["price", "net", "heirs", "repairs", "zone", "years", "value"]) {
+    for (const key of [
+      "price",
+      "net",
+      "heirs",
+      "repairs",
+      "zone",
+      "years",
+      "value",
+      "tax",
+      "buyout",
+      "brokerCost",
+      "bridge",
+      "rentYield",
+      "propTax",
+      "docFee",
+      "cabinNight",
+      "energyGrade",
+      "leaseBuyout",
+      "sunHours",
+      "municipality",
+    ]) {
       const val = searchParams.get(key);
       if (val) details[key] = val;
     }

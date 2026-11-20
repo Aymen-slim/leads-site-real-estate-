@@ -111,7 +111,58 @@ export function ModernFooter() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-[#DCE2D4] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-[13px] sm:text-[14px] text-[#495647]">
+        {/* SEO Links Strip: Top Calculators & Local Prices */}
+        <div className="mt-10 pt-6 border-t border-[#DCE2D4] grid grid-cols-1 md:grid-cols-2 gap-6 text-[13px] sm:text-[14px]">
+          <div className="space-y-2">
+            <h3 className="text-[12px] font-semibold uppercase tracking-wider text-[#1D281C]">
+              {lang === "no" ? "Populære boligkalkulatorer" : "Popular Free Calculators"}
+            </h3>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-[#495647]">
+              <Link href="/tools/broker-fee" className="hover:text-[#1D281C] transition-colors">
+                {lang === "no" ? "Meglerkostnad" : "Broker Fee"}
+              </Link>
+              <Link href="/tools/capital-gains-tax" className="hover:text-[#1D281C] transition-colors">
+                {lang === "no" ? "Gevinstskatt & botid" : "Capital Gains Tax"}
+              </Link>
+              <Link href="/tools/partner-buyout" className="hover:text-[#1D281C] transition-colors">
+                {lang === "no" ? "Kjøpe ut samboer" : "Partner Buyout"}
+              </Link>
+              <Link href="/tools/bridge-loan" className="hover:text-[#1D281C] transition-colors">
+                {lang === "no" ? "Mellomfinansiering" : "Bridge Loan"}
+              </Link>
+              <Link href="/tools/rent-or-sell" className="hover:text-[#1D281C] transition-colors">
+                {lang === "no" ? "Leie ut eller selge" : "Rent vs. Sell"}
+              </Link>
+              <Link href="/tools/property-tax" className="hover:text-[#1D281C] transition-colors">
+                {lang === "no" ? "Eiendomsskatt" : "Property Tax"}
+              </Link>
+              <Link href="/tools/document-fee" className="hover:text-[#1D281C] transition-colors">
+                {lang === "no" ? "Dokumentavgift" : "Stamp Duty"}
+              </Link>
+              <Link href="/tools/sun-conditions" className="hover:text-[#1D281C] transition-colors">
+                {lang === "no" ? "Solforhold" : "Sun Conditions"}
+              </Link>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-[12px] font-semibold uppercase tracking-wider text-[#1D281C]">
+              {lang === "no" ? "Boligpris per m² i Norge" : "Local Prices per m²"}
+            </h3>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-[#495647]">
+              <Link href="/boligpris/oslo" className="hover:text-[#1D281C] transition-colors">Oslo</Link>
+              <Link href="/boligpris/baerum" className="hover:text-[#1D281C] transition-colors">Bærum</Link>
+              <Link href="/boligpris/bergen" className="hover:text-[#1D281C] transition-colors">Bergen</Link>
+              <Link href="/boligpris/stavanger" className="hover:text-[#1D281C] transition-colors">Stavanger</Link>
+              <Link href="/boligpris/trondheim" className="hover:text-[#1D281C] transition-colors">Trondheim</Link>
+              <Link href="/boligpris/drammen" className="hover:text-[#1D281C] transition-colors">Drammen</Link>
+              <Link href="/boligpris/kristiansand" className="hover:text-[#1D281C] transition-colors">Kristiansand</Link>
+              <Link href="/boligpris/tromso" className="hover:text-[#1D281C] transition-colors">Tromsø</Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-8 pt-6 border-t border-[#DCE2D4] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-[13px] sm:text-[14px] text-[#495647]">
           <p>
             © {new Date().getFullYear()} VurderBoligen —{" "}
             {lang === "no"

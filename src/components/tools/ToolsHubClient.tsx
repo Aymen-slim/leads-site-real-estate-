@@ -1,0 +1,167 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { useApp } from "@/context/AppContext";
+import { NORWAY_CITIES } from "@/data/norwayData";
+import {
+  TOOL_CATALOG,
+  TOOL_CATEGORIES,
+  ToolCategory,
+} from "@/data/norwayToolsData";
+import { ArrowRightIcon } from "@/components/Icons";
+import { ToolIcon } from "@/components/ToolIcon";
+import { ModernToolsHub } from "@/components/modern/ModernToolsHub";
+
+export function ToolsHubClient() {
+  const { lang, isModern, trackClick, t } = useApp();
+  const [activeCat, setActiveCat] = useState<"all" | ToolCategory>("all");
+
+  if (isModern) return <ModernToolsHub />;
+
+  const visibleTools =
+    activeCat === "all"
+      ? TOOL_CATALOG
+      : TOOL_CATALOG.filter((tool) => tool.category === activeCat);
+
+  return (
+    <main className="bg-[#FFFFFF] min-h-[calc(100vh-140px)] py-10 sm:py-14 lg:py-16">
+      <div className="kr-container space-y-8 sm:space-y-10">
+        <div className="max-w-3xl space-y-3">
+          <h1 className="kr-h1">{t.landing.toolsSectionTitle}</h1>
+          <p className="kr-body-lg">
+            {lang === "no"
+              ? "16 gratis norske boligkalkulatorer uten skriving — fra kvadratmeterpris, meglerkostnad og gevinstskatt til utkjøp av samboer, eiendomsskatt, hytte og solforhold."
+              : "16 free zero-typing Norwegian property calculators — from price per m², broker fees, and capital gains tax to partner buyout, property tax, cabin costs, and sun conditions."}
+          </p>
+        </div>
+
+        {/* Category Filter Tabs */}
+        <div
+          role="group"
+          aria-label={lang === "no" ? "Filtrer kalkulatorer" : "Filter calculators"}
+          className="flex flex-wrap gap-2"
+        >
+          {TOOL_CATEGORIES.map((cat) => {
+            const active = activeCat === cat.id;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setActiveCat(cat.id)}
+                aria-pressed={active}
+                className={`min-h-[48px] px-4 sm:px-5 py-2.5 rounded-none border-2 text-[15px] sm:text-[16px] font-medium transition-colors cursor-pointer ${
+                  active
+                    ? "bg-[#5D726A] border-[#5D726A] text-[#FFFFFF]"
+                    : "bg-[#EDF0E7] border-[#DCE2CF] hover:bg-[#DCE2CF] text-[#000000]"
+                }`}
+              >
+                {lang === "no" ? cat.labelNo : cat.labelEn}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tools List */}
+        <div className="grid grid-cols-1 gap-4 sm:gap-5">
+          {visibleTools.map((tool) => (
+            <div
+              key={tool.slug}
+              className="bg-[#FFFFFF] border border-[#BFBFBD] hover:border-[#5D726A] rounded-none p-5 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6 transition-colors"
+            >
+              <div className="flex items-start gap-4 sm:gap-5 max-w-2xl">
+                <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-none bg-[#DCE2CF] border border-[#5D726A] text-[#000000] flex items-center justify-center shrink-0">
+                  <ToolIcon iconKey={tool.iconKey} className="w-6 h-6 sm:w-7 sm:h-7" />
+                </span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <h2 className="text-[20px] sm:text-[24px] font-medium text-[#000000] leading-snug">
+                      {lang === "no" ? tool.titleNo : tool.titleEn}
+                    </h2>
+                    {tool.isNew && (
+                      <span className="px-2 py-0.5 bg-[#FFF7D4] border border-[#5D726A] text-[#000000] text-[12px] font-semibold uppercase tracking-wide">
+                        {lang === "no" ? "Ny" : "New"}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[16px] sm:text-[17px] text-[#292823] mt-2 leading-relaxed">
+                    {lang === "no" ? tool.descNo : tool.descEn}
+                  </p>
+                  <span className="inline-block mt-3 px-3 py-1 bg-[#EDF0E7] text-[#292823] text-[14px] font-medium rounded-none border border-[#DCE2CF]">
+                    {lang === "no" ? tool.controlHintNo : tool.controlHintEn}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 shrink-0">
+                <div className="bg-[#EDF0E7] px-4 py-3 rounded-none border border-[#DFDFDF] text-left sm:text-right">
+                  <span className="block text-[13px] font-normal text-[#292823]">
+                    {lang === "no" ? "Eksempel" : "Sample"}
+                  </span>
+                  <span className="block text-[20px] font-medium text-[#000000] tabular-nums whitespace-nowrap">
+                    {lang === "no" ? tool.sampleMetricNo : tool.sampleMetricEn}
+                  </span>
+                </div>
+                <Link
+                  href={tool.path}
+                  className="kr-btn-primary w-full sm:w-auto border border-[#5D726A] min-h-[56px]"
+                >
+                  <span>{t.landing.openToolBtn}</span>
+                  <ArrowRightIcon className="w-5 h-5" />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Local SEO City Price Directory */}
+        <section className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-none p-5 sm:p-8 space-y-4">
+          <h2 className="kr-h3">
+            {lang === "no"
+              ? "Lokale boligpriser per m² i norske storbyer"
+              : "Local Price per m² Across Major Norwegian Cities"}
+          </h2>
+          <div className="flex flex-wrap gap-2.5">
+            {NORWAY_CITIES.map((city) => (
+              <Link
+                key={city.id}
+                href={`/boligpris/${city.id}`}
+                className="px-4 py-2 bg-[#FFFFFF] border border-[#BFBFBD] hover:border-[#5D726A] hover:bg-[#DCE2CF] text-[15px] font-medium text-[#000000] transition-colors"
+              >
+                {lang === "no" ? `Boligpris ${city.name}` : `${city.name} m² Prices`}
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Bottom CTA */}
+        <div className="bg-[#DCE2CF] border border-[#5D726A] rounded-none p-5 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div>
+            <h2 className="kr-h2-serif">
+              {lang === "no"
+                ? "Klar til å få den beste prisen?"
+                : "Ready to connect with a local agency?"}
+            </h2>
+            <p className="kr-body-lg mt-1">
+              {lang === "no"
+                ? "Få en uforpliktende verdivurdering og tilbud direkte fra lokale meglere og kjøpere."
+                : "Get a free valuation and compare offers from local Norwegian agencies."}
+            </p>
+          </div>
+          <Link
+            href="/connect-agency?source=tools-hub"
+            onClick={() => trackClick("tools-hub")}
+            className="kr-btn-primary w-full sm:w-auto border border-[#5D726A] shrink-0 min-h-[58px]"
+          >
+            <span>
+              {lang === "no"
+                ? "Koble til megler nå"
+                : "Connect Agency — Get Best Price"}
+            </span>
+            <ArrowRightIcon className="w-5 h-5" />
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+}

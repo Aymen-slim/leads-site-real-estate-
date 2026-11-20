@@ -16,7 +16,7 @@ export function Navbar() {
   if (isModern) return <ModernNavbar />;
 
   const isHome = pathname === "/";
-  const isTools = pathname.startsWith("/tools");
+  const isTools = pathname.startsWith("/tools") || pathname.startsWith("/boligpris");
   const isAgency = pathname === "/connect-agency" || pathname === "/sell";
 
   return (

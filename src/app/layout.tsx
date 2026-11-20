@@ -44,10 +44,33 @@ const manrope = localFont({
   display: "swap",
 });
 
+import { SITE_URL } from "@/lib/seo";
+
 export const metadata: Metadata = {
-  title: "VurderBoligen — Get the Best Price for Your Home | Norway",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "VurderBoligen — Gratis boligkalkulatorer og lokal verdivurdering i Norge",
+    template: "%s",
+  },
   description:
-    "Free Norwegian seller calculators, instant neighborhood m² prices, and direct local agency matching.",
+    "16 gratis norske kalkulatorer for boligselgere: pris per m², netto utbetalt, gevinstskatt, meglerkostnad, utkjøp av samboer, eiendomsskatt, solforhold og gratis lokal verdivurdering.",
+  keywords: [
+    "verdivurdering bolig",
+    "boligkalkulator norge",
+    "pris per m2",
+    "selge bolig kalkulator",
+    "meglerkostnad kalkulator",
+    "gevinstskatt bolig",
+    "eiendomsskatt kalkulator",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "nb_NO",
+    siteName: "VurderBoligen",
+    title: "VurderBoligen — Gratis boligkalkulatorer og lokal verdivurdering i Norge",
+    description:
+      "Gratis norske boligkalkulatorer og direkte kobling til lokale eiendomsmeglere for beste salgspris.",
+  },
 };
 
 export const dynamic = "force-dynamic";
@@ -61,7 +84,8 @@ export default async function RootLayout({
   const cks = await cookies();
 
   const rawLang = cks.get("kr_lang")?.value;
-  const initialLang: Language = rawLang === "no" ? "no" : "en";
+  // Default to Norwegian Bokmål so Google.no crawlers and first-time Norwegian visitors get native Norwegian SEO content.
+  const initialLang: Language = rawLang === "en" ? "en" : "no";
 
   const hLanding = hdrs.get("x-kr-landing");
   const hFunnel = hdrs.get("x-kr-funnel");

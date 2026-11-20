@@ -30,7 +30,7 @@ interface AppProviderProps {
 
 export function AppProvider({
   children,
-  initialLang = "en",
+  initialLang = "no",
   initialLandingVariant = "A",
   initialFunnelVariant = "A",
   isAdmin = false,

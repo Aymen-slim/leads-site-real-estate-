@@ -11,16 +11,26 @@ import {
   ScaleMeasureIcon,
 } from "@/components/Icons";
 
-export function ModernPricePerM2() {
+export function ModernPricePerM2({
+  initialCityId,
+  initialAreaId,
+}: {
+  initialCityId?: string;
+  initialAreaId?: string;
+} = {}) {
   const { lang, trackClick, t } = useApp();
 
-  const [cityId, setCityId] = useState<string>(NORWAY_CITIES[0].id);
+  const defaultCity =
+    NORWAY_CITIES.find((c) => c.id === initialCityId) || NORWAY_CITIES[0];
+  const defaultArea =
+    defaultCity.neighborhoods.find((n) => n.id === initialAreaId) ||
+    defaultCity.neighborhoods[0];
+
+  const [cityId, setCityId] = useState<string>(defaultCity.id);
   const currentCity =
     NORWAY_CITIES.find((c) => c.id === cityId) || NORWAY_CITIES[0];
 
-  const [areaId, setAreaId] = useState<string>(
-    currentCity.neighborhoods[0].id
-  );
+  const [areaId, setAreaId] = useState<string>(defaultArea.id);
   const currentArea =
     currentCity.neighborhoods.find((n) => n.id === areaId) ||
     currentCity.neighborhoods[0];
