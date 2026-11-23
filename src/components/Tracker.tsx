@@ -58,7 +58,7 @@ export function Tracker() {
     sync(getConsent().analytics);
     return onConsentChange((state) => {
       sync(state.analytics);
-      if (state.analytics && !isTrackingDisabled()) {
+      if (state.analytics && !isTrackingDisabled() && !pathname.startsWith("/admin")) {
         sendGaEvent("page_view", {
           page_path: pathRef.current,
           page_title: document.title,

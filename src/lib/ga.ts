@@ -9,6 +9,7 @@ declare global {
     gtag?: (...args: unknown[]) => void;
     __krGaLoaded?: string;
     __krGtmLoaded?: string;
+    __krGaConsentInit?: boolean;
   }
 }
 
@@ -27,8 +28,10 @@ function ensureGtagStub() {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
   if (!window.gtag) {
-    window.gtag = function gtag(...args: unknown[]) {
-      window.dataLayer?.push(args);
+    // Must push `arguments` (not `...args` Array) so gtag.js processes queued items when loaded.
+    window.gtag = function gtag() {
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer?.push(arguments);
     };
   }
 }
@@ -37,6 +40,8 @@ export function initGaConsentDefault() {
   const gaId = getGaId();
   const gtmId = getGtmId();
   if ((!gaId && !gtmId) || typeof window === "undefined") return;
+  if (window.__krGaConsentInit) return;
+  window.__krGaConsentInit = true;
   ensureGtagStub();
   window.gtag?.("consent", "default", {
     analytics_storage: "denied",
@@ -77,7 +82,6 @@ export function enableGoogleAnalytics(props?: {
     window.gtag?.("js", new Date());
     window.gtag?.("config", gaId, {
       send_page_view: false,
-      anonymize_ip: true,
     });
 
     if (!document.querySelector(`script[data-kr-ga="${gaId}"]`)) {
