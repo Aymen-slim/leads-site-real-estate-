@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSiteConfig } from "@/lib/config";
 import { ConfidenceStatus, evaluateExperiment, resolveDateRange } from "@/lib/stats";
-import { sbRpc, supabaseConfigured } from "@/lib/supabase";
+import { sbRpc, supabaseConfigured, supabaseErrorResponse } from "@/lib/supabase";
 
 interface OverviewRpc {
   page_views: number;
@@ -183,6 +183,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (err) {
     console.error("[api/admin/stats] failed:", err);
-    return NextResponse.json({ error: "Failed to load analytics" }, { status: 500 });
+    const { status, error } = supabaseErrorResponse(err, "Failed to load analytics");
+    return NextResponse.json({ error }, { status });
   }
 }

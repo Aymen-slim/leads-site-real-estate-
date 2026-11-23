@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FUNNEL_PATHS, isFunnelVariant, isLandingVariant, normalizeSource } from "@/lib/ab";
-import { sbInsert, supabaseConfigured } from "@/lib/supabase";
+import { SupabaseError, sbInsert, supabaseConfigured, supabaseErrorResponse } from "@/lib/supabase";
 
 const ALLOWED_TYPES = new Set([
   "page_view",
@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await sbInsert("events", rows);
+    await sbInsert("events", rows, { timeoutMs: 4_000, retries: 1 });
     if (discoveredSources.size > 0) {
       const ruleRows = Array.from(discoveredSources).map((source) => ({
         source,
@@ -129,11 +129,18 @@ export async function POST(req: NextRequest) {
       await sbInsert("route_rules", ruleRows, {
         ignoreDuplicates: true,
         onConflict: "source",
+        timeoutMs: 3_000,
+        retries: 0,
       }).catch(() => {});
     }
     return NextResponse.json({ ok: true, count: rows.length });
   } catch (err) {
+    if (err instanceof SupabaseError && (err.status === 503 || err.status === 504)) {
+      console.warn("[api/track] transient Supabase timeout/network error:", err.message);
+      return NextResponse.json({ ok: false, skipped: true }, { status: 202 });
+    }
     console.error("[api/track] insert failed:", err);
-    return NextResponse.json({ error: "Tracking store error" }, { status: 500 });
+    const { status, error } = supabaseErrorResponse(err, "Tracking store error");
+    return NextResponse.json({ error }, { status });
   }
 }

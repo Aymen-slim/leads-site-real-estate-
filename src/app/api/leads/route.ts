@@ -10,7 +10,7 @@ import {
   resolveFormVariant,
 } from "@/lib/ab";
 import { getSiteConfig } from "@/lib/config";
-import { sbInsert, supabaseConfigured } from "@/lib/supabase";
+import { sbInsert, supabaseConfigured, supabaseErrorResponse } from "@/lib/supabase";
 
 function cleanStr(v: unknown, max = 200): string | null {
   if (typeof v !== "string") return null;
@@ -112,6 +112,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (err) {
     console.error("[api/leads] insert failed:", err);
-    return NextResponse.json({ error: "Could not save lead" }, { status: 500 });
+    const { status, error } = supabaseErrorResponse(err, "Could not save lead");
+    return NextResponse.json({ error }, { status });
   }
 }

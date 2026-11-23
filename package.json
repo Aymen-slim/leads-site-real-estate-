@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node --dns-result-order=ipv4first --network-family-autoselection-attempt-timeout=1000 ./node_modules/next/dist/bin/next dev",
     "build": "opennextjs-cloudflare build",
     "build:next": "next build",
-    "start": "next start",
+    "start": "node --dns-result-order=ipv4first --network-family-autoselection-attempt-timeout=1000 ./node_modules/next/dist/bin/next start",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"

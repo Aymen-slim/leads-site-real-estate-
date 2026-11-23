@@ -7,7 +7,7 @@ import {
 } from "@/lib/ab";
 import { isSameOrigin } from "@/lib/auth";
 import { getSiteConfig, invalidateSiteConfig } from "@/lib/config";
-import { sbInsert, sbUpdate, supabaseConfigured } from "@/lib/supabase";
+import { sbInsert, sbUpdate, supabaseConfigured, supabaseErrorResponse } from "@/lib/supabase";
 
 export async function GET() {
   const config = await getSiteConfig({ fresh: true });
@@ -166,6 +166,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ ok: true, config: updated });
   } catch (err) {
     console.error("[api/admin/config] update failed:", err);
-    return NextResponse.json({ error: "Failed to save config" }, { status: 500 });
+    const { status, error } = supabaseErrorResponse(err, "Failed to save config");
+    return NextResponse.json({ error }, { status });
   }
 }

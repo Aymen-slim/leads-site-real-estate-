@@ -11,6 +11,7 @@ import { sbSelect, supabaseConfigured } from "@/lib/supabase";
 
 // Short in-memory cache per Worker isolate: dashboard changes go live within ~30s.
 const TTL_MS = 30_000;
+const ERROR_COOLDOWN_MS = 15_000;
 let cache: { at: number; data: SiteConfig } | null = null;
 let inflight: Promise<SiteConfig> | null = null;
 
@@ -37,10 +38,11 @@ interface RouteRow {
 const KEY_ORDER: Record<string, number> = { A: 0, B: 1, M: 2 };
 
 async function load(): Promise<SiteConfig> {
+  const opts = { timeoutMs: 3_500, retries: 1 };
   const [exps, vars, routes] = await Promise.all([
-    sbSelect<ExperimentRow>("experiments?select=id,name,status,winner,version,started_at"),
-    sbSelect<VariantRow>("variants?select=experiment_id,key,label,weight,enabled&order=key.asc"),
-    sbSelect<RouteRow>("route_rules?select=source,destination"),
+    sbSelect<ExperimentRow>("experiments?select=id,name,status,winner,version,started_at", opts),
+    sbSelect<VariantRow>("variants?select=experiment_id,key,label,weight,enabled&order=key.asc", opts),
+    sbSelect<RouteRow>("route_rules?select=source,destination", opts),
   ]);
 
   const experiments = { ...DEFAULT_CONFIG.experiments };
@@ -82,7 +84,10 @@ export async function getSiteConfig(opts: { fresh?: boolean } = {}): Promise<Sit
       })
       .catch((err) => {
         console.error("[config] falling back:", err);
-        return cache?.data ?? DEFAULT_CONFIG; // stale-on-error
+        const fallback = cache?.data ?? DEFAULT_CONFIG;
+        // Brief cooldown on failure so middleware doesn't stall every request while Supabase is unreachable.
+        cache = { at: Date.now() - (TTL_MS - ERROR_COOLDOWN_MS), data: fallback };
+        return fallback;
       })
       .finally(() => {
         inflight = null;

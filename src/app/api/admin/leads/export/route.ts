@@ -5,7 +5,7 @@ import {
   leadsToCsv,
   parseLeadFilters,
 } from "@/lib/leadsQuery";
-import { sbSelect, supabaseConfigured } from "@/lib/supabase";
+import { sbSelect, supabaseConfigured, supabaseErrorResponse } from "@/lib/supabase";
 
 const PAGE_SIZE = 1000;
 const MAX_EXPORT_ROWS = 10_000;
@@ -46,6 +46,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (err) {
     console.error("[api/admin/leads/export] failed:", err);
-    return NextResponse.json({ error: "Failed to export leads" }, { status: 500 });
+    const { status, error } = supabaseErrorResponse(err, "Failed to export leads");
+    return NextResponse.json({ error }, { status });
   }
 }

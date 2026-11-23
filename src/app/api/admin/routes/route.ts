@@ -3,7 +3,14 @@ import { RouteDestination, normalizeSource } from "@/lib/ab";
 import { isSameOrigin } from "@/lib/auth";
 import { invalidateSiteConfig } from "@/lib/config";
 import { resolveDateRange } from "@/lib/stats";
-import { sbInsert, sbRpc, sbSelect, sbUpdate, supabaseConfigured } from "@/lib/supabase";
+import {
+  sbInsert,
+  sbRpc,
+  sbSelect,
+  sbUpdate,
+  supabaseConfigured,
+  supabaseErrorResponse,
+} from "@/lib/supabase";
 
 interface RouteRuleDb {
   source: string;
@@ -54,7 +61,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ configured: true, rules: merged });
   } catch (err) {
     console.error("[api/admin/routes] GET failed:", err);
-    return NextResponse.json({ error: "Failed to load routing rules" }, { status: 500 });
+    const { status, error } = supabaseErrorResponse(err, "Failed to load routing rules");
+    return NextResponse.json({ error }, { status });
   }
 }
 
@@ -101,7 +109,8 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[api/admin/routes] PATCH failed:", err);
-    return NextResponse.json({ error: "Failed to update routes" }, { status: 500 });
+    const { status, error } = supabaseErrorResponse(err, "Failed to update routes");
+    return NextResponse.json({ error }, { status });
   }
 }
 
@@ -141,6 +150,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, source }, { status: 201 });
   } catch (err) {
     console.error("[api/admin/routes] POST failed:", err);
-    return NextResponse.json({ error: "Failed to add route" }, { status: 500 });
+    const { status, error } = supabaseErrorResponse(err, "Failed to add route");
+    return NextResponse.json({ error }, { status });
   }
 }
