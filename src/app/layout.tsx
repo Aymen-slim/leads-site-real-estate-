@@ -11,6 +11,7 @@ import { Tracker } from "@/components/Tracker";
 import { CookieBanner } from "@/components/CookieBanner";
 import { isFunnelVariant, isLandingVariant } from "@/lib/ab";
 import { Language } from "@/data/translations";
+import { GA_MEASUREMENT_ID, GTM_TAG_ID } from "@/lib/ga";
 
 const albertSans = localFont({
   src: "../fonts/AlbertSans-latin.woff2",
@@ -95,12 +96,34 @@ export default async function RootLayout({
   const isPreview = hdrs.get("x-kr-preview") === "1";
   const isModern = initialLandingVariant === "M";
 
+  const gaBootstrap = `
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    window.__krGaConsentInit = true;
+    gtag('consent', 'default', {
+      analytics_storage: 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      wait_for_update: 500
+    });
+    gtag('js', new Date());
+    gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
+  `;
+
   return (
     <html
       lang={initialLang}
       data-theme={isModern ? "modern" : "classic"}
       className={`${albertSans.variable} ${sourceSerif.variable} ${bricolage.variable} ${manrope.variable}`}
     >
+      <head>
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(GTM_TAG_ID)}`}
+        />
+        <script dangerouslySetInnerHTML={{ __html: gaBootstrap }} />
+      </head>
       <body
         className={`min-h-screen flex flex-col antialiased font-normal pb-[84px] md:pb-0 ${
           isModern ? "bg-[#F4F5F0] text-[#1D281C]" : "bg-[#FFFFFF] text-[#292823]"

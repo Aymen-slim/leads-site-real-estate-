@@ -1,7 +1,4 @@
-"use client";
-
-// Google Analytics 4 + Google Tag Manager loader with Consent Mode v2.
-// Nothing is sent to Google and tags are NOT loaded unless the visitor opted into analytics.
+// Google Analytics 4 + Google Tag (GTM-WMFLTLBQ / G-WLJRV4ECG6) with Consent Mode v2.
 
 declare global {
   interface Window {
@@ -13,22 +10,23 @@ declare global {
   }
 }
 
-const DEFAULT_GA_ID = "G-WLJRV4ECG6";
-const DEFAULT_GTM_ID = "GTM-WMFLTLBQ";
+export const GA_MEASUREMENT_ID =
+  process.env.NEXT_PUBLIC_GA_ID?.trim() || "G-WLJRV4ECG6";
+export const GTM_TAG_ID =
+  process.env.NEXT_PUBLIC_GTM_ID?.trim() || "GTM-WMFLTLBQ";
 
 export function getGaId(): string {
-  return process.env.NEXT_PUBLIC_GA_ID?.trim() || DEFAULT_GA_ID;
+  return GA_MEASUREMENT_ID;
 }
 
 export function getGtmId(): string {
-  return process.env.NEXT_PUBLIC_GTM_ID?.trim() || DEFAULT_GTM_ID;
+  return GTM_TAG_ID;
 }
 
 function ensureGtagStub() {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
   if (!window.gtag) {
-    // Must push `arguments` (not `...args` Array) so gtag.js processes queued items when loaded.
     window.gtag = function gtag() {
       // eslint-disable-next-line prefer-rest-params
       window.dataLayer?.push(arguments);
@@ -67,8 +65,8 @@ export function enableGoogleAnalytics(props?: {
 
   if (gtmId && window.__krGtmLoaded !== gtmId) {
     window.__krGtmLoaded = gtmId;
-    window.dataLayer?.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-    if (!document.querySelector(`script[data-kr-gtm="${gtmId}"]`)) {
+    if (!document.querySelector(`script[src*="gtm.js?id=${encodeURIComponent(gtmId)}"]`)) {
+      window.dataLayer?.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
       const gtmScript = document.createElement("script");
       gtmScript.async = true;
       gtmScript.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(gtmId)}`;
@@ -79,18 +77,12 @@ export function enableGoogleAnalytics(props?: {
 
   if (gaId && window.__krGaLoaded !== gaId) {
     window.__krGaLoaded = gaId;
-    window.gtag?.("js", new Date());
+    if (!window.__krGaConsentInit) {
+      window.gtag?.("js", new Date());
+    }
     window.gtag?.("config", gaId, {
       send_page_view: false,
     });
-
-    if (!document.querySelector(`script[data-kr-ga="${gaId}"]`)) {
-      const s = document.createElement("script");
-      s.async = true;
-      s.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`;
-      s.dataset.krGa = gaId;
-      document.head.appendChild(s);
-    }
   }
 
   if (props) {
