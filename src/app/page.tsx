@@ -49,8 +49,8 @@ export default function HomePage() {
       location: "Stavanger / Bergen",
       title:
         lang === "no"
-          ? "Stor boligtomt klar for deling eller R+2 utbygging"
-          : "Subdividable Residential Plot (R+2 Potential)",
+          ? "Stor boligtomt klar for deling eller utbygging"
+          : "Subdividable Residential Plot",
       specs:
         lang === "no"
           ? "1 450 m² · Plass til 2–3 enheter · Aktiv utbyggerinteresse"

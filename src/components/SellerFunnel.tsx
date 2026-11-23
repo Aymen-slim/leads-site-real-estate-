@@ -560,8 +560,8 @@ function SellerFunnelInner({
           <p className="kr-body-lg mt-2 max-w-2xl">
             {activeFormVariant === "B"
               ? lang === "no"
-                ? "Svar på de fire raske spørsmålene nedenfor på én side, så matcher vi deg med den beste lokale megleren."
-                : "Fill out the four quick questions below on one page to match with top local Norwegian agencies."
+                ? "Svar på de fire raske spørsmålene nedenfor, så matcher vi deg med den beste lokale megleren."
+                : "Fill out the four quick questions below to match with top local Norwegian agencies."
               : lang === "no"
                 ? "Svar på fire raske valg nedenfor, så matcher vi deg med den beste lokale megleren og kjøperne i ditt område."
                 : "Tap through four quick steps below to match with top local Norwegian agencies and ready buyers in your neighborhood."}
@@ -688,8 +688,8 @@ function SellerFunnelInner({
                 </h2>
                 <p className="kr-body-lg mt-2">
                   {lang === "no"
-                    ? "Fyll ut feltene nedenfor — alt på én side."
-                    : "Type your answers below — everything on one page."}
+                    ? "Fyll ut feltene nedenfor."
+                    : "Type your answers below."}
                 </p>
               </div>
 

@@ -39,7 +39,7 @@ export const TRANSLATIONS = {
           "Hjørnetomter, god fasade mot vei eller oppgraderte boliger selges for 15 %–25 % mer. Trykk her for å beregne din eksakte pris",
       },
       variantB: {
-        title: "Vurderer du å selge huset ditt?",
+        title: "Vurderer du å selge?",
         cta: "Klikk her for å koble deg til beste megler i ditt område",
       },
       toolsSectionTitle: "Gratis verktøy for deg som skal selge bolig eller tomt",
@@ -215,7 +215,7 @@ export const TRANSLATIONS = {
           "Corner plots, good street frontage, or renovated homes sell for 15%–25% more. Tap here to calculate your exact property price",
       },
       variantB: {
-        title: "Looking to sell your house?",
+        title: "Looking to sell?",
         cta: "Click here to connect you with the best agency in your area",
       },
       toolsSectionTitle: "Free tools for home and land sellers",
