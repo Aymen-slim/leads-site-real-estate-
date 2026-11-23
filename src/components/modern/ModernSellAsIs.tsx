@@ -284,7 +284,7 @@ export function ModernSellAsIs() {
         </div>
 
         <Link
-          href={`/connect-agency?source=as-is&type=house&repairs=${selectedRepairs.join(
+          href={`/koble-til-megler?source=as-is&type=house&repairs=${selectedRepairs.join(
             ","
           )}&price=${baseHouseValue}`}
           onClick={() => trackClick("as-is")}

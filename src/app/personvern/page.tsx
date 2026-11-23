@@ -6,9 +6,9 @@ export const metadata: Metadata = {
   title: "Personvernerklæring og GDPR | VurderBoligen",
   description:
     "Les hvordan VurderBoligen behandler personopplysninger, informasjonskapsler og verdivurderingsforespørsler i tråd med norsk personvernlovgivning og GDPR.",
-  alternates: { canonical: `${SITE_URL}/privacy-policy` },
+  alternates: { canonical: `${SITE_URL}/personvern` },
 };
 
-export default function PrivacyPolicyPage() {
+export default function PersonvernPage() {
   return <PrivacyPolicyClient />;
 }

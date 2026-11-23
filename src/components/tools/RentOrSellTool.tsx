@@ -58,16 +58,16 @@ export function RentOrSellTool() {
       iconKey="rent-or-sell"
       title={
         lang === "no"
-          ? "Kalkulator: Leie ut eller selge boligen?"
+          ? "Leie ut eller selge boligen?"
           : "“Rent Out vs. Sell” Property Calculator"
       }
       subtitle={
         lang === "no"
-          ? "Sammenlign faktisk månedlig netto fra utleie (etter 22 % skatt, vedlikehold, renter og sekundærbolig-formuesskatt) mot å selge skattefritt nå."
+          ? "Se hva du faktisk sitter igjen med i måneden ved utleie – etter skatt, vedlikehold og formuesskatt – sammenlignet med å selge skattefritt i dag."
           : "Compare real monthly rental profit (after 22% tax, costs, mortgage & 100% secondary-home wealth tax) against selling tax-free today."
       }
       ctaSource="rent-or-sell"
-      ctaHref={`/connect-agency?source=rent-or-sell&type=house&price=${propertyValue}&net=${netSaleCash}&rentYield=${netYieldPct.toFixed(
+      ctaHref={`/koble-til-megler?source=rent-or-sell&type=house&price=${propertyValue}&net=${netSaleCash}&rentYield=${netYieldPct.toFixed(
         1
       )}`}
       ctaLabel={

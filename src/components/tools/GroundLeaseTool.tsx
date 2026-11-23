@@ -33,16 +33,16 @@ export function GroundLeaseTool() {
       iconKey="ground-lease"
       title={
         lang === "no"
-          ? "Tomtefeste & Innløsning Kalkulator"
+          ? "Kalkulator for tomtefeste og innløsning (Festeavgift)"
           : "Ground Lease (Tomtefeste) & Buyout Calculator"
       }
       subtitle={
         lang === "no"
-          ? "Regn ut lovfestet innløsningssum på festetomt etter Tomtefesteloven (25× regulert festeavgift eller 40 % av råtomtverdi) og se om innløsning lønner seg før salg."
+          ? "Beregn lovfestet innløsningssum for festetomt, KPI-regulering og effekt på salgsprisen."
           : "Calculate statutory buyout pricing under Norway's Ground Lease Act (25× CPI-adjusted rent or 40% raw plot value) before selling a house or cabin."
       }
       ctaSource="ground-lease"
-      ctaHref={`/connect-agency?source=ground-lease&type=land&price=${rawLandValue}&leaseBuyout=${totalBuyoutWithFees}`}
+      ctaHref={`/koble-til-megler?source=ground-lease&type=land&price=${rawLandValue}&leaseBuyout=${totalBuyoutWithFees}`}
       ctaLabel={
         lang === "no"
           ? "Usikker på om du bør innløse festetomten før salg? Få gratis vurdering fra lokal eiendomsmegler"

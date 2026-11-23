@@ -57,7 +57,7 @@ export function ModernFooter() {
               </li>
               <li>
                 <Link
-                  href="/tools"
+                  href="/verktoy"
                   className="inline-flex items-center min-h-[40px] text-[#495647] hover:text-[#1D281C] transition-colors"
                 >
                   {lang === "no" ? "Gratis verktøy" : "Free Tools"}
@@ -65,7 +65,7 @@ export function ModernFooter() {
               </li>
               <li>
                 <Link
-                  href="/connect-agency?source=nav"
+                  href="/koble-til-megler?source=nav"
                   onClick={() => trackClick("nav")}
                   className="inline-flex items-center min-h-[40px] text-[#495647] hover:text-[#1D281C] transition-colors"
                 >
@@ -74,7 +74,7 @@ export function ModernFooter() {
               </li>
               <li>
                 <Link
-                  href="/privacy-policy"
+                  href="/personvern"
                   className="inline-flex items-center min-h-[40px] text-[#495647] hover:text-[#1D281C] underline underline-offset-4 transition-colors"
                 >
                   {lang === "no" ? "Personvern & GDPR" : "Privacy Policy & GDPR"}
@@ -94,7 +94,7 @@ export function ModernFooter() {
             </p>
             <div className="flex flex-wrap items-center gap-2.5 pt-1">
               <Link
-                href="/privacy-policy"
+                href="/personvern"
                 className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-full bg-[#FFFFFF] border border-[#B8C2AE] text-[#1D281C] hover:bg-[#E7ECE0] text-[14px] font-semibold transition-colors"
               >
                 <span>{lang === "no" ? "Les personvern" : "Privacy Policy"}</span>
@@ -118,28 +118,28 @@ export function ModernFooter() {
               {lang === "no" ? "Populære boligkalkulatorer" : "Popular Free Calculators"}
             </h3>
             <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-[#495647]">
-              <Link href="/tools/broker-fee" className="hover:text-[#1D281C] transition-colors">
+              <Link href="/verktoy/meglerkostnad" className="hover:text-[#1D281C] transition-colors">
                 {lang === "no" ? "Meglerkostnad" : "Broker Fee"}
               </Link>
-              <Link href="/tools/capital-gains-tax" className="hover:text-[#1D281C] transition-colors">
+              <Link href="/verktoy/gevinstskatt" className="hover:text-[#1D281C] transition-colors">
                 {lang === "no" ? "Gevinstskatt & botid" : "Capital Gains Tax"}
               </Link>
-              <Link href="/tools/partner-buyout" className="hover:text-[#1D281C] transition-colors">
+              <Link href="/verktoy/kjope-ut-samboer" className="hover:text-[#1D281C] transition-colors">
                 {lang === "no" ? "Kjøpe ut samboer" : "Partner Buyout"}
               </Link>
-              <Link href="/tools/bridge-loan" className="hover:text-[#1D281C] transition-colors">
+              <Link href="/verktoy/mellomfinansiering" className="hover:text-[#1D281C] transition-colors">
                 {lang === "no" ? "Mellomfinansiering" : "Bridge Loan"}
               </Link>
-              <Link href="/tools/rent-or-sell" className="hover:text-[#1D281C] transition-colors">
+              <Link href="/verktoy/leie-ut-eller-selge" className="hover:text-[#1D281C] transition-colors">
                 {lang === "no" ? "Leie ut eller selge" : "Rent vs. Sell"}
               </Link>
-              <Link href="/tools/property-tax" className="hover:text-[#1D281C] transition-colors">
+              <Link href="/verktoy/eiendomsskatt" className="hover:text-[#1D281C] transition-colors">
                 {lang === "no" ? "Eiendomsskatt" : "Property Tax"}
               </Link>
-              <Link href="/tools/document-fee" className="hover:text-[#1D281C] transition-colors">
+              <Link href="/verktoy/dokumentavgift" className="hover:text-[#1D281C] transition-colors">
                 {lang === "no" ? "Dokumentavgift" : "Stamp Duty"}
               </Link>
-              <Link href="/tools/sun-conditions" className="hover:text-[#1D281C] transition-colors">
+              <Link href="/verktoy/solforhold" className="hover:text-[#1D281C] transition-colors">
                 {lang === "no" ? "Solforhold" : "Sun Conditions"}
               </Link>
             </div>
@@ -171,7 +171,7 @@ export function ModernFooter() {
           </p>
           <div className="flex flex-wrap items-center gap-5">
             <Link
-              href="/privacy-policy"
+              href="/personvern"
               className="hover:text-[#1D281C] underline underline-offset-4 transition-colors"
             >
               {lang === "no" ? "Personvern & GDPR" : "Privacy Policy & GDPR"}
@@ -184,7 +184,7 @@ export function ModernFooter() {
               {lang === "no" ? "Cookie-innstillinger" : "Cookie Settings"}
             </button>
             <Link
-              href="/connect-agency?source=nav"
+              href="/koble-til-megler?source=nav"
               onClick={() => trackClick("nav")}
               className="hover:text-[#1D281C] underline underline-offset-4 transition-colors"
             >

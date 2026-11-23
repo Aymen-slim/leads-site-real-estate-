@@ -167,7 +167,7 @@ function ClassicInheritedProperty() {
         </div>
 
         <Link
-          href={`/connect-agency?source=inheritance&price=${estateValue}&net=${payoutPerHeir}&heirs=${heirsCount}`}
+          href={`/koble-til-megler?source=inheritance&price=${estateValue}&net=${payoutPerHeir}&heirs=${heirsCount}`}
           onClick={() => trackClick("inheritance")}
           className="kr-btn-primary w-full min-h-[72px] sm:min-h-[84px] px-5 sm:px-7 py-4 sm:py-5 border-2 border-[#5D726A] text-[18px] sm:text-2xl justify-between text-left"
         >

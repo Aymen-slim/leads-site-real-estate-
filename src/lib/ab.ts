@@ -37,7 +37,7 @@ export interface SiteConfig {
 export const AB_COOKIE = "kr_ab";
 export const PREVIEW_COOKIE = "kr_preview";
 export const AB_COOKIE_MAX_AGE = 60 * 60 * 24 * 90; // 90 days
-export const FUNNEL_PATHS = ["/connect-agency", "/sell"];
+export const FUNNEL_PATHS = ["/koble-til-megler", "/selg", "/connect-agency", "/sell"];
 export const FALLBACK_SOURCE = "*";
 export const NAV_SOURCE = "nav";
 
@@ -115,26 +115,26 @@ export const KNOWN_SOURCES: { source: string; group: string; label: string }[] =
 
 export const KNOWN_PAGES: { path: string; title: string }[] = [
   { path: "/", title: "Home (Landing Page)" },
-  { path: "/tools", title: "Free Seller Tools Hub" },
-  { path: "/tools/price-per-m2", title: "Tool 1: Price per m²" },
-  { path: "/tools/net-cash", title: "Tool 2: Net Cash in Pocket" },
-  { path: "/tools/land-buildability", title: "Tool 3: Land Buildability" },
-  { path: "/tools/inherited-property", title: "Tool 4: Inherited Property" },
-  { path: "/tools/sell-as-is", title: "Tool 5: Sell As-Is vs. Fix" },
-  { path: "/tools/capital-gains-tax", title: "Tool 6: Capital Gains & Residency Tax" },
-  { path: "/tools/partner-buyout", title: "Tool 7: Partner Buyout Calculator" },
-  { path: "/tools/broker-fee", title: "Tool 8: Broker Fee & DIY vs. Agency" },
-  { path: "/tools/bridge-loan", title: "Tool 9: Bridge Loan (Mellomfinansiering)" },
-  { path: "/tools/rent-or-sell", title: "Tool 10: Rent Out vs. Sell" },
-  { path: "/tools/property-tax", title: "Tool 11: Municipal Property Tax" },
-  { path: "/tools/document-fee", title: "Tool 12: Document Fee (2.5%)" },
-  { path: "/tools/cabin-cost", title: "Tool 13: Cabin Cost & Sale" },
-  { path: "/tools/energy-rating", title: "Tool 14: Energy Rating (A–G)" },
-  { path: "/tools/ground-lease", title: "Tool 15: Ground Lease (Tomtefeste)" },
-  { path: "/tools/sun-conditions", title: "Tool 16: Sun Conditions (Solforhold)" },
-  { path: "/connect-agency", title: "Connect Agency (Seller Funnel)" },
-  { path: "/sell", title: "Sell (Seller Funnel Alias)" },
-  { path: "/privacy-policy", title: "Privacy Policy" },
+  { path: "/verktoy", title: "Free Seller Tools Hub" },
+  { path: "/verktoy/pris-per-m2", title: "Tool 1: Price per m²" },
+  { path: "/verktoy/netto-utbetalt", title: "Tool 2: Net Cash in Pocket" },
+  { path: "/verktoy/tomtedeling", title: "Tool 3: Land Buildability" },
+  { path: "/verktoy/arvet-bolig", title: "Tool 4: Inherited Property" },
+  { path: "/verktoy/selge-som-den-er", title: "Tool 5: Sell As-Is vs. Fix" },
+  { path: "/verktoy/gevinstskatt", title: "Tool 6: Capital Gains & Residency Tax" },
+  { path: "/verktoy/kjope-ut-samboer", title: "Tool 7: Partner Buyout Calculator" },
+  { path: "/verktoy/meglerkostnad", title: "Tool 8: Broker Fee & DIY vs. Agency" },
+  { path: "/verktoy/mellomfinansiering", title: "Tool 9: Bridge Loan (Mellomfinansiering)" },
+  { path: "/verktoy/leie-ut-eller-selge", title: "Tool 10: Rent Out vs. Sell" },
+  { path: "/verktoy/eiendomsskatt", title: "Tool 11: Municipal Property Tax" },
+  { path: "/verktoy/dokumentavgift", title: "Tool 12: Document Fee (2.5%)" },
+  { path: "/verktoy/hyttekostnad", title: "Tool 13: Cabin Cost & Sale" },
+  { path: "/verktoy/energimerking", title: "Tool 14: Energy Rating (A–G)" },
+  { path: "/verktoy/tomtefeste", title: "Tool 15: Ground Lease (Tomtefeste)" },
+  { path: "/verktoy/solforhold", title: "Tool 16: Sun Conditions (Solforhold)" },
+  { path: "/koble-til-megler", title: "Connect Agency (Seller Funnel)" },
+  { path: "/selg", title: "Sell (Seller Funnel Alias)" },
+  { path: "/personvern", title: "Privacy Policy" },
 ];
 
 export const DEFAULT_CONFIG: SiteConfig = {

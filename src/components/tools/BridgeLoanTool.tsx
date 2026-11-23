@@ -45,7 +45,7 @@ export function BridgeLoanTool() {
           : "Calculate monthly interest-only bridge loan cost after Norway's 22% tax deduction and see how banks stress-test your unsold home."
       }
       ctaSource="bridge-loan"
-      ctaHref={`/connect-agency?source=bridge-loan&type=house&price=${currentHomeValue}&bridge=${totalOverlapCostAfterTax}`}
+      ctaHref={`/koble-til-megler?source=bridge-loan&type=house&price=${currentHomeValue}&bridge=${totalOverlapCostAfterTax}`}
       ctaLabel={
         lang === "no"
           ? "Få eksakt prisvurdering og forventet salgstid i ditt nabolag før du legger inn bud"

@@ -740,7 +740,7 @@ export function ModernHousePriceGrowthCalculator() {
             {/* Bottom Action Buttons */}
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
               <Link
-                href={`/connect-agency?source=growth-calc&type=${propertyKind}&value=${currentValue}&years=${years}`}
+                href={`/koble-til-megler?source=growth-calc&type=${propertyKind}&value=${currentValue}&years=${years}`}
                 onClick={() => trackClick("growth-calc")}
                 className="flex-1 min-h-[52px] inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-full bg-[#243323] hover:bg-[#192418] active:scale-[0.985] text-[#FFFFFF] text-[15px] sm:text-[16px] font-semibold transition-all shadow-sm"
               >

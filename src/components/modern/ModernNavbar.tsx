@@ -20,8 +20,8 @@ export function ModernNavbar() {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const isHome = pathname === "/";
-  const isTools = pathname.startsWith("/tools") || pathname.startsWith("/boligpris");
-  const isAgency = pathname === "/connect-agency" || pathname === "/sell";
+  const isTools = pathname.startsWith("/verktoy") || pathname.startsWith("/tools") || pathname.startsWith("/boligpris");
+  const isAgency = pathname === "/koble-til-megler" || pathname === "/selg" || pathname === "/connect-agency" || pathname === "/sell";
 
   useEffect(() => {
     setToolsOpen(false);
@@ -160,7 +160,7 @@ export function ModernNavbar() {
                   </div>
                   <div className="mt-2.5 pt-2.5 border-t border-[#DCE2D4]">
                     <Link
-                      href="/tools"
+                      href="/verktoy"
                       role="menuitem"
                       className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#F4F5F0] hover:bg-[#E7ECE0] text-[15px] font-semibold text-[#243323]"
                     >
@@ -177,7 +177,7 @@ export function ModernNavbar() {
             </div>
 
             <Link
-              href="/connect-agency?source=nav"
+              href="/koble-til-megler?source=nav"
               onClick={() => trackClick("nav")}
               className={`col-span-2 sm:col-span-1 min-h-[42px] inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full text-[15px] font-semibold transition-all active:scale-[0.985] ${
                 isAgency

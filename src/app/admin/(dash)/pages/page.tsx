@@ -19,10 +19,19 @@ type SortKey =
 type PageCategoryFilter = "all" | "tools" | "local" | "core";
 
 function classifyPage(path: string): Exclude<PageCategoryFilter, "all"> {
-  if (path.startsWith("/boligpris/") || path.startsWith("/tools/property-tax/")) {
+  if (
+    path.startsWith("/boligpris/") ||
+    path.startsWith("/verktoy/eiendomsskatt/") ||
+    path.startsWith("/tools/property-tax/")
+  ) {
     return "local";
   }
-  if (path === "/tools" || path.startsWith("/tools/")) {
+  if (
+    path === "/verktoy" ||
+    path.startsWith("/verktoy/") ||
+    path === "/tools" ||
+    path.startsWith("/tools/")
+  ) {
     return "tools";
   }
   return "core";
@@ -34,6 +43,10 @@ function formatDynamicTitle(path: string, titleMap: Map<string, string>): string
   if (path.startsWith("/boligpris/")) {
     const segs = path.split("/").filter(Boolean).slice(1);
     return `Local Price SEO: ${segs.map((s) => s.replace(/-/g, " ")).join(" / ")}`;
+  }
+  if (path.startsWith("/verktoy/eiendomsskatt/")) {
+    const muni = path.replace("/verktoy/eiendomsskatt/", "").replace(/-/g, " ");
+    return `Property Tax SEO: ${muni}`;
   }
   if (path.startsWith("/tools/property-tax/")) {
     const muni = path.replace("/tools/property-tax/", "").replace(/-/g, " ");

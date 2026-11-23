@@ -57,7 +57,7 @@ export function ModernHome() {
           ? "Oslo / Bærum · ca. 210 m² · Garasje"
           : "Oslo / Bærum · Approx. 210 m² · Garage",
       metricValue: "108 200 kr / m²",
-      href: "/connect-agency?source=ad-villa&type=house",
+      href: "/koble-til-megler?source=ad-villa&type=house",
     },
     {
       id: "ad-land",
@@ -75,7 +75,7 @@ export function ModernHome() {
           ? "Stavanger / Bergen · 1 450 m² · Byggeklar"
           : "Stavanger / Bergen · 1,450 m² · Buildable",
       metricValue: "+38 % mot snitt",
-      href: "/connect-agency?source=ad-land&type=land",
+      href: "/koble-til-megler?source=ad-land&type=land",
     },
     {
       id: "ad-family",
@@ -93,7 +93,7 @@ export function ModernHome() {
           ? "Trondheim / Drammen · Uten oppussing"
           : "Trondheim / Drammen · No renovation",
       metricValue: "390 000 – 830 000 kr",
-      href: "/connect-agency?source=ad-family&type=house",
+      href: "/koble-til-megler?source=ad-family&type=house",
     },
   ];
 
@@ -162,7 +162,7 @@ export function ModernHome() {
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
                 <Link
-                  href={`/connect-agency?source=hero-a&city=${currentCity.id}&area=${currentArea.id}`}
+                  href={`/koble-til-megler?source=hero-a&city=${currentCity.id}&area=${currentArea.id}`}
                   onClick={() => trackClick("hero-a")}
                   className="nm-btn-primary w-full sm:w-auto"
                 >
@@ -228,7 +228,7 @@ export function ModernHome() {
                 </p>
                 <div className="pt-2">
                   <Link
-                    href="/connect-agency?source=recipe-banner"
+                    href="/koble-til-megler?source=recipe-banner"
                     onClick={() => trackClick("recipe-banner")}
                     className="nm-btn-secondary w-full sm:w-auto"
                   >
@@ -374,7 +374,7 @@ export function ModernHome() {
                 </div>
 
                 <Link
-                  href={`/connect-agency?source=price-m2&city=${currentCity.id}&area=${currentArea.id}`}
+                  href={`/koble-til-megler?source=price-m2&city=${currentCity.id}&area=${currentArea.id}`}
                   onClick={() => trackClick("price-m2")}
                   className="w-full min-h-[54px] px-5 py-3.5 rounded-xl bg-[#243323] hover:bg-[#172216] text-[#FFFFFF] text-[15px] sm:text-[16px] font-medium flex items-center justify-between gap-4 transition-colors shadow-xs"
                 >
@@ -397,7 +397,7 @@ export function ModernHome() {
                 : "Sample property ads & active buyer demand"}
             </h2>
             <Link
-              href="/connect-agency?source=sample-ads"
+              href="/koble-til-megler?source=sample-ads"
               onClick={() => trackClick("sample-ads")}
               className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-[#1D281C] hover:text-[#495647] transition-colors"
             >
@@ -487,7 +487,7 @@ export function ModernHome() {
               </div>
 
               <Link
-                href="/connect-agency?source=sell-as-is&type=house"
+                href="/koble-til-megler?source=sell-as-is&type=house"
                 onClick={() => trackClick("sell-as-is")}
                 className="min-h-[50px] inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[#F4F5F0] hover:bg-[#FFFFFF] text-[#1D281C] text-[15px] font-semibold transition-colors shrink-0 shadow-sm"
               >

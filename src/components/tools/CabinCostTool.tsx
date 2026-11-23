@@ -43,16 +43,16 @@ export function CabinCostTool() {
       iconKey="cabin-cost"
       title={
         lang === "no"
-          ? "Hyttekostnad & Hyttesalg Kalkulator"
+          ? "Hva koster hytta deg egentlig?"
           : "Cabin Annual Cost & Tax-Free Sale Calculator"
       }
       subtitle={
         lang === "no"
-          ? "Regn ut hva hytta faktisk koster deg i året og per bruksdøgn — og sjekk om du kan selge fritidsboligen helt skattefritt etter 5-av-8-årsregelen."
+          ? "Regn ut hva hytta faktisk koster deg per døgn — og sjekk om du kan selge fritidsboligen helt skattefritt"
           : "Calculate what your Norwegian cabin truly costs per year and per night used — and check Norway's 5-of-8-year tax-free sale rule."
       }
       ctaSource="cabin-cost"
-      ctaHref={`/connect-agency?source=cabin-cost&type=house&price=${cabinValue}&net=${netCashIfSold}&cabinNight=${costPerNightTrue}`}
+      ctaHref={`/koble-til-megler?source=cabin-cost&type=house&price=${cabinValue}&net=${netCashIfSold}&cabinNight=${costPerNightTrue}`}
       ctaLabel={
         lang === "no"
           ? "Bruker du hytta mindre enn før? Få en uforpliktende verdivurdering fra lokal hyttemegler"

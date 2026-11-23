@@ -16,7 +16,7 @@ import {
 } from "@/lib/trackerClient";
 import {
   HouseIcon,
-  LandPlotIcon,
+  CabinMountainIcon,
   ApartmentIcon,
   LocationCrosshairIcon,
   CheckMarkIcon,
@@ -107,13 +107,22 @@ function SellerFunnelInner({
       }
     }
 
-    if (paramType === "house" || paramType === "land" || paramType === "apartment") {
+    if (
+      paramType === "house" ||
+      paramType === "land" ||
+      paramType === "apartment" ||
+      paramType === "cabin"
+    ) {
       setPropertyType(paramType);
       const typeLabel =
         paramType === "house"
           ? lang === "no"
-            ? "Enebolig / Villa"
-            : "House / Villa"
+            ? "Enebolig"
+            : "House"
+          : paramType === "cabin"
+          ? lang === "no"
+            ? "Hytte"
+            : "Cabin"
           : paramType === "land"
           ? lang === "no"
             ? "Byggetomt"
@@ -554,17 +563,13 @@ function SellerFunnelInner({
         <div className="mb-8 sm:mb-10">
           <h1 className="kr-h1">
             {lang === "no"
-              ? "Koble deg til lokal megler for å få den beste prisen"
-              : "Connect with a local agency to get the best price"}
+              ? "Finn riktig megler for ditt boligsalg"
+              : "Find the right agent for your home sale"}
           </h1>
           <p className="kr-body-lg mt-2 max-w-2xl">
-            {activeFormVariant === "B"
-              ? lang === "no"
-                ? "Svar på de fire raske spørsmålene nedenfor, så matcher vi deg med den beste lokale megleren."
-                : "Fill out the four quick questions below to match with top local Norwegian agencies."
-              : lang === "no"
-                ? "Svar på fire raske valg nedenfor, så matcher vi deg med den beste lokale megleren og kjøperne i ditt område."
-                : "Tap through four quick steps below to match with top local Norwegian agencies and ready buyers in your neighborhood."}
+            {lang === "no"
+              ? "Svar på fire raske spørsmål, så finner vi meglerne som kjenner nabolaget ditt best – og har aktive boligkjøpere i ditt nabolag."
+              : "Answer four quick questions and we will match you with the agents who know your neighborhood best and have active buyers in your area."}
           </p>
         </div>
 
@@ -963,14 +968,14 @@ function SellerFunnelInner({
                         icon: <HouseIcon className="w-7 h-7 sm:w-8 sm:h-8" />,
                       },
                       {
-                        id: "land",
-                        label: t.funnel.typeLand,
-                        icon: <LandPlotIcon className="w-7 h-7 sm:w-8 sm:h-8" />,
-                      },
-                      {
                         id: "apartment",
                         label: t.funnel.typeApt,
                         icon: <ApartmentIcon className="w-7 h-7 sm:w-8 sm:h-8" />,
+                      },
+                      {
+                        id: "cabin",
+                        label: t.funnel.typeCabin,
+                        icon: <CabinMountainIcon className="w-7 h-7 sm:w-8 sm:h-8" />,
                       },
                     ].map((item) => {
                       const selected = propertyType === item.id;
@@ -1009,15 +1014,17 @@ function SellerFunnelInner({
                     <h2 id="step2-heading" className="kr-h2-serif">
                       {t.funnel.step2Title}
                     </h2>
-                    <p className="kr-body-lg mt-2">{t.funnel.step2Sub}</p>
+                    {t.funnel.step2Sub && (
+                      <p className="kr-body-lg mt-2">{t.funnel.step2Sub}</p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                     {[
-                      { id: "under-150", label: t.funnel.size1 },
-                      { id: "150-300", label: t.funnel.size2 },
-                      { id: "300-500", label: t.funnel.size3 },
-                      { id: "over-500", label: t.funnel.size4 },
+                      { id: "under-40", label: t.funnel.size1 },
+                      { id: "40-80", label: t.funnel.size2 },
+                      { id: "80-120", label: t.funnel.size3 },
+                      { id: "over-120", label: t.funnel.size4 },
                     ].map((preset) => {
                       const selected = surfaceArea === preset.id;
                       return (
@@ -1144,7 +1151,9 @@ function SellerFunnelInner({
                     <h2 id="step4-heading" className="kr-h2-serif">
                       {t.funnel.step4Title}
                     </h2>
-                    <p className="kr-body-lg mt-2">{t.funnel.step4Sub}</p>
+                    {t.funnel.step4Sub && (
+                      <p className="kr-body-lg mt-2">{t.funnel.step4Sub}</p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 gap-3.5 sm:gap-4">

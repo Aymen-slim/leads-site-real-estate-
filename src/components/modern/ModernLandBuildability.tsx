@@ -229,7 +229,7 @@ export function ModernLandBuildability() {
         </div>
 
         <Link
-          href={`/connect-agency?source=land&type=land&size=${
+          href={`/koble-til-megler?source=land&type=land&size=${
             selectedSize.avgSqm > 500 ? "over-500" : "300-500"
           }&zone=${selectedZone.code}&city=${selectedCity.id}`}
           onClick={() => trackClick("land")}

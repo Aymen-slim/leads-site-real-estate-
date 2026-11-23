@@ -287,7 +287,7 @@ export function ModernNetCash() {
         </div>
 
         <Link
-          href={`/connect-agency?source=net-cash&price=${expectedPrice}&net=${netCashInPocket}`}
+          href={`/koble-til-megler?source=net-cash&price=${expectedPrice}&net=${netCashInPocket}`}
           onClick={() => trackClick("net-cash")}
           className="nm-btn-primary w-full min-h-[72px] sm:min-h-[82px] px-5 sm:px-7 py-4 sm:py-5 text-[18px] sm:text-2xl justify-between text-left"
         >

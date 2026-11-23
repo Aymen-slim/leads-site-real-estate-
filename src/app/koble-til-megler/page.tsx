@@ -5,15 +5,15 @@ import { SITE_URL } from "@/lib/seo";
 import { SellerFunnel } from "@/components/SellerFunnel";
 
 export const metadata: Metadata = {
-  title: "Selge bolig eller tomt i Norge — Gratis verdivurdering | VurderBoligen",
+  title: "Finn riktig megler for ditt boligsalg — Gratis verdivurdering | VurderBoligen",
   description:
-    "Start gratis og uforpliktende verdivurdering av din bolig eller tomt i Norge. Rask 4-trykks matching med lokale meglere.",
-  alternates: { canonical: `${SITE_URL}/sell` },
+    "Få en uforpliktende verdivurdering og sammenlign tilbud fra lokale eiendomsmeglere i Norge på under 60 sekunder.",
+  alternates: { canonical: `${SITE_URL}/koble-til-megler` },
 };
 
 export const dynamic = "force-dynamic";
 
-export default async function SellPage() {
+export default async function KobleTilMeglerPage() {
   const h = await headers();
   const hForm = h.get("x-kr-form");
   const hFunnel = h.get("x-kr-funnel");

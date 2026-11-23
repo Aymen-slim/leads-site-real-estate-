@@ -270,7 +270,7 @@ function ClassicPricePerM2({
         </dl>
 
         <Link
-          href={`/connect-agency?source=price-m2&city=${currentCity.id}&area=${currentArea.id}`}
+          href={`/koble-til-megler?source=price-m2&city=${currentCity.id}&area=${currentArea.id}`}
           onClick={() => trackClick("price-m2")}
           className="kr-btn-primary w-full min-h-[72px] sm:min-h-[84px] px-5 sm:px-7 py-4 sm:py-5 border-2 border-[#5D726A] text-[18px] sm:text-2xl justify-between text-left"
         >

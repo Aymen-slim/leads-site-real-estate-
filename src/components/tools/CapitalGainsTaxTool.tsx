@@ -69,11 +69,11 @@ export function CapitalGainsTaxTool() {
 
   const title =
     lang === "no"
-      ? "Bo- og eiertid & Gevinstskatt Kalkulator"
+      ? "Skattefritt salg eller 22 % gevinstskatt på bolig og hytte?"
       : "Tax-Free Sale & Capital Gains Tax Calculator";
   const subtitle =
     lang === "no"
-      ? "Sjekk om salget ditt er 100 % skattefritt etter Skatteloven (12/24 mnd. for bolig eller 5/8 år for hytte), eller beregn eksakt 22 % gevinstskatt med fradrag for påkostninger."
+      ? "Sjekk om boligen eller hytta kan selges 100 % skattefritt og beregn eksakt gevinstskatt."
       : "Verify if your Norwegian sale qualifies as 100% tax-free (12/24-month home rule or 5/8-year cabin rule) or compute exact 22% capital gains tax after deductions.";
 
   return (
@@ -83,7 +83,7 @@ export function CapitalGainsTaxTool() {
       title={title}
       subtitle={subtitle}
       ctaSource="tax-calc"
-      ctaHref={`/connect-agency?source=tax-calc&type=${
+      ctaHref={`/koble-til-megler?source=tax-calc&type=${
         assetKind === "land" ? "land" : "house"
       }&price=${salePrice}&net=${netAfterTax}&tax=${capitalGainsTax}`}
       ctaLabel={

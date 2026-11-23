@@ -122,11 +122,11 @@ export function SunConditionsTool() {
       }
       subtitle={
         lang === "no"
-          ? "Beregn direkte soltimer, soloppgang og solnedgang på uteplassen 21. mars, 21. juni, 21. september og 21. desember etter norsk breddegrad — med åpent adresseoppslag fra Kartverket."
+          ? "Se nøyaktig når solen treffer terrassen og når den går ned i din by og hvordan kveldssol påvirker boligprisen."
           : "Calculate direct terrace sun hours and sunset times on March 21, June 21, September 21, and December 21 by Norwegian latitude — with live Kartverket address lookup."
       }
       ctaSource="sun-conditions"
-      ctaHref={`/connect-agency?source=sun-conditions&type=house&city=${selectedCity.id}&sunHours=${summer.directHours}`}
+      ctaHref={`/koble-til-megler?source=sun-conditions&type=house&city=${selectedCity.id}&sunHours=${summer.directHours}`}
       ctaLabel={
         lang === "no"
           ? `Gode solforhold gir opptil +${direction.eveningSunPremiumPct} % høyere betalingsvilje — få lokal verdivurdering`

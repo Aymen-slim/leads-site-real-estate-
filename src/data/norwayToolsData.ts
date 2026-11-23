@@ -68,17 +68,17 @@ export const TOOL_CATEGORIES: { id: "all" | ToolCategory; labelNo: string; label
 export const TOOL_CATALOG: ToolCatalogEntry[] = [
   {
     slug: "price-per-m2",
-    path: "/tools/price-per-m2",
+    path: "/verktoy/pris-per-m2",
     source: "price-m2",
     category: "value-land",
     iconKey: "price-m2",
     featured: true,
     shortTitleNo: "Pris per m²",
     shortTitleEn: "Price per m²",
-    titleNo: "Oppslag på «Pris per m²» i ditt nabolag",
+    titleNo: "Pris per m² i ditt nabolag",
     titleEn: "Instant Neighborhood “Price per m²” Lookup",
     descNo:
-      "Sammenlign gjennomsnittlig salgspris per m² for enebolig og byggeklar tomt i norske byer og bydeler.",
+      "Sammenlign gjennomsnittlig salgspris per m² for boligen din med andre boliger i nærområdet",
     descEn:
       "Compare average selling price per m² for detached homes and constructible land across Norwegian neighborhoods.",
     controlHintNo: "Velg by og bydel fra to store menyer",
@@ -127,13 +127,13 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "net-cash",
-    path: "/tools/net-cash",
+    path: "/verktoy/netto-utbetalt",
     source: "net-cash",
     category: "sale-tax",
     iconKey: "net-cash",
     shortTitleNo: "Netto utbetalt",
     shortTitleEn: "Net Cash in Pocket",
-    titleNo: "Kalkulator for «Netto penger på konto» etter skatt og gebyrer",
+    titleNo: "Finn ut hva du sitter igjen med etter skatt og gebyrer",
     titleEn: "“Net Cash in Pocket” Calculator (After Taxes & Fees)",
     descNo:
       "Se nøyaktig hvor mye penger som faktisk blir igjen på konto etter meglergebyr, tinglysing, eventuell skatt og innfrielse av lån.",
@@ -178,7 +178,7 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "land-buildability",
-    path: "/tools/land-buildability",
+    path: "/verktoy/tomtedeling",
     source: "land",
     category: "value-land",
     iconKey: "land",
@@ -187,7 +187,7 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
     titleNo: "Kalkulator for tomtedeling og utbyggingspotensial",
     titleEn: "Land Buildability & Division Estimator",
     descNo:
-      "Finn ut om tomten din kan deles i flere parseller eller bygges ut med R+2, R+3 eller næring for høyere salgspris.",
+      "Finn ut om tomten din kan deles i flere enheter eller bygges ut for høyere pris",
     descEn:
       "Check if your plot can be subdivided into multiple parcels or developed as R+2, R+3, or mixed-use.",
     controlHintNo: "Velg tomtestørrelse og sone (R+2, R+3, næring)",
@@ -229,7 +229,7 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "inherited-property",
-    path: "/tools/inherited-property",
+    path: "/verktoy/arvet-bolig",
     source: "inheritance",
     category: "value-land",
     iconKey: "inheritance",
@@ -280,13 +280,13 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "sell-as-is",
-    path: "/tools/sell-as-is",
+    path: "/verktoy/selge-som-den-er",
     source: "as-is",
     category: "sale-tax",
     iconKey: "as-is",
     shortTitleNo: "Selge som den er",
     shortTitleEn: "Sell As-Is vs. Fix",
-    titleNo: "Kalkulator: «Selge som den er» eller pusse opp først?",
+    titleNo: "Selge som den er eller pusse opp først?",
     titleEn: "“Sell As-Is vs. Fix It Up” Calculator",
     descNo:
       "Sammenlign håndverkerkostnader og byggetid mot å selge boligen i nåværende tilstand uten oppussingsrisiko.",
@@ -333,17 +333,17 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   // ======================== TIER 1 NEW TOOLS (5) ========================
   {
     slug: "capital-gains-tax",
-    path: "/tools/capital-gains-tax",
+    path: "/verktoy/gevinstskatt",
     source: "tax-calc",
     category: "sale-tax",
     iconKey: "tax-calc",
     isNew: true,
     shortTitleNo: "Bo- og eiertid / Skatt",
     shortTitleEn: "Capital Gains Tax",
-    titleNo: "Bo- og eiertid & Gevinstskatt Kalkulator",
+    titleNo: "Skattefritt salg eller 22 % gevinstskatt på bolig og hytte?",
     titleEn: "Tax-Free Sale & Capital Gains Tax Calculator",
     descNo:
-      "Sjekk om boligen eller hytta kan selges 100 % skattefritt (12/24 mnd. eller 5/8 år) og beregn eksakt 22 % gevinstskatt med fradrag for påkostninger.",
+      "Sjekk om boligen eller hytta kan selges 100 % skattefritt og beregn eksakt gevinstskatt.",
     descEn:
       "Check Norway's 12-of-24-month home rule or 5-of-8-year cabin rule and compute exact 22% capital gains tax after deductions.",
     controlHintNo: "Velg boligtype, botid og dra pris-skyveknappene",
@@ -392,17 +392,17 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "partner-buyout",
-    path: "/tools/partner-buyout",
+    path: "/verktoy/kjope-ut-samboer",
     source: "partner-buyout",
     category: "value-land",
     iconKey: "partner-buyout",
     isNew: true,
     shortTitleNo: "Kjøpe ut samboer",
     shortTitleEn: "Partner Buyout",
-    titleNo: "Kalkulator: Kjøpe ut samboer eller ektefelle ved brudd",
+    titleNo: "Samlivsbruddkalkulator",
     titleEn: "Partner Buyout & Separation Split Calculator",
     descNo:
-      "Regn ut eksakt utkjøpssum, nytt lånebehov og inntektskrav (5× inntekt) dersom én part skal beholde felles bolig — eller se hva dere får ved felles salg.",
+      "Finn ut hva det koster å kjøpe ut partneren. Regn ut utkjøpssum, lånebehov og inntektskrav.",
     descEn:
       "Calculate exact buyout payout, required mortgage, and Norway's 5× income rule when one partner keeps the home — or compare against selling together.",
     controlHintNo: "Velg eierbrøk og juster boligverdi, lån og egenkapital",
@@ -451,17 +451,17 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "broker-fee",
-    path: "/tools/broker-fee",
+    path: "/verktoy/meglerkostnad",
     source: "broker-fee",
     category: "sale-tax",
     iconKey: "broker-fee",
     isNew: true,
     shortTitleNo: "Meglerkostnad & Pris",
     shortTitleEn: "Broker Cost vs. DIY",
-    titleNo: "Meglerkostnad & «Selge selv vs. Megler» Kalkulator",
+    titleNo: "Selge selv eller velge en megler?",
     titleEn: "Broker Commission & DIY vs. Agency Calculator",
     descNo:
-      "Beregn totalpris på eiendomsmegler (provisjon, tilstandsrapport, boligselgerforsikring, foto) og sammenlign med å selge boligen selv.",
+      "Beregn totalpris på eiendomsmegler (provisjon, tilstandsrapport, boligselgerforsikring, foto, og andre kostnader)",
     descEn:
       "Estimate full Norwegian brokerage costs (commission, technical report, seller insurance, photo/FINN) and compare against selling DIY.",
     controlHintNo: "Velg boligtype, salgspris og provisjon (1 % – 3 %)",
@@ -510,7 +510,7 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "bridge-loan",
-    path: "/tools/bridge-loan",
+    path: "/verktoy/mellomfinansiering",
     source: "bridge-loan",
     category: "buy-move",
     iconKey: "bridge-loan",
@@ -562,17 +562,17 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "rent-or-sell",
-    path: "/tools/rent-or-sell",
+    path: "/verktoy/leie-ut-eller-selge",
     source: "rent-or-sell",
     category: "buy-move",
     iconKey: "rent-or-sell",
     isNew: true,
     shortTitleNo: "Leie ut eller selge?",
     shortTitleEn: "Rent Out vs. Sell",
-    titleNo: "Kalkulator: Leie ut eller selge boligen?",
+    titleNo: "Leie ut eller selge boligen?",
     titleEn: "“Rent Out vs. Sell” Property Calculator",
     descNo:
-      "Sammenlign reell månedlig kontantstrøm fra utleie (etter 22 % skatt, vedlikehold og sekundærbolig-formuesskatt) mot skattefritt salg nå.",
+      "Se hva du faktisk sitter igjen med i måneden ved utleie – etter skatt, vedlikehold og formuesskatt – sammenlignet med å selge skattefritt i dag.",
     descEn:
       "Compare net monthly rental cashflow (after 22% tax, HOA, upkeep & 100% secondary-home wealth tax) against selling tax-free today.",
     controlHintNo: "Juster boligverdi, leieinntekt, lån og botidsstatus",
@@ -616,17 +616,17 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   // ======================== TIER 2 NEW TOOLS (6) ========================
   {
     slug: "property-tax",
-    path: "/tools/property-tax",
+    path: "/verktoy/eiendomsskatt",
     source: "property-tax",
     category: "value-land",
     iconKey: "property-tax",
     isNew: true,
     shortTitleNo: "Eiendomsskatt",
     shortTitleEn: "Property Tax",
-    titleNo: "Eiendomsskatt Kalkulator per Kommune i Norge",
+    titleNo: "Kalkuler eiendomsskatt i din kommune",
     titleEn: "Municipal Property Tax Calculator (Norway)",
     descNo:
-      "Velg din kommune blant 20 norske storbyer og se nøyaktig beregnet eiendomsskatt per år med kommunens bunnfradrag, reduksjonsfaktor og promillesats.",
+      "Sjekk ut nøyaktig hvor mye eiendomsskatt med kommunens bunnfradrag, reduksjonsfaktor og promillesats.",
     descEn:
       "Select from 20 major Norwegian municipalities to compute annual property tax using local exemption thresholds, statutory reduction, and promille rates.",
     controlHintNo: "Velg kommune, boligtype og dra markedsverdi",
@@ -669,17 +669,17 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "document-fee",
-    path: "/tools/document-fee",
+    path: "/verktoy/dokumentavgift",
     source: "document-fee",
     category: "buy-move",
     iconKey: "document-fee",
     isNew: true,
     shortTitleNo: "Dokumentavgift (2,5 %)",
     shortTitleEn: "2.5% Stamp Duty",
-    titleNo: "Dokumentavgift & Omkostninger Kalkulator (Selveier vs. Borettslag)",
+    titleNo: "Kalkulator: Dokumentavgift & Omkostninger",
     titleEn: "2.5% Stamp Duty & Buying Costs Calculator",
     descNo:
-      "Beregn nøyaktig 2,5 % dokumentavgift, tinglysingsgebyrer og totale omkostninger ved kjøp — og sammenlign selveier mot borettslag og nybygg.",
+      "Beregn nøyaktig dokumentavgift, tinglysingsgebyrer og totale omkostninger ved kjøp — sammenlign selveier mot borettslag og nybygg.",
     descEn:
       "Calculate exact 2.5% Norwegian stamp duty, deed registration fees, and total buying costs comparing freehold, co-op (borettslag), and new-builds.",
     controlHintNo: "Velg eierform (selveier / borettslag / nybygg) og kjøpesum",
@@ -721,17 +721,17 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "cabin-cost",
-    path: "/tools/cabin-cost",
+    path: "/verktoy/hyttekostnad",
     source: "cabin-cost",
     category: "cabin-energy",
     iconKey: "cabin-cost",
     isNew: true,
     shortTitleNo: "Hyttekostnad & Salg",
     shortTitleEn: "Cabin Cost & Sale",
-    titleNo: "Hyttekostnad & Hyttesalg Kalkulator (Pris per bruksdøgn)",
+    titleNo: "Hva koster hytta deg egentlig?",
     titleEn: "Cabin Annual Cost & Tax-Free Sale Calculator",
     descNo:
-      "Se hva hytta faktisk koster deg i året og per overnatting (lån, strøm, festeavgift, eiendomsskatt, vedlikehold) + sjekk 5-av-8-års skatteregelen.",
+      "Regn ut hva hytta faktisk koster deg per døgn — og sjekk om du kan selge fritidsboligen helt skattefritt",
     descEn:
       "See your cabin's true annual cost and exact cost per night used (loan, power, lease, tax, upkeep) plus Norway's 5-of-8-year tax-free sale check.",
     controlHintNo: "Velg hytteverdi, antall bruksdøgn i året og 5/8-års brukstid",
@@ -773,17 +773,17 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "energy-rating",
-    path: "/tools/energy-rating",
+    path: "/verktoy/energimerking",
     source: "energy-rating",
     category: "cabin-energy",
     iconKey: "energy-rating",
     isNew: true,
     shortTitleNo: "Energimerking (A–G)",
     shortTitleEn: "Energy Rating (A–G)",
-    titleNo: "Energimerking Estimat (A–G) & Salgsverdi",
+    titleNo: "Estimer boligens energikarakter og strømforbruk",
     titleEn: "Energy Rating Estimator (A–G) & Pre-Sale Value",
     descNo:
-      "Estimer boligens energikarakter (A–G), årlig strømforbruk og om en rask oppgradering lønner seg før den lovpålagte energiattesten ved salg.",
+      "Estimer boligens energikarakter (A–G), årlig strømforbruk og om en rask oppgradering lønner seg",
     descEn:
       "Estimate your home's A–G energy label, yearly electricity bill, and whether pre-sale upgrades pay off before mandatory sale certification.",
     controlHintNo: "Trykk på byggeår, oppvarming og utførte oppgraderinger",
@@ -825,17 +825,17 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "ground-lease",
-    path: "/tools/ground-lease",
+    path: "/verktoy/tomtefeste",
     source: "ground-lease",
     category: "value-land",
     iconKey: "ground-lease",
     isNew: true,
     shortTitleNo: "Tomtefeste & Innløsning",
     shortTitleEn: "Ground Lease Buyout",
-    titleNo: "Tomtefeste & Innløsning Kalkulator (Festeavgift)",
+    titleNo: "Kalkulator for tomtefeste og innløsning (Festeavgift)",
     titleEn: "Ground Lease (Tomtefeste) & Buyout Calculator",
     descNo:
-      "Beregn lovfestet innløsningssum for festetomt (25× festeavgift eller 40 % av råtomtverdi), KPI-regulering og effekt på salgsprisen.",
+      "Beregn lovfestet innløsningssum for festetomt, KPI-regulering og effekt på salgsprisen.",
     descEn:
       "Calculate statutory Norwegian leasehold buyout price (25× annual rent or 40% raw plot value), KPI rent indexing, and resale value impact.",
     controlHintNo: "Juster årlig festeavgift, råtomtverdi og innløsningsregel",
@@ -877,7 +877,7 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
   },
   {
     slug: "sun-conditions",
-    path: "/tools/sun-conditions",
+    path: "/verktoy/solforhold",
     source: "sun-conditions",
     category: "cabin-energy",
     iconKey: "sun-conditions",
@@ -887,7 +887,7 @@ export const TOOL_CATALOG: ToolCatalogEntry[] = [
     titleNo: "Solforhold Kalkulator for Terrasse, Balkong og Hage",
     titleEn: "Property Sunlight & Terrace Sun Hours Calculator",
     descNo:
-      "Se nøyaktig når solen treffer terrassen og når den går ned 21. mars, 21. juni og 21. september i din by — og hvordan kveldssol påvirker boligprisen.",
+      "Se nøyaktig når solen treffer terrassen og når den går ned i din by og hvordan kveldssol påvirker boligprisen.",
     descEn:
       "See exact terrace sunrise, direct sunlight hours, and sunset times on March 21, June 21, and September 21 across Norway — plus evening-sun value impact.",
     controlHintNo: "Velg by (eller GPS/adresse), himmelretning og horisont",

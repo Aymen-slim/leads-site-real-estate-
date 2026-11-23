@@ -130,7 +130,7 @@ export function ModernPrivacyPolicy() {
               {lang === "no" ? "Endre cookie-valg" : "Cookie Settings"}
             </button>
             <Link
-              href="/connect-agency?source=nav"
+              href="/koble-til-megler?source=nav"
               onClick={() => trackClick("nav")}
               className="nm-btn-primary w-full sm:w-auto shrink-0"
             >

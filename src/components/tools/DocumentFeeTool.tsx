@@ -72,16 +72,16 @@ export function DocumentFeeTool() {
       iconKey="document-fee"
       title={
         lang === "no"
-          ? "Dokumentavgift & Omkostninger Kalkulator (2,5 %)"
+          ? "Kalkulator: Dokumentavgift & Omkostninger"
           : "2.5% Stamp Duty & Buying Costs Calculator"
       }
       subtitle={
         lang === "no"
-          ? "Beregn dokumentavgift, tinglysingsgebyr og totale kjøpsomkostninger — og sammenlign selveier direkte mot borettslag og nybygg."
+          ? "Beregn nøyaktig dokumentavgift, tinglysingsgebyrer og totale omkostninger ved kjøp — sammenlign selveier mot borettslag og nybygg."
           : "Compute exact 2.5% Norwegian stamp duty (dokumentavgift), Kartverket deed fees, and compare freehold vs. borettslag and new-builds."
       }
       ctaSource="document-fee"
-      ctaHref={`/connect-agency?source=document-fee&type=${
+      ctaHref={`/koble-til-megler?source=document-fee&type=${
         ownership === "borettslag" ? "apartment" : "house"
       }&price=${purchasePrice}&docFee=${totalFees}`}
       ctaLabel={

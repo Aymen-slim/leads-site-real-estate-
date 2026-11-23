@@ -615,9 +615,9 @@ function ExperimentsInner() {
 
           <ExperimentCard
             expId="funnel"
-            title="2. Seller Form (/connect-agency & /sell)"
+            title="2. Seller Form (/koble-til-megler & /selg)"
             subtitle="Controls which form is shown for buttons set to 'A/B Split' in Form Routing"
-            previewBase="/connect-agency"
+            previewBase="/koble-til-megler"
             expConfig={data.config.experiments.funnel}
             stats={data.experiments.funnel}
             presets={[

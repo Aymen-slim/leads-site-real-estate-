@@ -31,8 +31,8 @@ export function ToolsHubClient() {
           <h1 className="kr-h1">{t.landing.toolsSectionTitle}</h1>
           <p className="kr-body-lg">
             {lang === "no"
-              ? "16 gratis norske boligkalkulatorer uten skriving — fra kvadratmeterpris, meglerkostnad og gevinstskatt til utkjøp av samboer, eiendomsskatt, hytte og solforhold."
-              : "16 free zero-typing Norwegian property calculators — from price per m², broker fees, and capital gains tax to partner buyout, property tax, cabin costs, and sun conditions."}
+              ? "Få en rask tilbakemelding på din boligverdi, kostnader ved salg og mye mer - alt på et sted"
+              : "Get fast feedback on your home value, selling costs, and much more — all in one place."}
           </p>
         </div>
 
@@ -87,21 +87,10 @@ export function ToolsHubClient() {
                   <p className="text-[16px] sm:text-[17px] text-[#292823] mt-2 leading-relaxed">
                     {lang === "no" ? tool.descNo : tool.descEn}
                   </p>
-                  <span className="inline-block mt-3 px-3 py-1 bg-[#EDF0E7] text-[#292823] text-[14px] font-medium rounded-none border border-[#DCE2CF]">
-                    {lang === "no" ? tool.controlHintNo : tool.controlHintEn}
-                  </span>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 shrink-0">
-                <div className="bg-[#EDF0E7] px-4 py-3 rounded-none border border-[#DFDFDF] text-left sm:text-right">
-                  <span className="block text-[13px] font-normal text-[#292823]">
-                    {lang === "no" ? "Eksempel" : "Sample"}
-                  </span>
-                  <span className="block text-[20px] font-medium text-[#000000] tabular-nums whitespace-nowrap">
-                    {lang === "no" ? tool.sampleMetricNo : tool.sampleMetricEn}
-                  </span>
-                </div>
                 <Link
                   href={tool.path}
                   className="kr-btn-primary w-full sm:w-auto border border-[#5D726A] min-h-[56px]"
@@ -139,8 +128,8 @@ export function ToolsHubClient() {
           <div>
             <h2 className="kr-h2-serif">
               {lang === "no"
-                ? "Klar til å få den beste prisen?"
-                : "Ready to connect with a local agency?"}
+                ? "Klar for å selge boligen?"
+                : "Ready to sell your home?"}
             </h2>
             <p className="kr-body-lg mt-1">
               {lang === "no"
@@ -149,7 +138,7 @@ export function ToolsHubClient() {
             </p>
           </div>
           <Link
-            href="/connect-agency?source=tools-hub"
+            href="/koble-til-megler?source=tools-hub"
             onClick={() => trackClick("tools-hub")}
             className="kr-btn-primary w-full sm:w-auto border border-[#5D726A] shrink-0 min-h-[58px]"
           >

@@ -11,8 +11,8 @@ export function ModernMobileBottomNav() {
   const { lang, trackClick } = useApp();
 
   const isHome = pathname === "/";
-  const isTools = pathname.startsWith("/tools") || pathname.startsWith("/boligpris");
-  const isAgency = pathname === "/connect-agency" || pathname === "/sell";
+  const isTools = pathname.startsWith("/verktoy") || pathname.startsWith("/tools") || pathname.startsWith("/boligpris");
+  const isAgency = pathname === "/koble-til-megler" || pathname === "/selg" || pathname === "/connect-agency" || pathname === "/sell";
 
   return (
     <nav
@@ -22,36 +22,33 @@ export function ModernMobileBottomNav() {
       <div className="max-w-lg mx-auto grid grid-cols-3 gap-2 items-center">
         <Link
           href="/"
-          className={`min-h-[52px] px-2 py-1.5 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[12px] font-semibold transition-colors active:scale-[0.97] ${
-            isHome
-              ? "bg-[#E7ECE0] text-[#1D281C] border border-[#C4CEBA]"
-              : "text-[#495647] hover:bg-[#F4F5F0]"
-          }`}
+          className={`min-h-[52px] px-2 py-1.5 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[12px] font-semibold transition-colors active:scale-[0.97] ${isHome
+            ? "bg-[#E7ECE0] text-[#1D281C] border border-[#C4CEBA]"
+            : "text-[#495647] hover:bg-[#F4F5F0]"
+            }`}
         >
           <HouseIcon className="w-5 h-5" />
           <span>{lang === "no" ? "Hjem" : "Home"}</span>
         </Link>
 
         <Link
-          href="/tools"
-          className={`min-h-[52px] px-2 py-1.5 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[12px] font-semibold transition-colors active:scale-[0.97] ${
-            isTools
-              ? "bg-[#E7ECE0] text-[#1D281C] border border-[#C4CEBA]"
-              : "text-[#495647] hover:bg-[#F4F5F0]"
-          }`}
+          href="/verktoy"
+          className={`min-h-[52px] px-2 py-1.5 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[12px] font-semibold transition-colors active:scale-[0.97] ${isTools
+            ? "bg-[#E7ECE0] text-[#1D281C] border border-[#C4CEBA]"
+            : "text-[#495647] hover:bg-[#F4F5F0]"
+            }`}
         >
           <ScaleMeasureIcon className="w-5 h-5" />
           <span>{lang === "no" ? "Verktøy" : "Tools"}</span>
         </Link>
 
         <Link
-          href="/connect-agency?source=nav"
+          href="/koble-til-megler?source=nav"
           onClick={() => trackClick("nav")}
-          className={`min-h-[52px] px-2.5 py-1.5 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[12px] font-semibold transition-all active:scale-[0.97] shadow-xs ${
-            isAgency
-              ? "bg-[#172216] text-[#FFFFFF] ring-2 ring-[#243323]/30"
-              : "bg-[#243323] text-[#FFFFFF]"
-          }`}
+          className={`min-h-[52px] px-2.5 py-1.5 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[12px] font-semibold transition-all active:scale-[0.97] shadow-xs ${isAgency
+            ? "bg-[#172216] text-[#FFFFFF] ring-2 ring-[#243323]/30"
+            : "bg-[#243323] text-[#FFFFFF]"
+            }`}
         >
           <span className="inline-flex items-center gap-1">
             <span>{lang === "no" ? "Beste pris" : "Get Price"}</span>

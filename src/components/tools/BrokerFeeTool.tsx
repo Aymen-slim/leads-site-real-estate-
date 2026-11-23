@@ -87,16 +87,16 @@ export function BrokerFeeTool() {
       iconKey="broker-fee"
       title={
         lang === "no"
-          ? "Meglerkostnad & «Selge selv vs. Megler» Kalkulator"
+          ? "Selge selv eller velge en megler?"
           : "Broker Commission & DIY vs. Agency Calculator"
       }
       subtitle={
         lang === "no"
-          ? "Se komplett prisoversikt for provisjon, tilrettelegging, tilstandsrapport og boligselgerforsikring — og sammenlign direkte med å selge boligen selv."
+          ? "Beregn totalpris på eiendomsmegler (provisjon, tilstandsrapport, boligselgerforsikring, foto, og andre kostnader)"
           : "See an itemized breakdown of Norwegian commission, mandatory inspection, and seller insurance — and compare against selling DIY."
       }
       ctaSource="broker-fee"
-      ctaHref={`/connect-agency?source=broker-fee&type=${
+      ctaHref={`/koble-til-megler?source=broker-fee&type=${
         propType === "house" ? "house" : "apartment"
       }&price=${salePrice}&brokerCost=${totalBrokerCost}&net=${salePrice - totalBrokerCost}`}
       ctaLabel={

@@ -42,7 +42,7 @@ export function PropertyTaxTool({
       ? `Eiendomsskatt i ${rule.name} (2026) — Kalkulator`
       : `Property Tax Calculator for ${rule.name} (2026)`
     : lang === "no"
-    ? "Eiendomsskatt Kalkulator per Kommune i Norge"
+    ? "Kalkuler eiendomsskatt i din kommune"
     : "Municipal Property Tax Calculator (Norway)";
 
   const headingSub = initialMunicipalityId
@@ -50,7 +50,7 @@ export function PropertyTaxTool({
       ? rule.noteNo
       : rule.noteEn
     : lang === "no"
-    ? "Velg blant 20 norske kommuner og beregn årlig eiendomsskatt med 30 % reduksjonsfaktor, kommunalt bunnfradrag og gjeldende promillesats."
+    ? "Sjekk ut nøyaktig hvor mye eiendomsskatt med kommunens bunnfradrag, reduksjonsfaktor og promillesats."
     : "Pick from 20 Norwegian municipalities to compute annual property tax with the 30% statutory reduction, local threshold, and promille rate.";
 
   return (
@@ -60,7 +60,7 @@ export function PropertyTaxTool({
       title={headingTitle}
       subtitle={headingSub}
       ctaSource="property-tax"
-      ctaHref={`/connect-agency?source=property-tax&type=house${
+      ctaHref={`/koble-til-megler?source=property-tax&type=house${
         rule.cityMatchId ? `&city=${rule.cityMatchId}` : ""
       }&price=${marketValue}&propTax=${calc.annualTax}&municipality=${rule.id}`}
       ctaLabel={
@@ -278,7 +278,7 @@ export function PropertyTaxTool({
           {NORWAY_MUNICIPALITIES_TAX.map((m) => (
             <Link
               key={m.id}
-              href={`/tools/property-tax/${m.id}`}
+              href={`/verktoy/eiendomsskatt/${m.id}`}
               className={`px-3 py-1.5 text-[14px] font-medium border transition-colors ${
                 m.id === rule.id
                   ? isModern

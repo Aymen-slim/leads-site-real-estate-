@@ -104,7 +104,7 @@ export function CookieBanner() {
           <p className="mt-1.5 text-[14px] sm:text-[15px] leading-relaxed text-[#292823]">
             {copy.body}{" "}
             <Link
-              href="/privacy-policy"
+              href="/personvern"
               className="underline decoration-[#5D726A] text-[#000000] hover:text-[#5D726A] font-medium"
             >
               {copy.privacyLink}

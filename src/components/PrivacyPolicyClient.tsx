@@ -138,7 +138,7 @@ export function PrivacyPolicyClient() {
               {lang === "no" ? "Endre cookie-valg" : "Manage Cookie Settings"}
             </button>
             <Link
-              href="/connect-agency?source=nav"
+              href="/koble-til-megler?source=nav"
               onClick={() => trackClick("nav")}
               className="kr-btn-primary border border-[#5D726A] w-full sm:w-auto shrink-0"
             >

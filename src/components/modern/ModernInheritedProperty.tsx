@@ -205,7 +205,7 @@ export function ModernInheritedProperty() {
         </div>
 
         <Link
-          href={`/connect-agency?source=inheritance&price=${estateValue}&net=${payoutPerHeir}&heirs=${heirsCount}`}
+          href={`/koble-til-megler?source=inheritance&price=${estateValue}&net=${payoutPerHeir}&heirs=${heirsCount}`}
           onClick={() => trackClick("inheritance")}
           className="nm-btn-primary w-full min-h-[72px] sm:min-h-[82px] px-5 sm:px-7 py-4 sm:py-5 text-[18px] sm:text-2xl justify-between text-left"
         >

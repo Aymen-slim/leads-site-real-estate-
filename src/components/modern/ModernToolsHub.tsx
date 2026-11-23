@@ -18,7 +18,6 @@ import {
   BoltFastIcon,
   HeartFreeIcon,
   StarBadgeIcon,
-  TrendingUpIcon,
   WalletCashIcon,
   RefreshCycleIcon,
   LightBulbIcon,
@@ -32,10 +31,10 @@ export function ModernToolsHub() {
 
   const featuredCards = [
     {
-      href: "/tools/net-cash",
+      href: "/verktoy/netto-utbetalt",
       title:
         lang === "no"
-          ? "Kalkulator for «Netto penger på konto»"
+          ? "Finn ut hva du sitter igjen med etter skatt og gebyrer"
           : "“Net Cash in Pocket” Calculator",
       desc:
         lang === "no"
@@ -49,14 +48,14 @@ export function ModernToolsHub() {
       icon: <WalletCashIcon className="w-6 h-6" />,
     },
     {
-      href: "/tools/land-buildability",
+      href: "/verktoy/tomtedeling",
       title:
         lang === "no"
           ? "Tomtedeling og utbyggingspotensial"
           : "Land Buildability & Division Estimator",
       desc:
         lang === "no"
-          ? "Finn ut om tomten din kan deles i flere parseller eller bygges ut med R+2 / R+3."
+          ? "Finn ut om tomten din kan deles i flere enheter eller bygges ut for høyere pris"
           : "Find out how your land can be divided and what you can build.",
       image: "/images/tool-land-plot.jpg",
       imageAlt:
@@ -66,10 +65,10 @@ export function ModernToolsHub() {
       icon: <LocationCrosshairIcon className="w-6 h-6" />,
     },
     {
-      href: "/tools/inherited-property",
+      href: "/verktoy/arvet-bolig",
       title:
         lang === "no"
-          ? "Kalkulator for arvet bolig og søskenoppgjør"
+          ? "Kalkulator for arvet bolig og familieoppgjør"
           : "Inherited / Family Property Share Calculator",
       desc:
         lang === "no"
@@ -83,10 +82,10 @@ export function ModernToolsHub() {
       icon: <UsersFamilyIcon className="w-6 h-6" />,
     },
     {
-      href: "/tools/sell-as-is",
+      href: "/verktoy/selge-som-den-er",
       title:
         lang === "no"
-          ? "Selge «som den er» vs. pusse opp først"
+          ? "Selge som den er eller pusse opp først?"
           : "“Sell As-Is vs. Fix It Up” Calculator",
       desc:
         lang === "no"
@@ -171,14 +170,14 @@ export function ModernToolsHub() {
 
             <h1 className="font-serif text-[40px] sm:text-[52px] lg:text-[60px] leading-[1.06] font-normal text-[#1D281C] tracking-[-0.02em] text-balance">
               {lang === "no"
-                ? "Gratis verktøy for deg som skal selge bolig eller tomt"
-                : "Free Tools for Home and Land Sellers"}
+                ? "Gratis verktøy for deg som skal selge bolig"
+                : "Free Tools for Home Sellers"}
             </h1>
 
             <p className="text-[17px] sm:text-[19px] leading-relaxed text-[#495647] max-w-lg">
               {lang === "no"
-                ? "Få umiddelbare tall på pris per m², meglerkostnad, gevinstskatt, samboerutkjøp, eiendomsskatt, hytte og solforhold — alt på ett sted."
-                : "Get instant numbers on price per m², broker costs, capital gains tax, partner buyout, property tax, cabin costs, and sunlight — all in one place."}
+                ? "Få en rask tilbakemelding på din boligverdi, kostnader ved salg og mye mer - alt på et sted"
+                : "Get fast feedback on your home value, selling costs, and much more — all in one place."}
             </p>
 
             <div className="pt-2 flex flex-wrap items-center gap-x-6 gap-y-2.5 text-[14px] sm:text-[15px] font-medium text-[#243323]">
@@ -215,16 +214,6 @@ export function ModernToolsHub() {
                 </svg>
               </div>
 
-              <div className="hidden sm:flex flex-col items-center gap-2.5 absolute right-7 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
-                <div className="px-4 py-2 rounded-xl bg-[#FFFFFF] text-[#1D281C] text-[16px] font-semibold tabular-nums shadow-lg inline-flex items-center gap-2">
-                  <span>108 200 kr / m²</span>
-                  <TrendingUpIcon className="w-4 h-4 text-[#243323]" />
-                </div>
-                <span className="w-7 h-7 rounded-full bg-[#1D281C] border-2 border-[#FFFFFF] flex items-center justify-center shadow-md">
-                  <span className="w-2 h-2 rounded-full bg-[#B5C9B4]" />
-                </span>
-              </div>
-
               <div className="relative z-10 max-w-xs sm:max-w-[290px] space-y-3">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3A4D38]/90 border border-[#5B7259] text-[#E9EDE3] text-[12px] font-semibold">
                   <StarBadgeIcon className="w-3.5 h-3.5 text-[#D8C16E]" />
@@ -233,20 +222,20 @@ export function ModernToolsHub() {
 
                 <h2 className="font-serif text-[26px] sm:text-[30px] leading-[1.15] font-normal text-[#FFFFFF]">
                   {lang === "no"
-                    ? "Oppslag på «Pris per m²» i ditt nabolag"
+                    ? "Pris per m² i ditt nabolag"
                     : "Instant Neighborhood “Price per m²” Lookup"}
                 </h2>
 
                 <p className="text-[15px] text-[#D4DFD0] leading-relaxed">
                   {lang === "no"
-                    ? "Sammenlign enebolig og byggeklar tomt i ditt område og se dagens gjennomsnittlige m²-pris."
+                    ? "Sammenlign gjennomsnittlig salgspris per m² for boligen din med andre boliger i nærområdet"
                     : "Compare prices in your area and discover the current average selling price per m²."}
                 </p>
               </div>
 
               <div className="relative z-10 pt-5">
                 <Link
-                  href="/tools/price-per-m2"
+                  href="/verktoy/pris-per-m2"
                   className="inline-flex items-center justify-center gap-2 min-h-[46px] px-5 py-2.5 rounded-full bg-[#FFFFFF] hover:bg-[#E7ECE0] text-[#1D281C] text-[15px] font-semibold transition-colors shadow-sm"
                 >
                   <span>
@@ -344,7 +333,7 @@ export function ModernToolsHub() {
 
               <div className="relative z-10 pt-5 flex items-center justify-between gap-4">
                 <Link
-                  href="/connect-agency?source=tools-hub"
+                  href="/koble-til-megler?source=tools-hub"
                   onClick={() => trackClick("tools-hub")}
                   className="inline-flex items-center justify-center gap-2 min-h-[46px] px-5 py-2.5 rounded-full bg-[#243323] hover:bg-[#172216] text-[#FFFFFF] text-[15px] font-semibold transition-colors shadow-sm"
                 >
@@ -417,13 +406,10 @@ export function ModernToolsHub() {
                       <span className="w-11 h-11 rounded-xl bg-[#E6F2EC] border border-[#C3DEC9] text-[#0F3D2E] flex items-center justify-center">
                         <ToolIcon iconKey={tool.iconKey} className="w-5 h-5" />
                       </span>
-                      <span className="px-3 py-1 rounded-full bg-[#F4F5F0] border border-[#DCE2D4] text-[13px] font-semibold text-[#1D281C] tabular-nums">
-                        {lang === "no" ? tool.sampleMetricNo : tool.sampleMetricEn}
-                      </span>
                     </div>
 
                     <h3 className="font-serif text-[21px] sm:text-[23px] leading-[1.2] font-normal text-[#1D281C]">
-                      {lang === "no" ? tool.shortTitleNo : tool.shortTitleEn}
+                      {lang === "no" ? tool.titleNo : tool.shortTitleEn}
                     </h3>
 
                     <p className="text-[14px] sm:text-[15px] text-[#495647] leading-relaxed">
@@ -495,8 +481,8 @@ export function ModernToolsHub() {
               <div className="lg:col-span-6 space-y-4">
                 <h2 className="font-serif text-[30px] sm:text-[36px] leading-[1.12] font-normal text-[#FFFFFF]">
                   {lang === "no"
-                    ? "Klar til å kontakte en lokal megler?"
-                    : "Ready to connect with a local agency?"}
+                    ? "Klar for å selge boligen?"
+                    : "Ready to sell your home?"}
                 </h2>
                 <p className="text-[16px] text-[#D4DFD0] max-w-md leading-relaxed">
                   {lang === "no"
@@ -505,7 +491,7 @@ export function ModernToolsHub() {
                 </p>
                 <div className="pt-1">
                   <Link
-                    href="/connect-agency?source=tools-hub"
+                    href="/koble-til-megler?source=tools-hub"
                     onClick={() => trackClick("tools-hub")}
                     className="inline-flex items-center justify-center gap-2 min-h-[50px] px-6 py-3 rounded-full bg-[#F4F5F0] hover:bg-[#FFFFFF] text-[#1D281C] text-[15px] font-semibold transition-colors shadow-sm"
                   >

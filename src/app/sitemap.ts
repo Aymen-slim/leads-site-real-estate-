@@ -8,10 +8,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const corePages: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, lastModified: now, changeFrequency: "weekly", priority: 1.0 },
-    { url: `${SITE_URL}/tools`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${SITE_URL}/connect-agency`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${SITE_URL}/sell`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${SITE_URL}/privacy-policy`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
+    { url: `${SITE_URL}/verktoy`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${SITE_URL}/koble-til-megler`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${SITE_URL}/selg`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${SITE_URL}/personvern`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
   ];
 
   const toolPages: MetadataRoute.Sitemap = TOOL_CATALOG.map((tool) => ({
@@ -38,7 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const municipalityTaxPages: MetadataRoute.Sitemap = NORWAY_MUNICIPALITIES_TAX.map(
     (m) => ({
-      url: `${SITE_URL}/tools/property-tax/${m.id}`,
+      url: `${SITE_URL}/verktoy/eiendomsskatt/${m.id}`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.8,

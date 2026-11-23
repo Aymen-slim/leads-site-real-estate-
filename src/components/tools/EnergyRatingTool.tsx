@@ -92,16 +92,16 @@ export function EnergyRatingTool() {
       iconKey="energy-rating"
       title={
         lang === "no"
-          ? "Energimerking Estimat (A–G) & Salgsverdi"
+          ? "Estimer boligens energikarakter og strømforbruk"
           : "Energy Rating Estimator (A–G) & Pre-Sale Value"
       }
       subtitle={
         lang === "no"
-          ? "Energiattest er lovpålagt ved boligsalg i Norge. Trykk på byggeår, oppvarming og oppgraderinger for å se estimert karakter (A–G) og strømkostnad."
+          ? "Estimer boligens energikarakter (A–G), årlig strømforbruk og om en rask oppgradering lønner seg"
           : "An official energy label is mandatory when selling in Norway. Tap build era, heating, and upgrades to estimate your A–G grade and power cost."
       }
       ctaSource="energy-rating"
-      ctaHref={`/connect-agency?source=energy-rating&type=house&size=${sqm}&energyGrade=${matchedGrade.grade}`}
+      ctaHref={`/koble-til-megler?source=energy-rating&type=house&size=${sqm}&energyGrade=${matchedGrade.grade}`}
       ctaLabel={
         lang === "no"
           ? `Boligen din anslås til energimerke ${matchedGrade.grade} — få lokal meglervurdering og tips før energiattest`

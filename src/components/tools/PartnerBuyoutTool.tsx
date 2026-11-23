@@ -52,16 +52,16 @@ export function PartnerBuyoutTool() {
       iconKey="partner-buyout"
       title={
         lang === "no"
-          ? "Kalkulator: Kjøpe ut samboer eller ektefelle"
+          ? "Samlivsbruddkalkulator"
           : "Partner Buyout & Separation Split Calculator"
       }
       subtitle={
         lang === "no"
-          ? "Beregn rettferdig utkjøpssum, nytt boliglån og inntektskrav (5× inntekt) hvis én part vil beholde boligen — eller få en nøytral E-takst dere begge stoler på."
+          ? "Finn ut hva det koster å kjøpe ut partneren. Regn ut utkjøpssum, lånebehov og inntektskrav."
           : "Calculate exact buyout payout, required new mortgage, and Norway's 5× income cap if one partner keeps the home — or request a neutral E-takst."
       }
       ctaSource="partner-buyout"
-      ctaHref={`/connect-agency?source=partner-buyout&type=house&price=${marketValue}&net=${buyoutAmount}&buyout=${buyoutAmount}`}
+      ctaHref={`/koble-til-megler?source=partner-buyout&type=house&price=${marketValue}&net=${buyoutAmount}&buyout=${buyoutAmount}`}
       ctaLabel={
         lang === "no"
           ? "Trenger dere en nøytral verdivurdering (E-takst) eller vurderer å selge samlet? Koble til lokal megler"

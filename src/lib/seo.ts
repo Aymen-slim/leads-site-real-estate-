@@ -142,7 +142,7 @@ export function buildPropertyTaxMetadata(municipalityId: string): Metadata {
         .replace(".", ",")} promille kalkulator | VurderBoligen`
     : `Eiendomsskatt ${rule.name} (2026) — 0 kr på bolig og hytte | VurderBoligen`;
   const description = `Beregn eiendomsskatt i ${rule.name} (${rule.countyNo}) for 2026. ${rule.noteNo}`;
-  const canonical = `${SITE_URL}/tools/property-tax/${rule.id}`;
+  const canonical = `${SITE_URL}/verktoy/eiendomsskatt/${rule.id}`;
   return {
     title,
     description,

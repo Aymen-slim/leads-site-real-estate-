@@ -244,7 +244,7 @@ function ClassicNetCash() {
         </div>
 
         <Link
-          href={`/connect-agency?source=net-cash&price=${expectedPrice}&net=${netCashInPocket}`}
+          href={`/koble-til-megler?source=net-cash&price=${expectedPrice}&net=${netCashInPocket}`}
           onClick={() => trackClick("net-cash")}
           className="kr-btn-primary w-full min-h-[72px] sm:min-h-[84px] px-5 sm:px-7 py-4 sm:py-5 border-2 border-[#5D726A] text-[18px] sm:text-2xl justify-between text-left"
         >

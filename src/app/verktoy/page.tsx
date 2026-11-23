@@ -7,13 +7,13 @@ export const metadata: Metadata = {
   title:
     "16 Gratis boligkalkulatorer for selgere i Norge (2026) | VurderBoligen",
   description:
-    "Alle gratis norske kalkulatorer for bolig og tomt: Pris per m², netto utbetalt, meglerkostnad, gevinstskatt, utkjøp av samboer, mellomfinansiering, leie ut vs selge, eiendomsskatt, dokumentavgift, hyttekostnad, energimerking, tomtefeste og solforhold.",
-  alternates: { canonical: `${SITE_URL}/tools` },
+    "Alle gratis norske kalkulatorer for bolig: Pris per m², netto utbetalt, meglerkostnad, gevinstskatt, utkjøp av samboer, mellomfinansiering, leie ut vs selge, eiendomsskatt, dokumentavgift, hyttekostnad, energimerking, tomtefeste og solforhold.",
+  alternates: { canonical: `${SITE_URL}/verktoy` },
   openGraph: {
     title: "16 Gratis boligkalkulatorer for selgere i Norge | VurderBoligen",
     description:
       "Beregn boligverdi, skatt, meglerkostnader, eiendomsskatt, utkjøp av samboer og solforhold gratis på sekunder.",
-    url: `${SITE_URL}/tools`,
+    url: `${SITE_URL}/verktoy`,
     siteName: "VurderBoligen",
     locale: "nb_NO",
     type: "website",

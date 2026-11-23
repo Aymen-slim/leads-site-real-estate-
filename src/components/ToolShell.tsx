@@ -36,7 +36,7 @@ export function ToolShell({
       <main className="bg-[#F8FAF9] min-h-[calc(100vh-140px)] py-6 px-3 sm:py-10 sm:px-6">
         <div className="max-w-5xl mx-auto mb-4">
           <Link
-            href="/tools"
+            href="/verktoy"
             className="inline-flex items-center gap-2 min-h-[40px] px-3.5 py-1.5 rounded-full bg-[#FFFFFF] border border-[#DCE5DF] hover:border-[#147A53] text-[#1D281C] text-[14px] font-semibold transition-colors"
           >
             <ArrowLeftIcon className="w-4 h-4 text-[#147A53]" />
@@ -76,7 +76,7 @@ export function ToolShell({
     <main className="bg-[#FFFFFF] min-h-[calc(100vh-140px)] py-8 px-4 sm:py-12 sm:px-6 lg:py-16">
       <div className="max-w-5xl mx-auto mb-4">
         <Link
-          href="/tools"
+          href="/verktoy"
           className="inline-flex items-center gap-2 min-h-[42px] px-4 py-2 rounded-none bg-[#EDF0E7] border border-[#DCE2CF] hover:bg-[#DCE2CF] text-[#000000] text-[15px] font-medium transition-colors"
         >
           <ArrowLeftIcon className="w-4 h-4 text-[#5D726A]" />

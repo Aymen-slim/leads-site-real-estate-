@@ -67,7 +67,7 @@ export function ToolSeoGuide({ slug }: { slug: string }) {
                 {lang === "no" ? "Relaterte gratis kalkulatorer" : "Related Free Calculators"}
               </h2>
               <Link
-                href="/tools"
+                href="/verktoy"
                 className="text-[14px] font-semibold text-[#147A53] hover:text-[#0F3D2E] inline-flex items-center gap-1"
               >
                 <span>{lang === "no" ? "Se alle 16" : "View all 16"}</span>
@@ -155,7 +155,7 @@ export function ToolSeoGuide({ slug }: { slug: string }) {
               {lang === "no" ? "Relaterte gratis kalkulatorer" : "Related Free Calculators"}
             </h2>
             <Link
-              href="/tools"
+              href="/verktoy"
               className="text-[15px] font-medium text-[#000000] underline decoration-[#5D726A] underline-offset-4 inline-flex items-center gap-1"
             >
               <span>{lang === "no" ? "Se alle 16 verktøy" : "See all 16 tools"}</span>

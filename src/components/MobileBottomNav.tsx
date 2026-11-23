@@ -19,8 +19,8 @@ export function MobileBottomNav() {
   if (isModern) return <ModernMobileBottomNav />;
 
   const isHome = pathname === "/";
-  const isTools = pathname.startsWith("/tools") || pathname.startsWith("/boligpris");
-  const isAgency = pathname === "/connect-agency" || pathname === "/sell";
+  const isTools = pathname.startsWith("/verktoy") || pathname.startsWith("/tools") || pathname.startsWith("/boligpris");
+  const isAgency = pathname === "/koble-til-megler" || pathname === "/selg" || pathname === "/connect-agency" || pathname === "/sell";
 
   return (
     <nav
@@ -41,7 +41,7 @@ export function MobileBottomNav() {
         </Link>
 
         <Link
-          href="/tools"
+          href="/verktoy"
           className={`min-h-[52px] px-2 py-1.5 rounded-none flex flex-col items-center justify-center gap-0.5 text-[12px] font-medium transition-colors active:scale-[0.97] ${
             isTools
               ? "bg-[#FFFFFF] text-[#000000]"
@@ -53,7 +53,7 @@ export function MobileBottomNav() {
         </Link>
 
         <Link
-          href="/connect-agency?source=nav"
+          href="/koble-til-megler?source=nav"
           onClick={() => trackClick("nav")}
           className={`min-h-[52px] px-2.5 py-1.5 rounded-none flex flex-col items-center justify-center gap-0.5 text-[12px] font-medium transition-colors active:scale-[0.97] ${
             isAgency

@@ -33,7 +33,7 @@ export default function HomePage() {
           ? "Ca. 210 m² · Oppgradert fasade · +15–25 % høyere m²-pris"
           : "Approx. 210 m² · Strong frontage · +15–25% m² premium",
       metricValue: "108 200 kr / m²",
-      href: "/connect-agency?source=ad-villa&type=house",
+      href: "/koble-til-megler?source=ad-villa&type=house",
       cta:
         lang === "no"
           ? "Få lokal verdivurdering for din bolig"
@@ -56,7 +56,7 @@ export default function HomePage() {
           ? "1 450 m² · Plass til 2–3 enheter · Aktiv utbyggerinteresse"
           : "1,450 m² · Room for 2–3 units · Active builder demand",
       metricValue: "+38% tomteverdi",
-      href: "/connect-agency?source=ad-land&type=land",
+      href: "/koble-til-megler?source=ad-land&type=land",
       cta:
         lang === "no"
           ? "Få tilbud på tomt og utbygging"
@@ -79,7 +79,7 @@ export default function HomePage() {
           ? "Slipp 400 000+ kr i håndverkere · Raskt oppgjør for arvinger"
           : "Skip 400,000+ kr contractor work · Clean payout for heirs",
       metricValue: "390 000 – 830 000 kr",
-      href: "/connect-agency?source=ad-family&type=house",
+      href: "/koble-til-megler?source=ad-family&type=house",
       cta:
         lang === "no"
           ? "Selg slik boligen står — få tilbud"
@@ -118,14 +118,14 @@ export default function HomePage() {
                   </h1>
                   <div className="mt-6 sm:mt-7 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3.5">
                     <Link
-                      href="/connect-agency?source=hero-a"
+                      href="/koble-til-megler?source=hero-a"
                       onClick={() => trackClick("hero-a")}
                       className="min-h-[52px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-none bg-[#B8C49E] hover:bg-[#C5D0AF] active:scale-[0.985] text-[#000000] text-[17px] font-medium transition-all"
                     >
                       <span>{t.landing.variantA.primaryCta}</span>
                     </Link>
                     <Link
-                      href="/tools/price-per-m2"
+                      href="/verktoy/pris-per-m2"
                       className="min-h-[52px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-none bg-[#FFFFFF] hover:bg-[#EDF0E7] active:scale-[0.985] text-[#000000] text-[17px] font-medium transition-all"
                     >
                       <span>
@@ -220,7 +220,7 @@ export default function HomePage() {
                 </h1>
                 <div>
                   <Link
-                    href="/connect-agency?source=landing-b"
+                    href="/koble-til-megler?source=landing-b"
                     onClick={() => trackClick("landing-b")}
                     className="min-h-[52px] inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-none bg-[#C4CBB3] hover:bg-[#B8C49E] active:scale-[0.985] border border-[#B2BA9E] text-[#1D201B] text-[15px] sm:text-[16px] font-medium transition-colors w-full sm:w-auto"
                   >
@@ -284,7 +284,7 @@ export default function HomePage() {
               </p>
               <div className="pt-1">
                 <Link
-                  href="/connect-agency?source=land-value&type=land"
+                  href="/koble-til-megler?source=land-value&type=land"
                   onClick={() => trackClick("land-value")}
                   className="inline-flex items-center gap-2 text-[17px] font-medium text-[#000000] underline decoration-[#5D726A] underline-offset-4 hover:text-[#5D726A]"
                 >
@@ -333,7 +333,7 @@ export default function HomePage() {
                 </p>
                 <div className="pt-1">
                   <Link
-                    href="/connect-agency?source=sell-as-is&type=house"
+                    href="/koble-til-megler?source=sell-as-is&type=house"
                     onClick={() => trackClick("sell-as-is")}
                     className="inline-flex items-center gap-2 text-[17px] font-medium text-[#000000] underline decoration-[#5D726A] underline-offset-4 hover:text-[#5D726A]"
                   >
@@ -380,7 +380,7 @@ export default function HomePage() {
               </h2>
             </div>
             <Link
-              href="/connect-agency?source=sample-ads"
+              href="/koble-til-megler?source=sample-ads"
               onClick={() => trackClick("sample-ads")}
               className="inline-flex items-center gap-1.5 text-[17px] font-medium text-[#000000] underline decoration-[#5D726A] underline-offset-4 hover:text-[#5D726A]"
             >
