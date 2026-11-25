@@ -1,11 +1,11 @@
-// Google Analytics 4 + Google Ads / Google Tag (GTM-P3HSLXJH / G-WLJRV4ECG6) with Consent Mode v2.
+// Google Analytics 4 (G-WLJRV4ECG6 / GTM-WMFLTLBQ) + Google Ads Tag (GTM-P3HSLXJH) with Consent Mode v2.
 
 declare global {
   interface Window {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
     __krGaLoaded?: string;
-    __krGtmLoaded?: string;
+    __krGtmLoaded?: Record<string, boolean>;
     __krGaConsentInit?: boolean;
   }
 }
@@ -13,7 +13,12 @@ declare global {
 export const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_ID?.trim() || "G-WLJRV4ECG6";
 export const GTM_TAG_ID =
-  process.env.NEXT_PUBLIC_GTM_ID?.trim() || "GTM-P3HSLXJH";
+  process.env.NEXT_PUBLIC_GTM_ID?.trim() || "GTM-WMFLTLBQ";
+export const GOOGLE_ADS_GTM_ID =
+  process.env.NEXT_PUBLIC_GOOGLE_ADS_GTM_ID?.trim() || "GTM-P3HSLXJH";
+export const GTM_IDS = Array.from(
+  new Set([GTM_TAG_ID, GOOGLE_ADS_GTM_ID].filter(Boolean))
+);
 
 export function getGaId(): string {
   return GA_MEASUREMENT_ID;
@@ -21,6 +26,10 @@ export function getGaId(): string {
 
 export function getGtmId(): string {
   return GTM_TAG_ID;
+}
+
+export function getGtmIds(): string[] {
+  return GTM_IDS;
 }
 
 function ensureGtagStub() {
@@ -55,8 +64,8 @@ export function enableGoogleAnalytics(props?: {
   funnel_variant?: string;
 }) {
   const gaId = getGaId();
-  const gtmId = getGtmId();
-  if ((!gaId && !gtmId) || typeof window === "undefined") return;
+  const gtmIds = getGtmIds();
+  if ((!gaId && gtmIds.length === 0) || typeof window === "undefined") return;
   ensureGtagStub();
 
   window.gtag?.("consent", "update", {
@@ -66,10 +75,16 @@ export function enableGoogleAnalytics(props?: {
     ad_personalization: "granted",
   });
 
-  if (gtmId && window.__krGtmLoaded !== gtmId) {
-    window.__krGtmLoaded = gtmId;
+  window.__krGtmLoaded = window.__krGtmLoaded || {};
+  let pushedGtmStart = false;
+  for (const gtmId of gtmIds) {
+    if (window.__krGtmLoaded[gtmId]) continue;
+    window.__krGtmLoaded[gtmId] = true;
     if (!document.querySelector(`script[src*="gtm.js?id=${encodeURIComponent(gtmId)}"]`)) {
-      window.dataLayer?.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+      if (!pushedGtmStart) {
+        window.dataLayer?.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+        pushedGtmStart = true;
+      }
       const gtmScript = document.createElement("script");
       gtmScript.async = true;
       gtmScript.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(gtmId)}`;

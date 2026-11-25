@@ -11,7 +11,7 @@ import { Tracker } from "@/components/Tracker";
 import { CookieBanner } from "@/components/CookieBanner";
 import { isFunnelVariant, isLandingVariant } from "@/lib/ab";
 import { Language } from "@/data/translations";
-import { GA_MEASUREMENT_ID, GTM_TAG_ID } from "@/lib/ga";
+import { GA_MEASUREMENT_ID, GTM_IDS } from "@/lib/ga";
 
 const albertSans = localFont({
   src: "../fonts/AlbertSans-latin.woff2",
@@ -119,11 +119,14 @@ export default async function RootLayout({
       className={`${albertSans.variable} ${sourceSerif.variable} ${bricolage.variable} ${manrope.variable}`}
     >
       <head>
-        <script
-          async
-          src={`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(GTM_TAG_ID)}`}
-        />
         <script dangerouslySetInnerHTML={{ __html: gaBootstrap }} />
+        {GTM_IDS.map((gtmId) => (
+          <script
+            key={gtmId}
+            async
+            src={`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(gtmId)}`}
+          />
+        ))}
       </head>
       <body
         className={`min-h-screen flex flex-col antialiased font-normal pb-[84px] md:pb-0 ${
