@@ -16,19 +16,113 @@ export function ToolSeoGuide({ slug }: { slug: string }) {
     .map((s) => TOOL_CATALOG.find((item) => item.slug === s))
     .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
+  const referenceYear = tool.referenceYear || "2026";
+  const methodology = lang === "no" ? tool.methodologyNo : tool.methodologyEn;
+  const disclaimer = lang === "no" ? tool.disclaimerNo : tool.disclaimerEn;
+  const sources = tool.sources || [];
+
+  const defaultDisclaimer =
+    lang === "no"
+      ? "Veiledende estimat: Faktiske priser, satser og skatteutfall varierer etter eiendomstype, geografi, meglerkontor, forsikringsselskap og lokale vedtak. Innhent alltid bindende tilbud eller offisielt vedtak før endelig beslutning."
+      : "Indicative estimate: Actual fees, rates, and tax outcomes vary by property type, region, brokerage office, insurer, and local municipal rules. Always verify with an official offer or authority before deciding.";
+
   if (isModern) {
     return (
       <section
-        aria-label={lang === "no" ? "Veiledning og vanlige spørsmål" : "Guide & Frequently Asked Questions"}
+        aria-label={
+          lang === "no"
+            ? "Kilder, veiledning og vanlige spørsmål"
+            : "Sources, Guide & Frequently Asked Questions"
+        }
         className="max-w-5xl mx-auto mt-8 space-y-6"
       >
-        {/* Methodology & Data Source Card */}
-        <div className="nm-card p-5 sm:p-8 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E6F2EC] border border-[#C3DEC9] text-[#0F3D2E] text-[13px] font-semibold">
-            <ShieldCheckIcon className="w-4 h-4 text-[#147A53]" />
-            <span>{lang === "no" ? tool.dataSourceNo : tool.dataSourceEn}</span>
+        {/* Dedicated Structured Sources & Methodology Card */}
+        <div
+          id="kilder-og-grunnlag"
+          className="nm-card p-5 sm:p-8 space-y-5 scroll-mt-24"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-9 h-9 rounded-xl bg-[#E6F2EC] border border-[#C3DEC9] text-[#147A53] flex items-center justify-center shrink-0">
+                <ShieldCheckIcon className="w-5 h-5" />
+              </span>
+              <h2 className="nm-h3">
+                {lang === "no"
+                  ? "Kilder og beregningsgrunnlag"
+                  : "Sources & Methodology"}
+              </h2>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6F2EC] border border-[#C3DEC9] text-[#0F3D2E] text-[13px] font-semibold">
+              {lang === "no"
+                ? `Referanseår: ${referenceYear}`
+                : `Reference year: ${referenceYear}`}
+            </span>
           </div>
 
+          <p className="text-[15px] sm:text-[16px] font-medium text-[#121C17] leading-relaxed">
+            {lang === "no" ? tool.dataSourceNo : tool.dataSourceEn}
+          </p>
+
+          {methodology && (
+            <div className="rounded-xl bg-[#F8FAF9] border border-[#DCE5DF] p-4 space-y-1.5">
+              <h3 className="text-[14px] font-semibold uppercase tracking-wide text-[#0F3D2E]">
+                {lang === "no"
+                  ? "Slik regner kalkulatoren"
+                  : "How this calculator works"}
+              </h3>
+              <p className="text-[14px] sm:text-[15px] leading-relaxed text-[#3B4D44]">
+                {methodology}
+              </p>
+            </div>
+          )}
+
+          {sources.length > 0 && (
+            <div className="space-y-2.5">
+              <h3 className="text-[14px] font-semibold uppercase tracking-wide text-[#0F3D2E]">
+                {lang === "no"
+                  ? "Offisielle kilder og markedsgrunnlag"
+                  : "Official Authorities & Market Benchmarks"}
+              </h3>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {sources.map((src) => (
+                  <li key={src.name}>
+                    <a
+                      href={src.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group block h-full rounded-xl bg-[#FFFFFF] border border-[#DCE5DF] hover:border-[#147A53] p-3.5 transition-colors"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[15px] font-semibold text-[#121C17] group-hover:text-[#147A53]">
+                          {src.name}
+                        </span>
+                        <span
+                          className="text-[12px] font-semibold text-[#147A53] shrink-0"
+                          aria-hidden="true"
+                        >
+                          ↗
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[13px] sm:text-[14px] text-[#495647] leading-snug">
+                        {lang === "no" ? src.detailNo : src.detailEn}
+                      </p>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="rounded-xl bg-[#FEF6E2]/70 border border-[#E5C169] px-4 py-3 text-[13px] sm:text-[14px] text-[#3B331C] leading-relaxed">
+            <strong className="font-semibold text-[#1D281C]">
+              {lang === "no" ? "Veiledende estimat: " : "Indicative estimate: "}
+            </strong>
+            {disclaimer || defaultDisclaimer}
+          </div>
+        </div>
+
+        {/* Practical Guide Card */}
+        <div className="nm-card p-5 sm:p-8 space-y-4">
           <h2 className="nm-h2">
             {lang === "no" ? tool.guideHeadingNo : tool.guideHeadingEn}
           </h2>
@@ -45,7 +139,11 @@ export function ToolSeoGuide({ slug }: { slug: string }) {
             </h2>
             <div className="divide-y divide-[#DCE5DF]">
               {tool.faqs.map((faq, idx) => (
-                <details key={idx} open={idx === 0} className="group py-4 first:pt-1 last:pb-1">
+                <details
+                  key={idx}
+                  open={idx === 0}
+                  className="group py-4 first:pt-1 last:pb-1"
+                >
                   <summary className="flex items-center justify-between gap-4 cursor-pointer list-none text-[17px] sm:text-[18px] font-semibold text-[#121C17]">
                     <span>{lang === "no" ? faq.qNo : faq.qEn}</span>
                     <ChevronDownIcon className="w-5 h-5 text-[#147A53] shrink-0 transition-transform group-open:rotate-180" />
@@ -64,7 +162,9 @@ export function ToolSeoGuide({ slug }: { slug: string }) {
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <h2 className="nm-h3">
-                {lang === "no" ? "Relaterte gratis kalkulatorer" : "Related Free Calculators"}
+                {lang === "no"
+                  ? "Relaterte gratis kalkulatorer"
+                  : "Related Free Calculators"}
               </h2>
               <Link
                 href="/verktoy"
@@ -108,15 +208,100 @@ export function ToolSeoGuide({ slug }: { slug: string }) {
   // CLASSIC KROGSVEEN STIL
   return (
     <section
-      aria-label={lang === "no" ? "Veiledning og vanlige spørsmål" : "Guide & Frequently Asked Questions"}
+      aria-label={
+        lang === "no"
+          ? "Kilder, veiledning og vanlige spørsmål"
+          : "Sources, Guide & Frequently Asked Questions"
+      }
       className="max-w-5xl mx-auto mt-8 sm:mt-10 space-y-6"
     >
-      {/* Methodology & Source Card */}
-      <div className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-none p-6 sm:p-10 space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-none bg-[#FFFFFF] border border-[#DCE2CF] text-[#292823] text-[14px] font-medium">
-          <ShieldCheckIcon className="w-4 h-4 text-[#5D726A] shrink-0" />
-          <span>{lang === "no" ? tool.dataSourceNo : tool.dataSourceEn}</span>
+      {/* Dedicated Structured Sources & Methodology Card */}
+      <div
+        id="kilder-og-grunnlag"
+        className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-none p-6 sm:p-10 space-y-5 scroll-mt-24"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="w-9 h-9 rounded-none bg-[#DCE2CF] border border-[#5D726A] text-[#000000] flex items-center justify-center shrink-0">
+              <ShieldCheckIcon className="w-5 h-5 text-[#5D726A]" />
+            </span>
+            <h2 className="kr-h3">
+              {lang === "no"
+                ? "Kilder og beregningsgrunnlag"
+                : "Sources & Methodology"}
+            </h2>
+          </div>
+          <span className="inline-flex items-center px-3 py-1 rounded-none bg-[#FFFFFF] border border-[#5D726A] text-[#000000] text-[13px] font-medium">
+            {lang === "no"
+              ? `Referanseår: ${referenceYear}`
+              : `Reference year: ${referenceYear}`}
+          </span>
         </div>
+
+        <p className="text-[16px] font-medium text-[#000000] leading-relaxed">
+          {lang === "no" ? tool.dataSourceNo : tool.dataSourceEn}
+        </p>
+
+        {methodology && (
+          <div className="bg-[#FFFFFF] border border-[#DCE2CF] rounded-none p-4 space-y-1.5">
+            <h3 className="text-[14px] font-semibold uppercase tracking-wide text-[#5D726A]">
+              {lang === "no"
+                ? "Slik regner kalkulatoren"
+                : "How this calculator works"}
+            </h3>
+            <p className="text-[15px] leading-relaxed text-[#292823]">
+              {methodology}
+            </p>
+          </div>
+        )}
+
+        {sources.length > 0 && (
+          <div className="space-y-2.5">
+            <h3 className="text-[14px] font-semibold uppercase tracking-wide text-[#5D726A]">
+              {lang === "no"
+                ? "Offisielle kilder og markedsgrunnlag"
+                : "Official Authorities & Market Benchmarks"}
+            </h3>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {sources.map((src) => (
+                <li key={src.name}>
+                  <a
+                    href={src.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block h-full bg-[#FFFFFF] border border-[#BFBFBD] hover:border-[#5D726A] rounded-none p-3.5 transition-colors"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[16px] font-medium text-[#000000] underline decoration-[#5D726A] underline-offset-4">
+                        {src.name}
+                      </span>
+                      <span
+                        className="text-[13px] font-medium text-[#5D726A] shrink-0"
+                        aria-hidden="true"
+                      >
+                        ↗
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-[14px] text-[#292823] leading-snug">
+                      {lang === "no" ? src.detailNo : src.detailEn}
+                    </p>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="bg-[#FFF7D4] border border-[#5D726A] rounded-none px-4 py-3 text-[14px] text-[#292823] leading-relaxed">
+          <strong className="font-semibold text-[#000000]">
+            {lang === "no" ? "Veiledende estimat: " : "Indicative estimate: "}
+          </strong>
+          {disclaimer || defaultDisclaimer}
+        </div>
+      </div>
+
+      {/* Practical Guide Card */}
+      <div className="bg-[#FFFFFF] border border-[#DCE2CF] rounded-none p-6 sm:p-10 space-y-4">
         <h2 className="kr-h2-serif">
           {lang === "no" ? tool.guideHeadingNo : tool.guideHeadingEn}
         </h2>
@@ -133,7 +318,11 @@ export function ToolSeoGuide({ slug }: { slug: string }) {
           </h2>
           <div className="divide-y divide-[#DFDFDF]">
             {tool.faqs.map((faq, idx) => (
-              <details key={idx} open={idx === 0} className="group py-4 first:pt-1 last:pb-1">
+              <details
+                key={idx}
+                open={idx === 0}
+                className="group py-4 first:pt-1 last:pb-1"
+              >
                 <summary className="flex items-center justify-between gap-4 cursor-pointer list-none text-[18px] font-medium text-[#000000]">
                   <span>{lang === "no" ? faq.qNo : faq.qEn}</span>
                   <ChevronDownIcon className="w-5 h-5 text-[#5D726A] shrink-0 transition-transform group-open:rotate-180" />
@@ -152,7 +341,9 @@ export function ToolSeoGuide({ slug }: { slug: string }) {
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3">
             <h2 className="kr-h3">
-              {lang === "no" ? "Relaterte gratis kalkulatorer" : "Related Free Calculators"}
+              {lang === "no"
+                ? "Relaterte gratis kalkulatorer"
+                : "Related Free Calculators"}
             </h2>
             <Link
               href="/verktoy"

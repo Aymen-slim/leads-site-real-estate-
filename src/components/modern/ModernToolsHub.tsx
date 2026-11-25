@@ -183,7 +183,11 @@ export function ModernToolsHub() {
             <div className="pt-2 flex flex-wrap items-center gap-x-6 gap-y-2.5 text-[14px] sm:text-[15px] font-medium text-[#243323]">
               <span className="inline-flex items-center gap-2">
                 <ShieldCheckIcon className="w-4 h-4 text-[#243323]" />
-                <span>{lang === "no" ? "SSB & Skatteetaten-satser" : "Norwegian 2026 rates"}</span>
+                <span>
+                  {lang === "no"
+                    ? "Åpne 2026-kilder (SSB, Skatteetaten, Kartverket, Enova)"
+                    : "Verified 2026 sources (SSB, Skatteetaten, Kartverket, Enova)"}
+                </span>
               </span>
               <span className="inline-flex items-center gap-2">
                 <BoltFastIcon className="w-4 h-4 text-[#243323]" />
@@ -428,7 +432,27 @@ export function ModernToolsHub() {
             </div>
           </div>
 
-          {/* 4. LOCAL SEO CITY PRICE DIRECTORY */}
+          {/* 4. TRANSPARENT SOURCES & LOCAL SEO CITY PRICE DIRECTORY */}
+          <div className="rounded-2xl bg-[#E7ECE0] border border-[#D4DCCB] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <span className="w-9 h-9 rounded-xl bg-[#FFFFFF] border border-[#D4DCCB] text-[#147A53] flex items-center justify-center shrink-0">
+                <ShieldCheckIcon className="w-5 h-5" />
+              </span>
+              <div className="space-y-1">
+                <h2 className="text-[16px] sm:text-[17px] font-semibold text-[#1D281C]">
+                  {lang === "no"
+                    ? "Kilder og beregningsgrunnlag i alle 16 kalkulatorer (2026)"
+                    : "Sources & Methodology in All 16 Calculators (2026)"}
+                </h2>
+                <p className="text-[14px] text-[#495647] leading-relaxed">
+                  {lang === "no"
+                    ? "Alle kalkulatorer bygger på åpne norske kilder — SSB, Skatteetaten, Kartverket, Enova, Eiendom Norge, Forbrukerrådet, Lovdata, Finansportalen og Byggstart/Mittanbud — med tydelige forbehold der megler-, forsikrings- eller håndverkerpriser varierer."
+                    : "Every calculator cites official Norwegian authorities and market benchmarks — SSB, Skatteetaten, Kartverket, Enova, Eiendom Norge, Forbrukerrådet, Lovdata, Finansportalen, and Byggstart/Mittanbud — with clear caveats where agency, insurer, or contractor rates vary."}
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="rounded-2xl bg-[#FFFFFF] border border-[#DCE2D4] p-6 sm:p-8 space-y-4">
             <h2 className="nm-h3">
               {lang === "no"

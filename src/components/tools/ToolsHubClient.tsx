@@ -9,7 +9,7 @@ import {
   TOOL_CATEGORIES,
   ToolCategory,
 } from "@/data/norwayToolsData";
-import { ArrowRightIcon } from "@/components/Icons";
+import { ArrowRightIcon, ShieldCheckIcon } from "@/components/Icons";
 import { ToolIcon } from "@/components/ToolIcon";
 import { ModernToolsHub } from "@/components/modern/ModernToolsHub";
 
@@ -34,6 +34,23 @@ export function ToolsHubClient() {
               ? "Få en rask tilbakemelding på din boligverdi, kostnader ved salg og mye mer - alt på et sted"
               : "Get fast feedback on your home value, selling costs, and much more — all in one place."}
           </p>
+        </div>
+
+        {/* Transparent 2026 Norwegian Data Sources Strip */}
+        <div className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-none p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-2.5">
+            <ShieldCheckIcon className="w-5 h-5 text-[#5D726A] shrink-0 mt-0.5" />
+            <p className="text-[14px] sm:text-[15px] text-[#292823] leading-snug">
+              <strong className="font-semibold text-[#000000]">
+                {lang === "no"
+                  ? "Åpne norske kilder (2026): "
+                  : "Transparent Norwegian sources (2026): "}
+              </strong>
+              {lang === "no"
+                ? "SSB, Skatteetaten, Kartverket, Enova, Eiendom Norge, Forbrukerrådet, Lovdata og Byggstart/Mittanbud. Hvert verktøy viser eget beregningsgrunnlag og forbehold."
+                : "SSB, Skatteetaten, Kartverket, Enova, Eiendom Norge, Forbrukerrådet, Lovdata, and Byggstart/Mittanbud. Every tool documents its methodology and caveats."}
+            </p>
+          </div>
         </div>
 
         {/* Category Filter Tabs */}

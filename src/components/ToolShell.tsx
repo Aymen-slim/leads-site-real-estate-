@@ -3,8 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { useApp } from "@/context/AppContext";
-import type { ToolCatalogEntry } from "@/data/norwayToolsData";
-import { ArrowLeftIcon, ArrowRightIcon } from "@/components/Icons";
+import { getToolBySlug, type ToolCatalogEntry } from "@/data/norwayToolsData";
+import { ArrowLeftIcon, ArrowRightIcon, ShieldCheckIcon } from "@/components/Icons";
 import { ToolIcon } from "@/components/ToolIcon";
 import { ToolSeoGuide } from "@/components/ToolSeoGuide";
 
@@ -30,6 +30,9 @@ export function ToolShell({
   children,
 }: ToolShellProps) {
   const { lang, isModern, trackClick } = useApp();
+  const tool = getToolBySlug(slug);
+  const referenceYear = tool?.referenceYear || "2026";
+  const sourceNames = tool?.sources?.map((s) => s.name) || [];
 
   if (isModern) {
     return (
@@ -56,6 +59,41 @@ export function ToolShell({
           </div>
 
           {children}
+
+          {tool && (
+            <div className="rounded-xl bg-[#F8FAF9] border border-[#DCE5DF] px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-[13px] sm:text-[14px]">
+              <div className="flex flex-wrap items-center gap-2 text-[#3B4D44]">
+                <span className="inline-flex items-center gap-1.5 font-semibold text-[#0F3D2E]">
+                  <ShieldCheckIcon className="w-4 h-4 text-[#147A53] shrink-0" />
+                  <span>
+                    {lang === "no"
+                      ? `Kilder (${referenceYear}):`
+                      : `Sources (${referenceYear}):`}
+                  </span>
+                </span>
+                {sourceNames.length > 0 ? (
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {sourceNames.map((name) => (
+                      <span
+                        key={name}
+                        className="px-2.5 py-0.5 rounded-full bg-[#FFFFFF] border border-[#DCE5DF] text-[#1D281C] text-[12px] font-medium"
+                      >
+                        {name}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span>{lang === "no" ? tool.dataSourceNo : tool.dataSourceEn}</span>
+                )}
+              </div>
+              <a
+                href="#kilder-og-grunnlag"
+                className="font-semibold text-[#147A53] hover:text-[#0F3D2E] underline underline-offset-4 shrink-0"
+              >
+                {lang === "no" ? "Se beregningsgrunnlag" : "View methodology"}
+              </a>
+            </div>
+          )}
 
           <Link
             href={ctaHref}
@@ -96,6 +134,41 @@ export function ToolShell({
         </div>
 
         {children}
+
+        {tool && (
+          <div className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-none px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-[14px]">
+            <div className="flex flex-wrap items-center gap-2 text-[#292823]">
+              <span className="inline-flex items-center gap-1.5 font-medium text-[#000000]">
+                <ShieldCheckIcon className="w-4 h-4 text-[#5D726A] shrink-0" />
+                <span>
+                  {lang === "no"
+                    ? `Kilder (${referenceYear}):`
+                    : `Sources (${referenceYear}):`}
+                </span>
+              </span>
+              {sourceNames.length > 0 ? (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {sourceNames.map((name) => (
+                    <span
+                      key={name}
+                      className="px-2.5 py-0.5 bg-[#FFFFFF] border border-[#BFBFBD] text-[#000000] text-[13px] font-medium"
+                    >
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span>{lang === "no" ? tool.dataSourceNo : tool.dataSourceEn}</span>
+              )}
+            </div>
+            <a
+              href="#kilder-og-grunnlag"
+              className="font-medium text-[#000000] underline decoration-[#5D726A] underline-offset-4 shrink-0"
+            >
+              {lang === "no" ? "Se beregningsgrunnlag" : "View methodology"}
+            </a>
+          </div>
+        )}
 
         <Link
           href={ctaHref}

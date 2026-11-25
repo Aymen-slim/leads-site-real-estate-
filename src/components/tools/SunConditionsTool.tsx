@@ -7,6 +7,7 @@ import {
   HORIZON_OPTIONS,
   SOLAR_DIRECTIONS,
   calculateSunProfile,
+  type SeasonSunResult,
 } from "@/data/norwayToolsData";
 import { CheckMarkIcon, LocationCrosshairIcon } from "@/components/Icons";
 import { ToolShell } from "@/components/ToolShell";
@@ -16,6 +17,50 @@ interface AddressHit {
   municipality: string;
   lat: number;
   lng: number;
+}
+
+// Indicative market ranges grounded in Norwegian broker practice & Finansklagenemnda rulings (not guarantees)
+const INDICATIVE_SUN_RANGE: Record<string, { no: string; en: string }> = {
+  N: { no: "Referanse (0 %)", en: "Baseline (0%)" },
+  NE: { no: "ca. 0–3 %", en: "~0–3%" },
+  E: { no: "ca. 0–3 %", en: "~0–3%" },
+  SE: { no: "ca. 2–5 %", en: "~2–5%" },
+  S: { no: "ca. 3–7 %", en: "~3–7%" },
+  SW: { no: "ca. 5–10 %", en: "~5–10%" },
+  W: { no: "ca. 4–9 %", en: "~4–9%" },
+  NW: { no: "ca. 2–5 %", en: "~2–5%" },
+};
+
+function formatHours(hours: number, lang: "no" | "en"): string {
+  const num = lang === "no" ? hours.toFixed(1).replace(".", ",") : hours.toFixed(1);
+  return `${num} ${lang === "no" ? "t" : "h"}`;
+}
+
+function formatDaylightSummary(s: SeasonSunResult, lang: "no" | "en"): string {
+  if (s.midnightSun) {
+    return lang === "no" ? "Midnattssol (24 t)" : "Midnight sun (24h)";
+  }
+  if (s.polarNight) {
+    return lang === "no" ? "Mørketid (0 t)" : "Polar night (0h)";
+  }
+  return `${s.sunriseStr}–${s.sunsetStr}`;
+}
+
+function formatDirectWindow(s: SeasonSunResult, lang: "no" | "en"): string {
+  if (s.directHours <= 0) return "—";
+  // When midnight sun wraps across 00:00 (e.g. North-facing terrace in Tromsø on June 21),
+  // start="00:00" and end="23:50" would imply continuous sun when actual hours are split across midnight.
+  const wrapsAcrossMidnight =
+    s.midnightSun &&
+    s.directStartStr === "00:00" &&
+    s.directEndStr >= "23:40" &&
+    s.directHours < 22;
+  if (wrapsAcrossMidnight) {
+    return lang === "no"
+      ? `Rundt midnatt (~${formatHours(s.directHours, lang)})`
+      : `Around midnight (~${formatHours(s.directHours, lang)})`;
+  }
+  return `${s.directStartStr}–${s.directEndStr}`;
 }
 
 export function SunConditionsTool() {
@@ -41,7 +86,8 @@ export function SunConditionsTool() {
   const defaultArea = selectedCity.neighborhoods[0];
   const activeLat = customCoords?.lat ?? defaultArea.lat;
   const activeLng = customCoords?.lng ?? defaultArea.lng;
-  const activePlaceLabel = customCoords?.label ?? `${selectedCity.name} (${activeLat.toFixed(2)}°N)`;
+  const activePlaceLabel =
+    customCoords?.label ?? `${selectedCity.name} (${activeLat.toFixed(2)}°N)`;
 
   const direction =
     SOLAR_DIRECTIONS.find((d) => d.id === directionId) || SOLAR_DIRECTIONS[5];
@@ -49,11 +95,19 @@ export function SunConditionsTool() {
     HORIZON_OPTIONS.find((h) => h.id === horizonId) || HORIZON_OPTIONS[1];
 
   const seasons = useMemo(
-    () => calculateSunProfile(activeLat, activeLng, direction.azimuth, horizon.minElevationDeg),
+    () =>
+      calculateSunProfile(
+        activeLat,
+        activeLng,
+        direction.azimuth,
+        horizon.minElevationDeg
+      ),
     [activeLat, activeLng, direction.azimuth, horizon.minElevationDeg]
   );
 
   const summer = seasons.find((s) => s.key === "summer") || seasons[1];
+  const sunRange =
+    INDICATIVE_SUN_RANGE[direction.id] || INDICATIVE_SUN_RANGE.SW;
 
   const handleCitySelect = (nextCityId: string) => {
     setCityId(nextCityId);
@@ -62,7 +116,9 @@ export function SunConditionsTool() {
   };
 
   const handleGps = () => {
-    setGpsStatus(lang === "no" ? "Finner din posisjon..." : "Detecting GPS coordinates...");
+    setGpsStatus(
+      lang === "no" ? "Finner din posisjon..." : "Detecting GPS coordinates..."
+    );
     if (typeof navigator !== "undefined" && "geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -74,7 +130,9 @@ export function SunConditionsTool() {
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
           });
-          setGpsStatus(lang === "no" ? "GPS-posisjon brukt" : "GPS coordinates applied");
+          setGpsStatus(
+            lang === "no" ? "GPS-posisjon brukt" : "GPS coordinates applied"
+          );
         },
         () => {
           setGpsStatus(
@@ -111,6 +169,9 @@ export function SunConditionsTool() {
     ? "bg-[#F8FAF9] border border-[#DCE5DF] rounded-2xl p-4 sm:p-8 space-y-6"
     : "bg-[#EDF0E7] border border-[#BFBFBD] rounded-none p-4 sm:p-8 space-y-6";
 
+  const summerDirectLabel = formatDirectWindow(summer, lang);
+  const summerDaylightLabel = formatDaylightSummary(summer, lang);
+
   return (
     <ToolShell
       slug="sun-conditions"
@@ -122,15 +183,15 @@ export function SunConditionsTool() {
       }
       subtitle={
         lang === "no"
-          ? "Se nøyaktig når solen treffer terrassen og når den går ned i din by og hvordan kveldssol påvirker boligprisen."
-          : "Calculate direct terrace sun hours and sunset times on March 21, June 21, September 21, and December 21 by Norwegian latitude — with live Kartverket address lookup."
+          ? "Beregn veiledende soltimer, solhøyde og solnedgang 21. mars, 21. juni, 21. sept. og 21. des. for din breddegrad — med adresseoppslag via Kartverket."
+          : "Calculate indicative direct terrace sun hours, max sun angle, and sunset times on March 21, June 21, September 21, and December 21 by Norwegian latitude."
       }
       ctaSource="sun-conditions"
       ctaHref={`/koble-til-megler?source=sun-conditions&type=house&city=${selectedCity.id}&sunHours=${summer.directHours}`}
       ctaLabel={
         lang === "no"
-          ? `Gode solforhold gir opptil +${direction.eveningSunPremiumPct} % høyere betalingsvilje — få lokal verdivurdering`
-          : `Strong sunlight boosts buyer demand by up to +${direction.eveningSunPremiumPct}% — get a free local valuation`
+          ? `Gode solforhold kan påvirke prisen (indikativt ${sunRange.no}) — få en uforpliktende lokal verdivurdering`
+          : `Strong sunlight can influence buyer willingness to pay (indicatively ${sunRange.en}) — get a free local valuation`
       }
     >
       <div className={panelClass}>
@@ -299,7 +360,7 @@ export function SunConditionsTool() {
               isModern ? "font-semibold text-[#121C17]" : "font-medium text-[#000000]"
             }`}
           >
-            {lang === "no" ? "3. Omgivelser og skyggeforhold" : "3. Surroundings & Horizon Obstruction"}
+            {lang === "no" ? "3. Omgivelser og horisontvinkel" : "3. Surroundings & Horizon Angle"}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {HORIZON_OPTIONS.map((h) => {
@@ -324,7 +385,7 @@ export function SunConditionsTool() {
                 >
                   <div>
                     <span className="block text-[15px] font-semibold">
-                      {lang === "no" ? h.labelNo : h.labelEn}
+                      {lang === "no" ? h.labelNo : h.labelEn} ({h.minElevationDeg}°)
                     </span>
                     <span className="block text-[13px] opacity-80 mt-0.5">
                       {lang === "no" ? h.descNo : h.descEn}
@@ -361,25 +422,25 @@ export function SunConditionsTool() {
             </span>
             <h2 className="text-[22px] sm:text-3xl font-semibold text-[#000000] mt-1">
               {lang === "no"
-                ? `Direkte sol på terrassen 21. juni: ${summer.directHours.toFixed(1).replace(".", ",")} timer`
-                : `Direct Terrace Sun on June 21: ${summer.directHours.toFixed(1)} hours`}
+                ? `Direkte sol på terrassen 21. juni: ${formatHours(summer.directHours, lang)}`
+                : `Direct Terrace Sun on June 21: ${formatHours(summer.directHours, lang)}`}
             </h2>
             <p className={`text-[15px] mt-1 ${isModern ? "text-[#3B4D44]" : "text-[#292823]"}`}>
               {lang === "no"
-                ? `Sol på uteplassen kl. ${summer.directStartStr} – ${summer.directEndStr} · Solnedgang ${summer.sunsetStr}`
-                : `Direct sun ${summer.directStartStr} – ${summer.directEndStr} · Sunset ${summer.sunsetStr}`}
+                ? `Direkte sol: ${summerDirectLabel} · Dagslys: ${summerDaylightLabel}`
+                : `Direct sun: ${summerDirectLabel} · Daylight: ${summerDaylightLabel}`}
             </p>
           </div>
           <div className="shrink-0 text-left sm:text-right">
             <span className={`block text-[13px] font-medium ${isModern ? "text-[#3B4D44]" : "text-[#292823]"}`}>
-              {lang === "no" ? "Verdiindikator kveldssol" : "Buyer Sun Premium"}
+              {lang === "no" ? "Indikativ solpåvirkning (ikke garanti)" : "Indicative Sun Effect (not guaranteed)"}
             </span>
             <span
-              className={`block text-[30px] sm:text-4xl font-semibold tabular-nums ${
+              className={`block text-[26px] sm:text-3xl font-semibold tabular-nums ${
                 isModern ? "text-[#147A53]" : "text-[#000000]"
               }`}
             >
-              +{direction.eveningSunPremiumPct} %
+              {lang === "no" ? sunRange.no : sunRange.en}
             </span>
           </div>
         </div>
@@ -407,7 +468,7 @@ export function SunConditionsTool() {
                     </span>
                   </div>
                   <span className="font-semibold text-[18px] tabular-nums text-[#000000]">
-                    {s.directHours.toFixed(1).replace(".", ",")} t
+                    {formatHours(s.directHours, lang)}
                   </span>
                 </div>
 
@@ -427,18 +488,51 @@ export function SunConditionsTool() {
                 <div className="flex flex-wrap justify-between gap-2 text-[13px] text-[#292823] tabular-nums">
                   <span>
                     {lang === "no" ? "Direkte sol:" : "Direct:"}{" "}
-                    <strong>
-                      {s.directHours > 0 ? `${s.directStartStr}–${s.directEndStr}` : "—"}
-                    </strong>
+                    <strong>{formatDirectWindow(s, lang)}</strong>
                   </span>
                   <span>
-                    {lang === "no" ? "Dag:" : "Day:"} {s.sunriseStr}–{s.sunsetStr}
+                    {lang === "no" ? "Dag:" : "Day:"} {formatDaylightSummary(s, lang)}
+                  </span>
+                </div>
+                <div className="flex flex-wrap justify-between gap-2 text-[12px] text-[#5D726A] tabular-nums">
+                  <span>
+                    {lang === "no"
+                      ? `Maks. solhøyde: ${s.maxAltitudeDeg}°`
+                      : `Max sun elevation: ${s.maxAltitudeDeg}°`}
+                  </span>
+                  <span>
+                    {lang === "no"
+                      ? `Dagslengde: ${formatHours(s.daylightHours, lang)}`
+                      : `Daylight: ${formatHours(s.daylightHours, lang)}`}
                   </span>
                 </div>
               </div>
             );
           })}
         </div>
+      </div>
+
+      {/* Sources & Assumptions */}
+      <div
+        className={`p-4 sm:p-5 text-[14px] leading-relaxed space-y-1.5 border ${
+          isModern
+            ? "bg-[#F8FAF9] border-[#DCE5DF] rounded-xl text-[#3B4D44]"
+            : "bg-[#EDF0E7] border-[#DCE2CF] rounded-none text-[#292823]"
+        }`}
+      >
+        <p className={`font-semibold ${isModern ? "text-[#0F3D2E]" : "text-[#000000]"}`}>
+          {lang === "no" ? "Kilder og forutsetninger" : "Sources & Assumptions"}
+        </p>
+        <p>
+          {lang === "no"
+            ? `Beregningen bruker astronomisk solbane (solhøyde og asimut i CET/CEST for valgt bredde- og lengdegrad) og regner direkte sol når solen står over valgt horisontvinkel (${horizon.minElevationDeg}°) og innenfor ±80° av terrasseretningen. Lokale nabobygg, trær, fjell og terreng kan skape tidligere skygge og må alltid sjekkes på stedet. Priseffekt av kveldssol har ingen fast fasit, men meglerskjønn og praksis fra Finansklagenemnda tilsier typisk et indikativt spenn på ca. 5–10 % i attraktive boligstrøk.`
+            : `Uses astronomical solar-path geometry (elevation and azimuth in CET/CEST for the chosen coordinates), counting direct sun when solar altitude exceeds the selected horizon (${horizon.minElevationDeg}°) within ±80° of terrace azimuth. Neighboring buildings, trees, and hills can cast earlier shadows and should be verified on site. Evening-sun price impact is not guaranteed; Norwegian broker practice and Finansklagenemnda rulings typically indicate ~5–10% in urban markets.`}
+        </p>
+        <p className="text-[13px] opacity-85">
+          {lang === "no"
+            ? "Kilder: Astronomisk solbanemodell (CET/CEST), Kartverkets åpne adresse-API (ws.geonorge.no) og norsk meglerskjønn / Finansklagenemnda."
+            : "Sources: Astronomical solar path model (CET/CEST), Kartverket open address API (ws.geonorge.no), and Norwegian valuation practice / Finansklagenemnda."}
+        </p>
       </div>
     </ToolShell>
   );

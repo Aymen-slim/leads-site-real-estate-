@@ -27,7 +27,11 @@ export function PricePerM2Tool({
 
   const localDirectory = (
     <section
-      aria-label={lang === "no" ? "Lokale boligpriser per by og bydel" : "Local Prices by City & Neighborhood"}
+      aria-label={
+        lang === "no"
+          ? "Lokale boligpriser per by og bydel"
+          : "Local Prices by City & Neighborhood"
+      }
       className="max-w-5xl mx-auto mt-6"
     >
       <div
@@ -39,8 +43,8 @@ export function PricePerM2Tool({
       >
         <h2 className={isModern ? "nm-h3" : "kr-h3"}>
           {lang === "no"
-            ? "Utforsk oppdaterte m²-priser per norsk by og bydel"
-            : "Explore Local Price per m² Pages Across Norway"}
+            ? "Utforsk veiledende m²-priser per norsk by og bydel"
+            : "Explore Indicative Price per m² Pages Across Norway"}
         </h2>
         <div className="flex flex-wrap gap-2">
           {NORWAY_CITIES.map((c) => (
@@ -155,6 +159,14 @@ function ClassicPricePerM2({
       : `Price per m² in ${currentCity.name} by Neighborhood`
     : t.tools.tool1.title;
 
+  const houseRangeLow = Math.round((currentArea.housePriceM2 * 0.85) / 500) * 500;
+  const houseRangeHigh = Math.round((currentArea.housePriceM2 * 1.15) / 500) * 500;
+  const growthPrefix = currentArea.yoyGrowthPct >= 0 ? "+" : "";
+  const formattedGrowth =
+    lang === "no"
+      ? `${growthPrefix}${currentArea.yoyGrowthPct.toFixed(1).replace(".", ",")} %`
+      : `${growthPrefix}${currentArea.yoyGrowthPct.toFixed(1)}%`;
+
   return (
     <main className="bg-[#FFFFFF] pt-10 px-4 sm:pt-14 sm:px-6 lg:pt-16">
       <div className="max-w-5xl mx-auto bg-[#FFFFFF] border border-[#DCE2CF] rounded-none p-6 sm:p-10 lg:p-12">
@@ -213,36 +225,60 @@ function ClassicPricePerM2({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <div className="bg-[#DCE2CF] border-2 border-[#5D726A] rounded-none p-5 sm:p-8">
-            <div className="flex items-center gap-3 text-[#000000] font-medium text-[18px] sm:text-xl">
-              <HouseIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#5D726A] shrink-0" />
-              <h2>{t.tools.tool1.houseCardTitle}</h2>
+          <div className="bg-[#DCE2CF] border-2 border-[#5D726A] rounded-none p-5 sm:p-8 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-3 text-[#000000] font-medium text-[18px] sm:text-xl">
+                <HouseIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#5D726A] shrink-0" />
+                <h2>{t.tools.tool1.houseCardTitle}</h2>
+              </div>
+              <div className="text-[30px] sm:text-[42px] font-medium text-[#000000] tabular-nums mt-3 sm:mt-4 whitespace-nowrap">
+                {formatNok(currentArea.housePriceM2)}
+                <span className="text-[17px] sm:text-xl font-normal text-[#292823]">
+                  {" "}
+                  / m² BRA-i
+                </span>
+              </div>
+              <p className="text-[14px] font-medium text-[#292823] mt-1">
+                {lang === "no"
+                  ? `Typisk bydelsspenn (±15 %): ${formatNok(houseRangeLow)} – ${formatNok(houseRangeHigh)} / m²`
+                  : `Typical district spread (±15%): ${formatNok(houseRangeLow)} – ${formatNok(houseRangeHigh)} / m²`}
+              </p>
             </div>
-            <div className="text-[30px] sm:text-[42px] font-medium text-[#000000] tabular-nums mt-3 sm:mt-4 whitespace-nowrap">
-              {formatNok(currentArea.housePriceM2)}
-              <span className="text-[18px] sm:text-2xl font-normal text-[#292823]"> / m²</span>
-            </div>
-            <p className="text-base font-normal text-[#292823] mt-2 sm:mt-3">
-              {t.tools.tool1.houseCardNote}
+            <p className="text-[15px] font-normal text-[#292823] mt-3 pt-3 border-t border-[#949391]/50 leading-relaxed">
+              {lang === "no"
+                ? "Gjelder per m² innvendig bruksareal (BRA-i) inkl. bygning og tomt. Merk at leiligheter ofte har høyere m²-pris enn store eneboliger i samme bydel."
+                : "Measured per m² interior living area (BRA-i), including building and land. Note that apartments typically trade at a higher kr/m² than large detached houses in the same district."}
             </p>
           </div>
 
-          <div className="bg-[#EDF0E7] border-2 border-[#BFBFBD] rounded-none p-5 sm:p-8">
-            <div className="flex items-center gap-3 text-[#000000] font-medium text-[18px] sm:text-xl">
-              <LandPlotIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#5D726A] shrink-0" />
-              <h2>{t.tools.tool1.landCardTitle}</h2>
+          <div className="bg-[#EDF0E7] border-2 border-[#BFBFBD] rounded-none p-5 sm:p-8 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-3 text-[#000000] font-medium text-[18px] sm:text-xl">
+                <LandPlotIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#5D726A] shrink-0" />
+                <h2>{t.tools.tool1.landCardTitle}</h2>
+              </div>
+              <div className="text-[30px] sm:text-[42px] font-medium text-[#000000] tabular-nums mt-3 sm:mt-4 whitespace-nowrap">
+                {formatNok(currentArea.landPriceM2)}
+                <span className="text-[17px] sm:text-xl font-normal text-[#292823]">
+                  {" "}
+                  / {lang === "no" ? "m² tomt" : "m² plot"}
+                </span>
+              </div>
+              <p className="text-[14px] font-medium text-[#292823] mt-1">
+                {lang === "no"
+                  ? "Målt per m² grunnflate (tomteareal) — ikke boligareal"
+                  : "Measured per m² plot ground area — not floor area"}
+              </p>
             </div>
-            <div className="text-[30px] sm:text-[42px] font-medium text-[#000000] tabular-nums mt-3 sm:mt-4 whitespace-nowrap">
-              {formatNok(currentArea.landPriceM2)}
-              <span className="text-[18px] sm:text-2xl font-normal text-[#292823]"> / m²</span>
-            </div>
-            <p className="text-base font-normal text-[#292823] mt-2 sm:mt-3">
-              {t.tools.tool1.landCardNote}
+            <p className="text-[15px] font-normal text-[#292823] mt-3 pt-3 border-t border-[#BFBFBD] leading-relaxed">
+              {lang === "no"
+                ? "Veiledende estimat for regulert boligtomt. Faktisk tomtepris varierer sterkt med utnyttelsesgrad (%-BYA), grunnforhold og vei/vann/avløp."
+                : "Indicative estimate for zoned residential land. Actual plot value depends heavily on permitted density (%-BYA), terrain, and road/water/sewer hookups."}
             </p>
           </div>
         </div>
 
-        <dl className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#F7F7F7] border border-[#DFDFDF] rounded-none p-4 sm:p-5 mb-6 sm:mb-8">
+        <dl className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#F7F7F7] border border-[#DFDFDF] rounded-none p-4 sm:p-5 mb-6">
           <div>
             <dt className="text-base font-medium text-[#292823]">
               {t.tools.tool1.daysLabel}
@@ -256,7 +292,7 @@ function ClassicPricePerM2({
               {t.tools.tool1.growthLabel}
             </dt>
             <dd className="text-2xl font-medium text-[#5D726A] tabular-nums mt-1">
-              +{currentArea.yoyGrowthPct}%
+              {formattedGrowth}
             </dd>
           </div>
           <div>
@@ -268,6 +304,20 @@ function ClassicPricePerM2({
             </dd>
           </div>
         </dl>
+
+        {/* Transparent Sources & Assumptions */}
+        <div className="bg-[#EDF0E7] border border-[#DCE2CF] rounded-none p-4 sm:p-5 mb-6 sm:mb-8 text-[14px] text-[#292823] leading-relaxed space-y-1.5">
+          <p className="font-semibold text-[#000000]">
+            {lang === "no"
+              ? "Kilder og forutsetninger (veiledende 2025/2026-referanse)"
+              : "Sources & Assumptions (Indicative 2025/2026 Reference)"}
+          </p>
+          <p>
+            {lang === "no"
+              ? "Tallene er veiledende bydelsgjennomsnitt kalibrert mot SSB boligprisstatistikk (tabell 14310), Eiendom Norge og tinglyste salg hos Kartverket — ikke sanntidspriser for enkelteiendommer. Det finnes ingen offisiell m²-indeks kun for råtomter; tomtepris per m² er markedsestimater som varierer med regulering og infrastruktur. Enkeltboliger avviker normalt 15–25 % fra bydelssnittet basert på boligtype, solforhold, utsikt og teknisk tilstand."
+              : "Figures are indicative district averages calibrated against SSB housing statistics (Table 14310), Eiendom Norge, and Kartverket registered sales — not live street-level quotes. Official land-only m² statistics do not exist; plot prices per m² are market benchmarks that vary with zoning and utility costs. Individual homes commonly sell 15–25% above or below the district average depending on home type, sun, views, and condition."}
+          </p>
+        </div>
 
         <Link
           href={`/koble-til-megler?source=price-m2&city=${currentCity.id}&area=${currentArea.id}`}

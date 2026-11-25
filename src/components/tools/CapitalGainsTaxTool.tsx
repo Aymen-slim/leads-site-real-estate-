@@ -8,6 +8,8 @@ import { ToolShell } from "@/components/ToolShell";
 
 type AssetKind = "primary" | "cabin" | "secondary" | "land";
 
+const CAPITAL_GAINS_TAX_RATE = 0.22; // Skatteetaten 2026 alminnelig inntekt
+
 export function CapitalGainsTaxTool() {
   const { lang, isModern } = useApp();
 
@@ -22,43 +24,54 @@ export function CapitalGainsTaxTool() {
 
   const grossGain = salePrice - purchasePrice - deductions;
   const taxableGain = isTaxFree ? 0 : Math.max(0, grossGain);
-  const taxLossDeduction = !isTaxFree && grossGain < 0 ? Math.round(Math.abs(grossGain) * 0.22) : 0;
-  const capitalGainsTax = Math.round(taxableGain * 0.22);
-  const netAfterTax = Math.max(0, salePrice - capitalGainsTax);
+  const capitalGainsTax = Math.round(taxableGain * CAPITAL_GAINS_TAX_RATE);
+  const taxLossDeduction =
+    !isTaxFree && grossGain < 0 ? Math.round(Math.abs(grossGain) * CAPITAL_GAINS_TAX_RATE) : 0;
+  const netGainKept = Math.max(0, grossGain - capitalGainsTax);
+  const salePriceAdjustedForTax = Math.max(0, salePrice - capitalGainsTax + taxLossDeduction);
 
+  // Accurate non-overlapping breakdown of sale price (cost basis + net gain kept + tax = 100%)
   const taxPct = salePrice > 0 ? Math.round((capitalGainsTax / salePrice) * 100) : 0;
   const gainPct =
-    salePrice > 0 ? Math.max(0, Math.min(100 - taxPct, Math.round((Math.max(0, grossGain) / salePrice) * 100))) : 0;
+    salePrice > 0
+      ? Math.max(0, Math.min(100 - taxPct, Math.round((netGainKept / salePrice) * 100)))
+      : 0;
   const basisPct = Math.max(0, 100 - taxPct - gainPct);
 
-  const assetCards: { id: AssetKind; titleNo: string; titleEn: string; ruleNo: string; ruleEn: string }[] = [
+  const assetCards: {
+    id: AssetKind;
+    titleNo: string;
+    titleEn: string;
+    ruleNo: string;
+    ruleEn: string;
+  }[] = [
     {
       id: "primary",
       titleNo: "Primærbolig (egen bolig)",
       titleEn: "Primary Residence",
-      ruleNo: "Skattefri etter 12 av siste 24 mnd.",
-      ruleEn: "Tax-free after 12 of last 24 months",
+      ruleNo: "Skattefri etter >12 mnd. eie og 12/24 mnd. botid",
+      ruleEn: "Tax-free after >12 mo owned & 12/24 mo lived in",
     },
     {
       id: "cabin",
       titleNo: "Fritidsbolig / Hytte",
       titleEn: "Cabin / Leisure Home",
-      ruleNo: "Skattefri etter 5 av siste 8 år",
-      ruleEn: "Tax-free after 5 of last 8 years",
+      ruleNo: "Skattefri etter >5 år eie og 5 av siste 8 år bruk",
+      ruleEn: "Tax-free after >5 yrs owned & 5 of last 8 yrs used",
     },
     {
       id: "secondary",
       titleNo: "Sekundærbolig / Utleie",
       titleEn: "Secondary / Rental Home",
-      ruleNo: "Alltid 22 % gevinstskatt",
-      ruleEn: "Always 22% capital gains tax",
+      ruleNo: "Alltid 22 % skatt på gevinst / fradrag ved tap",
+      ruleEn: "Always 22% tax on gain / deduction on loss",
     },
     {
       id: "land",
       titleNo: "Ubebygd byggetomt",
       titleEn: "Constructible Land Plot",
-      ruleNo: "Alltid 22 % gevinstskatt",
-      ruleEn: "Always 22% capital gains tax",
+      ruleNo: "Alltid 22 % skatt på gevinst / fradrag ved tap",
+      ruleEn: "Always 22% tax on gain / deduction on loss",
     },
   ];
 
@@ -73,8 +86,8 @@ export function CapitalGainsTaxTool() {
       : "Tax-Free Sale & Capital Gains Tax Calculator";
   const subtitle =
     lang === "no"
-      ? "Sjekk om boligen eller hytta kan selges 100 % skattefritt og beregn eksakt gevinstskatt."
-      : "Verify if your Norwegian sale qualifies as 100% tax-free (12/24-month home rule or 5/8-year cabin rule) or compute exact 22% capital gains tax after deductions.";
+      ? "Sjekk reglene i Skatteloven § 9-3 (bo-, bruks- og eiertid) og beregn eksakt 22 % gevinstskatt eller tapsfradrag."
+      : "Verify Norway's Tax Act § 9-3 residency/ownership rules (12/24-month home or 5/8-year cabin rule) and calculate exact 22% capital gains tax or loss relief.";
 
   return (
     <ToolShell
@@ -85,7 +98,7 @@ export function CapitalGainsTaxTool() {
       ctaSource="tax-calc"
       ctaHref={`/koble-til-megler?source=tax-calc&type=${
         assetKind === "land" ? "land" : "house"
-      }&price=${salePrice}&net=${netAfterTax}&tax=${capitalGainsTax}`}
+      }&price=${salePrice}&net=${salePriceAdjustedForTax}&tax=${capitalGainsTax}`}
       ctaLabel={
         lang === "no"
           ? "Få en gratis verdivurdering fra lokal megler før du planlegger salgstidspunkt"
@@ -99,7 +112,9 @@ export function CapitalGainsTaxTool() {
             isModern ? "font-semibold text-[#121C17]" : "font-medium text-[#000000]"
           }`}
         >
-          {lang === "no" ? "1. Hva slags eiendom skal du selge?" : "1. What type of property are you selling?"}
+          {lang === "no"
+            ? "1. Hva slags eiendom skal du selge?"
+            : "1. What type of property are you selling?"}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {assetCards.map((card) => {
@@ -147,22 +162,29 @@ export function CapitalGainsTaxTool() {
         </div>
       </div>
 
-      {/* Step 2: Residency Check (only for Primary or Cabin) */}
+      {/* Step 2: Ownership & Residency Check (Primary or Cabin) */}
       {(assetKind === "primary" || assetKind === "cabin") && (
         <div className={panelClass}>
-          <h2
-            className={`text-[18px] sm:text-xl ${
-              isModern ? "font-semibold text-[#121C17]" : "font-medium text-[#000000]"
-            }`}
-          >
-            {assetKind === "primary"
-              ? lang === "no"
-                ? "2. Har du eid og bodd i boligen i minst 12 av de siste 24 månedene?"
-                : "2. Have you owned and lived in the home for at least 12 of the last 24 months?"
-              : lang === "no"
-              ? "2. Har du eid og brukt hytta i minst 5 av de siste 8 årene?"
-              : "2. Have you owned and used the cabin for at least 5 of the last 8 years?"}
-          </h2>
+          <div>
+            <h2
+              className={`text-[18px] sm:text-xl ${
+                isModern ? "font-semibold text-[#121C17]" : "font-medium text-[#000000]"
+              }`}
+            >
+              {assetKind === "primary"
+                ? lang === "no"
+                  ? "2. Har du eid boligen i over 12 måneder OG bodd der i minst 12 av de siste 24 månedene?"
+                  : "2. Have you owned the home >12 months AND lived in it at least 12 of the last 24 months?"
+                : lang === "no"
+                ? "2. Har du eid hytta i over 5 år OG brukt den som egen fritidsbolig i minst 5 av de siste 8 årene?"
+                : "2. Have you owned the cabin >5 years AND used it personally in at least 5 of the last 8 years?"}
+            </h2>
+            <p className={`text-[14px] mt-1 ${isModern ? "text-[#3B4D44]" : "text-[#292823]"}`}>
+              {lang === "no"
+                ? "Begge kravene (eiertid og bo-/brukstid) måles bakover fra datoen du aksepterer budet (realisasjonstidspunktet) — ikke overtakelsesdatoen."
+                : "Both ownership and residency/use are measured backward from the date you accept the buyer's bid (realization date), not the handover date."}
+            </p>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <button
               type="button"
@@ -182,8 +204,8 @@ export function CapitalGainsTaxTool() {
             >
               <span>
                 {lang === "no"
-                  ? "Ja — oppfyller kravet (Skattefritt)"
-                  : "Yes — meets requirement (Tax-free)"}
+                  ? "Ja — oppfyller begge kravene (Skattefritt)"
+                  : "Yes — meets both rules (Tax-free)"}
               </span>
               {meetsResidencyRule && (
                 <CheckMarkIcon
@@ -212,7 +234,7 @@ export function CapitalGainsTaxTool() {
             >
               <span>
                 {lang === "no"
-                  ? "Nei — kortere eier-/botid (22 % skatt)"
+                  ? "Nei — kortere eier- eller botid (22 % skatt)"
                   : "No — shorter duration (22% tax applies)"}
               </span>
               {!meetsResidencyRule && (
@@ -237,7 +259,9 @@ export function CapitalGainsTaxTool() {
                 isModern ? "font-semibold text-[#121C17]" : "font-medium text-[#000000]"
               }`}
             >
-              {lang === "no" ? "Forventet salgspris" : "Expected Sale Price"}
+              {lang === "no"
+                ? "Forventet salgspris (utgangsverdi)"
+                : "Expected Sale Price (Gross Proceeds)"}
             </label>
             <output
               htmlFor="tax-sale-price"
@@ -275,7 +299,9 @@ export function CapitalGainsTaxTool() {
                 isModern ? "font-semibold text-[#121C17]" : "font-medium text-[#000000]"
               }`}
             >
-              {lang === "no" ? "Opprinnelig kjøpesum (inngangsverdi)" : "Original Purchase Price"}
+              {lang === "no"
+                ? "Opprinnelig kjøpesum (inngangsverdi)"
+                : "Original Purchase Price (Cost Basis)"}
             </label>
             <output
               htmlFor="tax-purchase-price"
@@ -314,8 +340,8 @@ export function CapitalGainsTaxTool() {
               }`}
             >
               {lang === "no"
-                ? "Fradragsberettigede kostnader (dokumentavgift, megler, påkostninger)"
-                : "Deductible Costs (stamp duty, broker fees, upgrades)"}
+                ? "Fradragsberettigede kostnader (kjøps-/salgsutgifter & påkostninger)"
+                : "Deductible Costs (Purchase/Sale Fees & Capital Upgrades)"}
             </label>
             <output
               htmlFor="tax-deductions"
@@ -343,44 +369,88 @@ export function CapitalGainsTaxTool() {
             }
             className={sliderClass}
           />
+          <p className={`text-[13px] mt-1.5 ${isModern ? "text-[#3B4D44]" : "text-[#292823]"}`}>
+            {lang === "no"
+              ? "Inkluderer dokumentavgift/tinglysing fra kjøpet, megler/tilstandsrapport ved salg og dokumenterte påkostninger (standardheving, tilbygg). Vanlig vedlikehold (maling, slitasje) gir ikke fradrag ved salg av egen bolig."
+              : "Includes original stamp duty/deed fees, selling broker/inspection costs, and documented capital upgrades (påkostninger). Routine maintenance is not deductible when selling a personal residence."}
+          </p>
         </div>
       </div>
 
+      {/* Symmetry Warning for Tax-Free Loss */}
+      {isTaxFree && grossGain < 0 && (
+        <div
+          className={`p-4 sm:p-5 border-2 ${
+            isModern
+              ? "bg-[#FEF6E2] border-[#E5C169] rounded-2xl text-[#1D281C]"
+              : "bg-[#FFF7D4] border-[#BA5B3E] rounded-none text-[#000000]"
+          }`}
+        >
+          <p className="text-[16px] sm:text-[17px] font-semibold">
+            {lang === "no"
+              ? "Symmetriprinsippet: Ingen skattefradrag ved tap på skattefritt salg"
+              : "Symmetry Rule: No 22% Tax Deduction on a Tax-Free Loss"}
+          </p>
+          <p className={`text-[14px] mt-1 ${isModern ? "text-[#495647]" : "text-[#292823]"}`}>
+            {lang === "no"
+              ? "Når boligen eller hytta oppfyller kravene til skattefritt salg (Skatteloven §§ 9-3 / 9-4), er et eventuelt tap heller ikke fradragsberettiget."
+              : "Under Norwegian tax law (§§ 9-3 / 9-4), because any gain would be tax-free, a net loss on the same sale is not tax-deductible."}
+          </p>
+        </div>
+      )}
+
       {/* Modern Visual Breakdown Bar */}
-      {isModern && (
+      {isModern && grossGain >= 0 && (
         <div className="bg-[#FFFFFF] border border-[#DCE5DF] rounded-2xl p-4 sm:p-6 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-[16px] font-semibold text-[#121C17]">
-              {lang === "no" ? "Skattemessig fordeling av salgssummen" : "Tax Breakdown of Sale Price"}
+              {lang === "no"
+                ? "Skattemessig fordeling av salgssummen"
+                : "Tax Breakdown of Sale Price"}
             </span>
             <span className="text-[15px] font-semibold text-[#147A53] tabular-nums">
               {isTaxFree
                 ? lang === "no"
                   ? "100 % skattefritt salg"
                   : "100% tax-free sale"
-                : `${taxPct}% ${lang === "no" ? "til skatt" : "to tax"}`}
+                : `${taxPct}% ${lang === "no" ? "av salgspris til skatt" : "of sale price to tax"}`}
             </span>
           </div>
           <div className="h-5 w-full rounded-full overflow-hidden flex bg-[#F1F5F3]">
-            <div className="h-full bg-[#0F3D2E] transition-all duration-300" style={{ width: `${basisPct}%` }} />
-            <div className="h-full bg-[#147A53] transition-all duration-300" style={{ width: `${gainPct}%` }} />
+            <div
+              className="h-full bg-[#0F3D2E] transition-all duration-300"
+              style={{ width: `${basisPct}%` }}
+            />
+            <div
+              className="h-full bg-[#147A53] transition-all duration-300"
+              style={{ width: `${gainPct}%` }}
+            />
             {taxPct > 0 && (
-              <div className="h-full bg-[#B8422C] transition-all duration-300" style={{ width: `${taxPct}%` }} />
+              <div
+                className="h-full bg-[#B8422C] transition-all duration-300"
+                style={{ width: `${taxPct}%` }}
+              />
             )}
           </div>
           <div className="flex flex-wrap gap-4 text-[13px] text-[#3B4D44]">
             <span className="inline-flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-full bg-[#0F3D2E]" />
-              {lang === "no" ? "Inngangsverdi + fradrag" : "Cost basis + deductions"}
+              {lang === "no"
+                ? `Inngangsverdi + fradrag (${basisPct}%)`
+                : `Cost basis + deductions (${basisPct}%)`}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-full bg-[#147A53]" />
-              {lang === "no" ? "Netto gevinst" : "Net gain kept"}
+              {lang === "no"
+                ? `Netto gevinst beholdt (${gainPct}%)`
+                : `Net gain kept (${gainPct}%)`}
             </span>
             {taxPct > 0 && (
               <span className="inline-flex items-center gap-1.5">
                 <span className="w-3 h-3 rounded-full bg-[#B8422C]" />
-                {lang === "no" ? "22 % gevinstskatt" : "22% capital gains tax"}
+                {lang === "no"
+                  ? `22 % gevinstskatt (${taxPct}%)`
+                  : `22% capital gains tax (${taxPct}%)`}
               </span>
             )}
           </div>
@@ -402,10 +472,14 @@ export function CapitalGainsTaxTool() {
         >
           <div className="flex justify-between items-baseline gap-4 pt-1">
             <span className={isModern ? "text-[#3B4D44]" : "text-[#292823]"}>
-              {lang === "no" ? "Beregnet gevinst / tap før skatt" : "Calculated Pre-Tax Gain / Loss"}
+              {lang === "no"
+                ? "Utgangsverdi − inngangsverdi − fradrag"
+                : "Sale price − cost basis − deductions"}
             </span>
             <span className="font-semibold text-[#000000] tabular-nums whitespace-nowrap">
-              {grossGain >= 0 ? `+${formatNok(grossGain)}` : `− ${formatNok(Math.abs(grossGain))}`}
+              {grossGain >= 0
+                ? `+${formatNok(grossGain)}`
+                : `− ${formatNok(Math.abs(grossGain))}`}
             </span>
           </div>
 
@@ -434,10 +508,29 @@ export function CapitalGainsTaxTool() {
             </span>
           </div>
 
+          {!isTaxFree && grossGain > 0 && (
+            <div className="flex justify-between items-baseline gap-4 pt-3">
+              <span className={isModern ? "text-[#3B4D44]" : "text-[#292823]"}>
+                {lang === "no"
+                  ? "Netto gevinst du beholder etter skatt"
+                  : "Net Gain Kept After Tax"}
+              </span>
+              <span
+                className={`font-semibold tabular-nums whitespace-nowrap ${
+                  isModern ? "text-[#147A53]" : "text-[#000000]"
+                }`}
+              >
+                +{formatNok(netGainKept)}
+              </span>
+            </div>
+          )}
+
           {taxLossDeduction > 0 && (
             <div className="flex justify-between items-baseline gap-4 pt-3">
               <span className={isModern ? "text-[#3B4D44]" : "text-[#292823]"}>
-                {lang === "no" ? "Beregnet skattefradrag ved tap (22 %)" : "Estimated Tax Refund on Loss (22%)"}
+                {lang === "no"
+                  ? "Beregnet skattefradrag ved tap (22 % av tapet)"
+                  : "Estimated Tax Relief on Loss (22% of Loss)"}
               </span>
               <span
                 className={`font-semibold tabular-nums whitespace-nowrap ${
@@ -451,10 +544,19 @@ export function CapitalGainsTaxTool() {
 
           <div className="flex justify-between items-baseline gap-4 pt-3">
             <span className={isModern ? "text-[#3B4D44]" : "text-[#292823]"}>
-              {lang === "no" ? "Salgspris etter gevinstskatt" : "Proceeds After Capital Gains Tax"}
+              <span className="block">
+                {lang === "no"
+                  ? "Salgspris etter gevinstskatt / tapsfradrag"
+                  : "Sale Price Adjusted for Tax / Loss Relief"}
+              </span>
+              <span className="block text-[13px] opacity-80">
+                {lang === "no"
+                  ? "Før innfrielse av boliglån og faktiske salgsutgifter"
+                  : "Before paying off any mortgage and actual selling costs"}
+              </span>
             </span>
             <span className="font-semibold text-[#000000] tabular-nums whitespace-nowrap">
-              {formatNok(netAfterTax)}
+              {formatNok(salePriceAdjustedForTax)}
             </span>
           </div>
         </div>
@@ -472,16 +574,30 @@ export function CapitalGainsTaxTool() {
                 isModern ? "text-[#0F3D2E]" : "text-[#000000]"
               }`}
             >
-              {lang === "no" ? "Beregnet gevinstskatt til staten" : "Estimated Capital Gains Tax"}
+              {taxLossDeduction > 0
+                ? lang === "no"
+                  ? "Estimert skattefordel (fradrag ved tap)"
+                  : "Estimated Tax Refund (Loss Deduction)"
+                : lang === "no"
+                ? "Beregnet gevinstskatt til staten"
+                : "Estimated Capital Gains Tax"}
             </span>
-            <span className={`block text-[14px] mt-0.5 ${isModern ? "text-[#3B4D44]" : "text-[#292823]"}`}>
+            <span
+              className={`block text-[14px] mt-0.5 ${
+                isModern ? "text-[#3B4D44]" : "text-[#292823]"
+              }`}
+            >
               {isTaxFree
                 ? lang === "no"
-                  ? "Du beholder 100 % av verdistigningen skattefritt."
-                  : "You keep 100% of your appreciation tax-free."
+                  ? "0 kr i skatt — oppfyller eier- og bo-/brukstidskravene."
+                  : "0 kr tax — meets ownership and residency/use requirements."
+                : taxLossDeduction > 0
+                ? lang === "no"
+                  ? "22 % av fradragsberettiget tap trekkes fra i alminnelig inntekt."
+                  : "22% of deductible loss reduces ordinary taxable income."
                 : lang === "no"
-                ? "22 % av skattepliktig gevinst etter fradrag."
-                : "22% applied to net taxable gain after deductions."}
+                ? "22 % av skattepliktig gevinst etter dokumenterte fradrag."
+                : "22% applied to net taxable gain after documented deductions."}
             </span>
           </div>
           <span
@@ -495,9 +611,41 @@ export function CapitalGainsTaxTool() {
                 : "text-[#000000]"
             }`}
           >
-            {formatNok(capitalGainsTax)}
+            {taxLossDeduction > 0 ? `+${formatNok(taxLossDeduction)}` : formatNok(capitalGainsTax)}
           </span>
         </div>
+      </div>
+
+      {/* Transparent Sources & Assumptions */}
+      <div
+        className={`p-4 sm:p-5 text-[14px] leading-relaxed space-y-2 ${
+          isModern
+            ? "bg-[#F8FAF9] border border-[#DCE5DF] rounded-2xl text-[#3B4D44]"
+            : "bg-[#F7F7F7] border border-[#BFBFBD] rounded-none text-[#292823]"
+        }`}
+      >
+        <p className={`font-semibold text-[15px] ${isModern ? "text-[#121C17]" : "text-[#000000]"}`}>
+          {lang === "no"
+            ? "Kilder og forutsetninger (veiledende estimat)"
+            : "Sources & Assumptions (Indicative Estimate)"}
+        </p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>
+            {lang === "no"
+              ? "Skatteloven §§ 9-3 og 9-4 & Skatteetaten (2026): Skattepliktig gevinst beskattes som alminnelig inntekt med 22 %. Realisasjonstidspunktet er datoen budet aksepteres."
+              : "Norwegian Tax Act §§ 9-3 & 9-4 and Skatteetaten (2026): Taxable gains are taxed at 22% ordinary income rate. Realization occurs on the date the buyer's bid is accepted."}
+          </li>
+          <li>
+            {lang === "no"
+              ? "Unntak ved brukshindring (arbeid, utdanning eller helse du ikke kjente til ved innflytting) kan telle som opparbeidet botid på primærbolig."
+              : "Exceptions for involuntary non-occupancy (brukshindring due to work, study, or health unknown at purchase) may count toward primary-home residency."}
+          </li>
+          <li>
+            {lang === "no"
+              ? "Særregler gjelder dersom mer enn 50 % av boligen (målt etter utleieverdi) har vært utleid, ved salg av flermannsbolig, eller ved arvet eiendom (kontinuitet vs. markedsverdi). Sjekk skatteetaten.no eller rådgiver ved tvilstilfeller."
+              : "Special rules apply if >50% of the home (by rental value) was rented out, for multi-unit buildings, or inherited homes. Confirm complex cases with Skatteetaten or a tax advisor."}
+          </li>
+        </ul>
       </div>
     </ToolShell>
   );
