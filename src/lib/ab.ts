@@ -93,6 +93,7 @@ export const KNOWN_SOURCES: { source: string; group: string; label: string }[] =
   { source: "sample-ads", group: "Home", label: "Home — sample ads header CTA" },
   { source: "tools-hub", group: "Calculators", label: "Tools overview page CTA" },
   { source: "ad-villa", group: "Sample Ads", label: "Sample ad — villa" },
+  { source: "ad-apartment", group: "Sample Ads", label: "Active demand — apartment (60–80 m²)" },
   { source: "ad-land", group: "Sample Ads", label: "Sample ad — land plot" },
   { source: "ad-family", group: "Sample Ads", label: "Sample ad — family house" },
   { source: "price-m2", group: "Calculators", label: "Tool 1 — price per m²" },

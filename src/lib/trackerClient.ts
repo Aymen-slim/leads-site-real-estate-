@@ -85,9 +85,10 @@ export function captureAttribution(currentPath: string, isNewSession: boolean): 
 
   if (typeof window === "undefined") return fallback;
   const sp = new URLSearchParams(window.location.search);
+  const hasGoogleAdsClick = Boolean(sp.get("gclid") || sp.get("gbraid") || sp.get("wbraid"));
   const urlUtm = {
-    utmSource: sp.get("utm_source")?.slice(0, 80) || null,
-    utmMedium: sp.get("utm_medium")?.slice(0, 80) || null,
+    utmSource: sp.get("utm_source")?.slice(0, 80) || (hasGoogleAdsClick ? "google" : null),
+    utmMedium: sp.get("utm_medium")?.slice(0, 80) || (hasGoogleAdsClick ? "cpc" : null),
     utmCampaign: sp.get("utm_campaign")?.slice(0, 120) || null,
   };
 

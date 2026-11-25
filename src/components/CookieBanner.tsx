@@ -41,12 +41,12 @@ export function CookieBanner() {
     lang === "no"
       ? {
           title: "Informasjonskapsler og personvern",
-          body: "Vi bruker nødvendige informasjonskapsler for at siden, språkvalg og skjemaet skal fungere. Med ditt samtykke bruker vi også analyseverktøy (inkludert Google Analytics) for å måle besøk, tid på siden og forbedre tjenesten.",
+          body: "Vi bruker nødvendige informasjonskapsler for at siden, språkvalg og skjemaet skal fungere. Med ditt samtykke bruker vi også analyseverktøy (inkludert Google Analytics og Google Ads) for å måle besøk, konverteringer og forbedre tjenesten.",
           necessaryTitle: "Nødvendige informasjonskapsler",
           necessaryDesc: "Alltid aktiv — husker språkvalg, sideversjon og samtykkevalget ditt.",
-          analyticsTitle: "Analyse og Google Analytics",
+          analyticsTitle: "Analyse, Google Analytics og Google Ads",
           analyticsDesc:
-            "Valgfri — måler sidevisninger, tid brukt på siden og hvilke verktøy som hjelper selgere best.",
+            "Valgfri — måler sidevisninger, tid brukt på siden og hvilke annonser og verktøy som hjelper selgere best.",
           acceptAll: "Godta alle",
           necessaryOnly: "Kun nødvendige",
           saveChoice: "Lagre mine valg",
@@ -56,12 +56,12 @@ export function CookieBanner() {
         }
       : {
           title: "Cookies & privacy preferences",
-          body: "We use strictly necessary cookies so the site, language setting, and seller form work properly. With your consent, we also use analytics (including Google Analytics) to measure visits, time on page, and improve our tools.",
+          body: "We use strictly necessary cookies so the site, language setting, and seller form work properly. With your consent, we also use analytics and conversion measurement (including Google Analytics and Google Ads) to measure visits, conversions, and improve our tools.",
           necessaryTitle: "Strictly necessary cookies",
           necessaryDesc: "Always active — remembers your language, page layout, and consent choice.",
-          analyticsTitle: "Analytics & Google Analytics",
+          analyticsTitle: "Analytics, Google Analytics & Google Ads",
           analyticsDesc:
-            "Optional — measures page views, time spent on each page, and which tools help homeowners most.",
+            "Optional — measures page views, conversions, and which ads and tools help homeowners most.",
           acceptAll: "Accept all",
           necessaryOnly: "Necessary only",
           saveChoice: "Save preferences",

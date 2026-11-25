@@ -173,7 +173,7 @@ export const TRANSLATIONS = {
       phoneLabel: "Mobilnummer (kun siffer — stort talltastatur åpnes)",
       phonePlaceholder: "900 00 000",
       phoneError: "Vennligst skriv inn et gyldig norsk telefonnummer (minst 8 siffer).",
-      submitBtn: "Få min gratis prisvurdering og kjøpstilbud",
+      submitBtn: "Få gratis verdivurdering og e-takst",
       successTitle: "Takk! Din forespørsel er registrert.",
       successSub:
         "En erfaren lokal eiendomsrådgiver gjennomgår tallene for ditt område og ringer deg innen kort tid.",
@@ -350,7 +350,7 @@ export const TRANSLATIONS = {
       phoneLabel: "Phone Number (0–9 numeric keypad only)",
       phonePlaceholder: "900 00 000",
       phoneError: "Please enter a valid Norwegian phone number (at least 8 digits).",
-      submitBtn: "Calculate My Exact Property Price & Offer",
+      submitBtn: "Get free valuation and e-appraisal",
       successTitle: "Thank you! Your valuation request is confirmed.",
       successSub:
         "A senior local property specialist is reviewing your neighborhood comparables and will call you shortly.",

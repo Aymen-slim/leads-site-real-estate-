@@ -109,6 +109,7 @@ export default async function RootLayout({
     });
     gtag('js', new Date());
     gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
+    window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
   `;
 
   return (

@@ -60,22 +60,22 @@ export function ModernHome() {
       href: "/koble-til-megler?source=ad-villa&type=house",
     },
     {
-      id: "ad-land",
-      image: "/images/ad-land-plot.jpg",
+      id: "ad-apartment",
+      image: "/images/ad-apartment.jpg",
       alt:
         lang === "no"
-          ? "Eksempelannonse: Solrik byggeklar tomt med fjordutsikt i Norge"
-          : "Sample Ad: Sunlit constructible plot of land overlooking Norwegian fjord",
+          ? "Aktiv etterspørsel: Moderne leilighet på 60–80 m² med balkong i Norge"
+          : "Active demand: Modern Norwegian 60–80 m² apartment with balcony",
       title:
         lang === "no"
-          ? "Utbyggbar boligtomt (R+2)"
-          : "Subdividable Residential Plot (R+2)",
+          ? "Sentral leilighet (60–80 m²)"
+          : "Central Apartment (60–80 m²)",
       specs:
         lang === "no"
-          ? "Stavanger / Bergen · 1 450 m² · Byggeklar"
-          : "Stavanger / Bergen · 1,450 m² · Buildable",
-      metricValue: "+38 % mot snitt",
-      href: "/koble-til-megler?source=ad-land&type=land",
+          ? "Oslo / Bergen / Stavanger · 3-roms · Balkong"
+          : "Oslo / Bergen / Stavanger · 2-bed · Balcony",
+      metricValue: "89 500 kr / m²",
+      href: "/koble-til-megler?source=ad-apartment&type=apartment&size=40-80",
     },
     {
       id: "ad-family",
@@ -393,8 +393,8 @@ export function ModernHome() {
           <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
             <h2 className="nm-h2 text-[28px] sm:text-[34px] leading-[1.15] text-[#1D281C]">
               {lang === "no"
-                ? "Eksempelannonser & aktiv etterspørsel"
-                : "Sample property ads & active buyer demand"}
+                ? "Aktiv etterspørsel"
+                : "Active buyer demand"}
             </h2>
             <Link
               href="/koble-til-megler?source=sample-ads"

@@ -73,8 +73,8 @@ export function Navbar() {
               >
                 <span>
                   {lang === "no"
-                    ? "Koble til megler → Få beste pris"
-                    : "Connect Agency → Get Best Price"}
+                    ? "Få gratis verdivurdering og e-takst"
+                    : "Get free valuation and e-appraisal"}
                 </span>
                 <ArrowRightIcon className="w-4 h-4 shrink-0" />
               </Link>

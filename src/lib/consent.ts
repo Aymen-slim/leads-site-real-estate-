@@ -45,7 +45,13 @@ export function setConsent(analytics: boolean) {
     const root = host.split(".").slice(-2).join(".");
     for (const c of document.cookie.split("; ")) {
       const name = c.split("=")[0];
-      if (name === "_ga" || name.startsWith("_ga_") || name === "_gid") {
+      if (
+        name === "_ga" ||
+        name.startsWith("_ga_") ||
+        name === "_gid" ||
+        name === "_gcl_au" ||
+        name.startsWith("_gcl_")
+      ) {
         deleteCookie(name);
         deleteCookie(name, `.${root}`);
         deleteCookie(name, `.${host}`);

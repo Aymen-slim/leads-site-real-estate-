@@ -26,7 +26,7 @@ export function ModernPrivacyPolicy() {
           },
           {
             title: "4. Informasjonskapsler, samtykke og analyse",
-            body: "Nødvendige informasjonskapsler (kr_lang, kr_ab, kr_consent) husker språkvalg, sideversjon og samtykkevalget ditt. Valgfri analyse (kr_vid og Google Analytics 4) aktiveres kun dersom du trykker «Godta alle». Du kan endre eller trekke tilbake samtykket ditt når som helst.",
+            body: "Nødvendige informasjonskapsler (kr_lang, kr_ab, kr_consent) husker språkvalg, sideversjon og samtykkevalget ditt. Valgfri analyse og konverteringsmåling (kr_vid, Google Analytics 4 og Google Ads) aktiveres kun dersom du trykker «Godta alle». Du kan endre eller trekke tilbake samtykket ditt når som helst.",
           },
           {
             title: "5. Dine rettigheter etter GDPR",
@@ -52,7 +52,7 @@ export function ModernPrivacyPolicy() {
           },
           {
             title: "4. Cookies, Consent & Analytics",
-            body: "Strictly necessary cookies (kr_lang, kr_ab, kr_consent) remember your language choice, keep layout consistent across visits, and save your consent preference. Optional analytics (kr_vid and Google Analytics 4) only run if you click 'Accept all'. You can update or withdraw consent anytime.",
+            body: "Strictly necessary cookies (kr_lang, kr_ab, kr_consent) remember your language choice, keep layout consistent across visits, and save your consent preference. Optional analytics and conversion measurement (kr_vid, Google Analytics 4, and Google Ads) only run if you click 'Accept all'. You can update or withdraw consent anytime.",
           },
           {
             title: "5. Your Rights Under GDPR",

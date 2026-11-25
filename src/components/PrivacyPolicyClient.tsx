@@ -31,7 +31,7 @@ export function PrivacyPolicyClient() {
           },
           {
             title: "4. Informasjonskapsler, samtykke og analyse",
-            body: "Nødvendige informasjonskapsler (kr_lang, kr_ab, kr_consent) brukes for å huske språkvalg, vise samme sideversjon ved nytt besøk og lagre ditt samtykkevalg. Valgfri analyse (kr_vid og Google Analytics 4) aktiveres kun dersom du trykker «Godta alle», og brukes til å forstå sidebesøk, tid brukt på siden og hvilke skjemaer som hjelper selgere best. Du kan når som helst endre eller trekke tilbake samtykket ditt.",
+            body: "Nødvendige informasjonskapsler (kr_lang, kr_ab, kr_consent) brukes for å huske språkvalg, vise samme sideversjon ved nytt besøk og lagre ditt samtykkevalg. Valgfri analyse og konverteringsmåling (kr_vid, Google Analytics 4 og Google Ads) aktiveres kun dersom du trykker «Godta alle», og brukes til å forstå sidebesøk, tid brukt på siden og hvilke annonser og skjemaer som hjelper selgere best. Du kan når som helst endre eller trekke tilbake samtykket ditt.",
           },
           {
             title: "5. Dine rettigheter etter GDPR",
@@ -57,7 +57,7 @@ export function PrivacyPolicyClient() {
           },
           {
             title: "4. Cookies, Consent & Analytics",
-            body: "Strictly necessary cookies (kr_lang, kr_ab, kr_consent) store your language choice, keep page layout consistent across visits, and remember your consent decision. Optional analytics (kr_vid and Google Analytics 4) only run if you click 'Accept all', helping us measure page visits, time spent, and conversion quality. You may update or withdraw consent at any time.",
+            body: "Strictly necessary cookies (kr_lang, kr_ab, kr_consent) store your language choice, keep page layout consistent across visits, and remember your consent decision. Optional analytics and conversion measurement (kr_vid, Google Analytics 4, and Google Ads) only run if you click 'Accept all', helping us measure page visits, ad effectiveness, and conversion quality. You may update or withdraw consent at any time.",
           },
           {
             title: "5. Your Rights Under GDPR",

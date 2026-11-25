@@ -32,7 +32,7 @@ const TOOL_SOURCES = new Set([
   "ground-lease",
   "sun-conditions",
 ]);
-const AD_SOURCES = new Set(["ad-villa", "ad-land", "ad-family"]);
+const AD_SOURCES = new Set(["ad-villa", "ad-apartment", "ad-land", "ad-family"]);
 
 function RoutingInner() {
   const rangeQs = useRangeQueryString();

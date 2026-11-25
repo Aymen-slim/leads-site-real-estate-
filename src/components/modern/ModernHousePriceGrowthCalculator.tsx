@@ -8,14 +8,13 @@ import {
   ArrowRightIcon,
   CheckMarkIcon,
   HouseIcon,
-  LandPlotIcon,
+  CabinMountainIcon,
   ApartmentIcon,
   TrendingUpIcon,
   ScaleMeasureIcon,
 } from "@/components/Icons";
 
-type PropertyKind = "house" | "land" | "apartment";
-type CalcMode = "growth" | "bestPriceNow";
+type PropertyKind = "house" | "cabin" | "apartment";
 type ViewMode = "chart" | "table";
 
 const PROPERTY_PRESETS: Record<
@@ -29,12 +28,12 @@ const PROPERTY_PRESETS: Record<
     noteNo: "Historisk snitt i Norge: 4,9 % – 6,5 %.",
     noteEn: "Historical average for this region: 4.9% – 6.5%.",
   },
-  land: {
-    defaultRate: 6.5,
-    noLabel: "Byggetomt",
-    enLabel: "Land Plot",
-    noteNo: "Historisk snitt for regulert byggetomt: 5,5 % – 7,5 %.",
-    noteEn: "Historical average for constructible land: 5.5% – 7.5%.",
+  cabin: {
+    defaultRate: 4.5,
+    noLabel: "Hytte",
+    enLabel: "Cabin",
+    noteNo: "Historisk snitt for hytte og fritidsbolig: 3,5 % – 5,0 %.",
+    noteEn: "Historical average for cabins & holiday homes: 3.5% – 5.0%.",
   },
   apartment: {
     defaultRate: 4.5,
@@ -58,7 +57,6 @@ function formatCompactMillions(value: number, lang: "no" | "en"): string {
 export function ModernHousePriceGrowthCalculator() {
   const { lang, trackClick } = useApp();
 
-  const [calcMode, setCalcMode] = useState<CalcMode>("growth");
   const [propertyKind, setPropertyKind] = useState<PropertyKind>("house");
   const [currentValue, setCurrentValue] = useState<number>(6_500_000);
   const [years, setYears] = useState<number>(10);
@@ -74,7 +72,7 @@ export function ModernHousePriceGrowthCalculator() {
   const startYear = 2026;
   const inflationRate = 0.025;
   const normalMarketRate = 0.035;
-  const bestAgencyLiftPct = calcMode === "bestPriceNow" ? 0.14 : 0.1;
+  const bestAgencyLiftPct = 0.1;
 
   const handlePropertySwitch = (kind: PropertyKind) => {
     setPropertyKind(kind);
@@ -127,7 +125,6 @@ export function ModernHousePriceGrowthCalculator() {
   const endYear = startYear + years;
   const totalGrowthKr = finalPoint.projectedValue - currentValue;
   const bestAgencyPremiumToday = Math.round(currentValue * bestAgencyLiftPct);
-  const bestPriceNowTotal = currentValue + bestAgencyPremiumToday;
   const outperformanceVsMarket = finalPoint.projectedValue - finalPoint.baselineValue;
 
   const svgW = 680;
@@ -185,7 +182,7 @@ export function ModernHousePriceGrowthCalculator() {
           {/* LEFT CONTROL CARD */}
           <div className="lg:col-span-5 bg-[#FFFFFF] border border-[#DCE2D4] rounded-2xl shadow-sm p-5 sm:p-7 flex flex-col justify-between gap-5">
             <div className="space-y-5">
-              {/* Top Header Row matching mockup */}
+              {/* Top Header Row */}
               <div className="flex items-start gap-3.5">
                 <span className="w-11 h-11 rounded-xl bg-[#EAEFE4] border border-[#D4DCCB] text-[#243323] flex items-center justify-center shrink-0">
                   <HouseIcon className="w-5 h-5" />
@@ -194,29 +191,10 @@ export function ModernHousePriceGrowthCalculator() {
                   <p className="text-[15px] font-semibold text-[#1D281C]">
                     {lang === "no" ? "Hva vil du regne ut?" : "What do you want to calculate?"}
                   </p>
-                  <div className="grid grid-cols-2 p-1 rounded-full bg-[#EEF1E9] border border-[#DCE2D4]">
-                    <button
-                      type="button"
-                      onClick={() => setCalcMode("growth")}
-                      className={`min-h-[38px] px-2.5 py-1 rounded-full text-[13px] font-semibold transition-all cursor-pointer ${
-                        calcMode === "growth"
-                          ? "bg-[#243323] text-[#FFFFFF] shadow-xs"
-                          : "text-[#495647] hover:text-[#1D281C]"
-                      }`}
-                    >
+                  <div className="inline-flex p-1 rounded-full bg-[#EEF1E9] border border-[#DCE2D4]">
+                    <span className="inline-flex items-center justify-center min-h-[38px] px-5 py-1 rounded-full text-[13px] font-semibold bg-[#243323] text-[#FFFFFF] shadow-xs">
                       {lang === "no" ? "Boligverdi" : "House value"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setCalcMode("bestPriceNow")}
-                      className={`min-h-[38px] px-2.5 py-1 rounded-full text-[13px] font-semibold transition-all cursor-pointer ${
-                        calcMode === "bestPriceNow"
-                          ? "bg-[#243323] text-[#FFFFFF] shadow-xs"
-                          : "text-[#495647] hover:text-[#1D281C]"
-                      }`}
-                    >
-                      {lang === "no" ? "Beste pris nå" : "Best Agency Lift"}
-                    </button>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -315,15 +293,15 @@ export function ModernHousePriceGrowthCalculator() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handlePropertySwitch("land")}
+                    onClick={() => handlePropertySwitch("cabin")}
                     className={`min-h-[38px] px-2 py-1 rounded-full text-[13px] font-semibold inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                      propertyKind === "land"
+                      propertyKind === "cabin"
                         ? "bg-[#FFFFFF] text-[#1D281C] shadow-xs border border-[#CFD7C6]"
                         : "text-[#495647] hover:text-[#1D281C]"
                     }`}
                   >
-                    <LandPlotIcon className="w-4 h-4 shrink-0" />
-                    <span>{lang === "no" ? "Tomt" : "Land Plot"}</span>
+                    <CabinMountainIcon className="w-4 h-4 shrink-0" />
+                    <span>{lang === "no" ? "Hytte" : "Cabin"}</span>
                   </button>
                   <button
                     type="button"
@@ -464,29 +442,17 @@ export function ModernHousePriceGrowthCalculator() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-[14px] sm:text-[15px] text-[#495647]">
-                    {calcMode === "growth"
-                      ? lang === "no"
-                        ? `Med en boligverdi på ${formatNok(currentValue)} i dag, estimert verdi i ${endYear} (${years} år):`
-                        : `With a property worth ${formatNok(currentValue)} today, estimated value in ${endYear} (${years} years):`
-                      : lang === "no"
-                        ? `Med riktig lokal meglerstrategi kan estimert salgspris i dag nå opptil:`
-                        : `With a top-ranked local agency today, your estimated achievable sale price is:`}
+                    {lang === "no"
+                      ? `Med en boligverdi på ${formatNok(currentValue)} i dag, estimert verdi i ${endYear} (${years} år):`
+                      : `With a property worth ${formatNok(currentValue)} today, estimated value in ${endYear} (${years} years):`}
                   </p>
 
                   <div className="mt-1.5 flex flex-wrap items-center gap-3">
                     <span className="font-serif text-[40px] sm:text-[52px] lg:text-[56px] leading-none font-normal text-[#1D281C] tabular-nums tracking-[-0.02em]">
-                      {calcMode === "growth"
-                        ? formatNok(finalPoint.projectedValue)
-                        : formatNok(bestPriceNowTotal)}
+                      {formatNok(finalPoint.projectedValue)}
                     </span>
                     <span className="px-3 py-1 rounded-full bg-[#FFFFFF] border border-[#CFD7C6] text-[13px] font-semibold text-[#243323]">
-                      {calcMode === "growth"
-                        ? lang === "no"
-                          ? `+${years} år`
-                          : `+${years} years`
-                        : lang === "no"
-                          ? `+${Math.round(bestAgencyLiftPct * 100)} % løft`
-                          : `+${Math.round(bestAgencyLiftPct * 100)}% agency lift`}
+                      {lang === "no" ? `+${years} år` : `+${years} years`}
                     </span>
                   </div>
                 </div>

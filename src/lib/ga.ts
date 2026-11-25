@@ -1,4 +1,4 @@
-// Google Analytics 4 + Google Tag (GTM-WMFLTLBQ / G-WLJRV4ECG6) with Consent Mode v2.
+// Google Analytics 4 + Google Ads / Google Tag (GTM-P3HSLXJH / G-WLJRV4ECG6) with Consent Mode v2.
 
 declare global {
   interface Window {
@@ -13,7 +13,7 @@ declare global {
 export const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_ID?.trim() || "G-WLJRV4ECG6";
 export const GTM_TAG_ID =
-  process.env.NEXT_PUBLIC_GTM_ID?.trim() || "GTM-WMFLTLBQ";
+  process.env.NEXT_PUBLIC_GTM_ID?.trim() || "GTM-P3HSLXJH";
 
 export function getGaId(): string {
   return GA_MEASUREMENT_ID;
@@ -61,6 +61,9 @@ export function enableGoogleAnalytics(props?: {
 
   window.gtag?.("consent", "update", {
     analytics_storage: "granted",
+    ad_storage: "granted",
+    ad_user_data: "granted",
+    ad_personalization: "granted",
   });
 
   if (gtmId && window.__krGtmLoaded !== gtmId) {
@@ -94,6 +97,9 @@ export function disableGoogleAnalytics() {
   if (typeof window === "undefined" || !window.gtag) return;
   window.gtag("consent", "update", {
     analytics_storage: "denied",
+    ad_storage: "denied",
+    ad_user_data: "denied",
+    ad_personalization: "denied",
   });
 }
 
